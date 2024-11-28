@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPaperPlane, faPaperclip, faSearch, faEllipsisV, faComments, faUser, faAngleLeft, faCheck, faCheckDouble } from '@fortawesome/free-solid-svg-icons';
+import { faPaperPlane, faPaperclip, faSearch, faEllipsisV, faComments, faUser, faAngleLeft, faCheck, faCheckDouble, faSmile } from '@fortawesome/free-solid-svg-icons';
 import { io } from 'socket.io-client';
 import "./styles.css";
 import { Contato, Conversation, Menssagem } from '../../types/Mensagem.d';
+import data from '@emoji-mart/data'
+import Picker from '@emoji-mart/react'
 
 const socket = io('http://localhost:3001');
 
@@ -148,7 +150,11 @@ export const Chat = () => {
         setIsMenuOpen((prev) => !prev);
     };
 
+    const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
 
+    const handleEmojiSelect = (emoji: any) => {
+        setNewMessage(prev => prev + emoji.native);
+    };
 
     return (
         <div className='background-chat'>
@@ -311,8 +317,24 @@ export const Chat = () => {
                                 ))}
                             </div>
 
-                            <div className="flex items-center gap-2 p-4 bg-[#F0F2F5] shadow-lg flex-wrap border-2">
-                                <FontAwesomeIcon icon={faPaperclip} className="text-gray-400 text-xl cursor-pointer hover:text-gray-500" />
+                            <div className="flex items-center gap-2 p-4 bg-[#F0F2F5] shadow-lg flex-wrap">
+                                <div className='flex gap-5 relative'>
+                                    <FontAwesomeIcon icon={faPaperclip} className="text-gray-400 text-xl cursor-pointer hover:text-gray-500" />
+
+                                    <FontAwesomeIcon
+                                        icon={faSmile}
+                                        size="lg"
+                                        className="text-gray-700 text-xl cursor-pointer hover:text-gray-600"
+                                        onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                                    />
+
+                                    {showEmojiPicker && (
+                                        <div className="absolute bottom-10 left-0 z-10">
+                                            <Picker data={data} onEmojiSelect={handleEmojiSelect} />
+                                        </div>
+                                    )}
+
+                                </div>
                                 <input
                                     type="text"
                                     placeholder="Digite uma mensagem"

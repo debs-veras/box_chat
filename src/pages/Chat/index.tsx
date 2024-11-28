@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPaperPlane, faPaperclip, faSearch, faEllipsisV, faComments, faUser, faAngleLeft, faAngleRight, faCheck, faCheckDouble } from '@fortawesome/free-solid-svg-icons';
+import { faPaperPlane, faPaperclip, faSearch, faEllipsisV, faComments, faUser, faAngleLeft, faCheck, faCheckDouble } from '@fortawesome/free-solid-svg-icons';
 import { io } from 'socket.io-client';
 import "./styles.css";
 import { Contato, Conversation, Menssagem } from '../../types/Mensagem.d';
@@ -10,11 +10,11 @@ const socket = io('http://localhost:3001');
 export const Chat = () => {
     const [messages, setMessages] = useState<Menssagem[]>([]);
     const [newMessage, setNewMessage] = useState<string>('');
-
     const [userId] = useState<string>(Math.random().toString(36).substring(2));
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const [activeConversation, setActiveConversation] = useState<number | null>(null);
-    const [isMenuCollapsed, setIsMenuCollapsed] = useState(false);
+    const [isMenuOpen, setIsMenuOpen] = useState(true);
+
     const [conversations, setConversations] = useState<Conversation[]>([
         {
             id: 1,
@@ -51,9 +51,7 @@ export const Chat = () => {
             mensagensPendentes: 3
 
         }
-    ]);
-
-    const [statusMap, setStatusMap] = useState({});
+    ])
 
     const [showContacts, setShowContacts] = useState(false);
 
@@ -63,33 +61,15 @@ export const Chat = () => {
         { id: 3, nome: 'Breach', foto: '/imagens/users/breach.jpg' }
     ]);
 
-    // useEffect(() => {
-    //     socket.on('chat message', (msg: Menssagem) => {
-    //         setMessages((prevMessages) => [...prevMessages, msg]);
-    //     });
-    //     return () => {
-    //         socket.off('chat message');
-    //     };
-    // }, []);
+    useEffect(() => {
+        socket.on('chat message', (msg: Menssagem) => {
+            setMessages((prevMessages) => [...prevMessages, msg]);
+        });
 
-    // useEffect(() => {
-    //     socket.on('chat message', (msg) => {
-    //         setMessages((prevMessages) => [...prevMessages, msg]);
-    //         setStatusMap((prev) => ({ ...prev, [msg.id]: 'recebida' }));
-    //         socket.emit('message viewed', msg.id);
-    //     });
-
-    //     socket.on('message status', (statusUpdate) => {
-    //         setStatusMap((prev) => ({ ...prev, [statusUpdate.messageId]: statusUpdate.status }));
-    //     });
-
-
-
-    //     return () => {
-    //         socket.off('chat message');
-    //         socket.off('message status');
-    //     };
-    // }, []);
+        return () => {
+            socket.off('chat message');
+        };
+    }, []);
 
     const sendMessage = () => {
         if (newMessage.trim() !== '') {
@@ -106,7 +86,6 @@ export const Chat = () => {
             };
 
             setMessages((prevMessages) => [...prevMessages, msg]);
-            // socket.emit('chat message', { msg });
 
             setConversations((prevConversations) =>
                 prevConversations.map((conversation) =>
@@ -126,8 +105,6 @@ export const Chat = () => {
                         : conversation
                 )
             );
-
-            setStatusMap((prev) => ({ ...prev, [msg.id]: 'enviada' }));
 
             setNewMessage('');
         }
@@ -157,45 +134,54 @@ export const Chat = () => {
 
     const toggleContacts = () => {
         setShowContacts(true);
-    };
-
-    const toggleMenuCollapse = () => {
-        setIsMenuCollapsed((prev) => !prev);
+        if (!isMenuOpen)
+            setIsMenuOpen(true);
     };
 
     const toggleConversations = () => {
         setShowContacts(false);
+        if (!isMenuOpen)
+            setIsMenuOpen(true);
     };
+
+    const toggleMenuCollapse = () => {
+        setIsMenuOpen((prev) => !prev);
+    };
+
+
+
     return (
         <div className='background-chat'>
             <div className="flex h-[95vh] max-w-[100rem] w-full m-auto rounded-xl overflow-hidden shadow-lg">
-                <div className="w-[25%] bg-[#F0F2F5] flex flex-col">
+                <div className={`bg-[#F0F2F5] flex flex-col transition-all duration-300 ${isMenuOpen ? 'w-[25%]' : 'w-[5%]'}`}>
                     <div className='flex max-w-full h-full'>
                         <div className='h-full w-16 #F0F2F5 px-1 py-4 flex flex-col gap-8 items-center'>
                             <FontAwesomeIcon
-                                icon={isMenuCollapsed ? faAngleRight : faAngleLeft}
+                                icon={faAngleLeft}
                                 size="lg"
                                 color="#54656F"
                                 onClick={toggleMenuCollapse}
-                                className="cursor-pointer transition-transform duration-300 transform hover:scale-110"
+                                className={`cursor-pointer transition-transform duration-300 ${isMenuOpen ? 'rotate-0' : 'rotate-180'}`}
                             />
+
                             <FontAwesomeIcon
                                 icon={faComments}
                                 size="lg"
-                                color={showContacts ? "#54656F" : "#00A884"}
+                                color={!showContacts && isMenuOpen ? "#00A884" : "#54656F"}
                                 onClick={toggleConversations}
-                                className={`cursor-pointer transition-all duration-300 ${!showContacts ? 'scale-110 bg-[#D9DBDF] w-fit p-2 rounded-full' : ''}`}
+                                className={`cursor-pointer transition-all duration-300 ${!showContacts && isMenuOpen ? 'scale-110 bg-[#D9DBDF] w-fit p-2 rounded-full' : ''}`}
                             />
+
                             <FontAwesomeIcon
                                 icon={faUser}
                                 size="lg"
-                                color={showContacts ? "#00A884" : "#54656F"}
+                                color={showContacts && isMenuOpen ? "#00A884" : "#54656F"}
                                 onClick={toggleContacts}
-                                className={`cursor-pointer transition-all duration-300  ${showContacts ? 'scale-110 bg-[#D9DBDF] w-fit p-2 rounded-full' : ''}`}
+                                className={`cursor-pointer transition-all duration-300  ${showContacts && isMenuOpen ? 'scale-110 bg-[#D9DBDF] w-fit p-2 rounded-full' : ''}`}
                             />
                         </div>
 
-                        <div className="flex-1 h-full bg-white overflow-y-auto barraRolagem">
+                        <div className={`flex-1 h-full bg-white overflow-y-auto overflow-x-hidden barraRolagem transition-opacity duration-300 ${isMenuOpen ? 'opacity-100' : 'opacity-0 hidden'}`}>
                             <div className="p-4 text-left">
                                 <h2 className="text-lg font-semibold"> {showContacts ? 'Contatos' : 'Conversas'} </h2>
                             </div>
@@ -264,7 +250,7 @@ export const Chat = () => {
                     </div>
                 </div>
 
-                <div className="w-[75%] flex flex-col bg-[#EFEAE2]">
+                <div className={`flex flex-col bg-[#EFEAE2] transition-all duration-300 ${isMenuOpen ? 'w-[75%]' : 'w-[100%]'}`}>
                     {
                         activeConversation == null ? (
                             <div className="flex flex-col items-center justify-center h-full text-center p-8 text-gray-600">
@@ -325,7 +311,7 @@ export const Chat = () => {
                                 ))}
                             </div>
 
-                            <div className="flex items-center gap-2 p-4 bg-[#F0F2F5] shadow-lg">
+                            <div className="flex items-center gap-2 p-4 bg-[#F0F2F5] shadow-lg flex-wrap border-2">
                                 <FontAwesomeIcon icon={faPaperclip} className="text-gray-400 text-xl cursor-pointer hover:text-gray-500" />
                                 <input
                                     type="text"

@@ -1,4 +1,5 @@
 export type Menssagem = {
+    id?: number;
     autor?: string;
     menssagem?: string;
     horario?: string;
@@ -6,7 +7,6 @@ export type Menssagem = {
     data_recebimento?: string;
     data_visualizacao?: string;
 }
-
 
 export type Contato = {
     id?: number;

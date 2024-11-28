@@ -15,11 +15,16 @@ const io = new Server(server, {
 
 io.on('connection', (socket) => {
   console.log(`User connected: ${socket.id}`);
-  
   socket.on('chat message', (msg) => {
     console.log('Message received:', msg);
-    socket.broadcast.emit('chat message', msg);
+    socket.broadcast.emit('chat message', { ...msg, status: 'enviada' });
+    // io.to(socket.id).emit('message status', { messageId: msg.id, status: 'recebida' });
   });
+
+  // socket.on('message viewed', (msgId) => {
+  //   console.log(`Message ${msgId} viewed`);  
+  //   socket.broadcast.emit('message status', { messageId: msgId, status: 'visualizada' });
+  // });
 
   socket.on('disconnect', () => {
     console.log(`User disconnected: ${socket.id}`);

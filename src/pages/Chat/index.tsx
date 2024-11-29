@@ -73,7 +73,37 @@ export const Chat = () => {
             socket.off('chat message');
         };
     }, []);
+     
+    const CreateConversationClick = (contactId?: number) => {
+        const existingConversation = conversations.find(convo => convo.contato.id === contactId);
+        
+        if (existingConversation) {
+            setActiveConversation(existingConversation.id);
+            setConversationSelect(existingConversation);
+            setNewMessage('');
+        } else {
+            const newConversation: Conversation = {
+                id: Date.now(), 
+                contato: contacts.find(contact => contact.id === contactId)!,
+                ultimaMensagem: {
+                    autor: '',
+                    menssagem: '',
+                    horario: '',
+                    data_envio: '',
+                    data_recebimento: '',
+                    data_visualizacao: ''
+                },
+                mensagensPendentes: 0
+            };
+            setConversations(prevConversations => [...prevConversations, newConversation]);
+            setActiveConversation(newConversation.id);
+            setConversationSelect(newConversation);
+            setNewMessage('');
+            setShowContacts(false);
+        }
+    };
 
+    
     const sendMessage = () => {
         if (newMessage.trim() !== '') {
             const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -160,6 +190,7 @@ export const Chat = () => {
     useEffect(() => {
         scrollToBottom();
     }, [messages]);
+    
     return (
         <div className='background-chat'>
             <div className="flex h-[95vh] max-w-[100rem] w-full m-auto rounded-xl overflow-hidden shadow-lg">
@@ -214,6 +245,7 @@ export const Chat = () => {
                                 contacts.map((contact) => (
                                     <div
                                         key={contact.id}
+                                        onClick={() => CreateConversationClick(contact.id)} 
                                         className="p-4 cursor-pointer flex items-center space-x-4 hover:bg-blue-50 transition"
                                     >
                                         <img
@@ -265,19 +297,11 @@ export const Chat = () => {
                         activeConversation == null ? (
                             <div className="flex flex-col items-center justify-center h-full text-center p-8 text-gray-600">
                                 <h3 className="text-2xl font-semibold text-gray-800">
-                                    Nenhuma conversa ativa no momento
+                                    Nenhuma conversa selecionada no momento
                                 </h3>
                                 <p className="mt-4 text-lg text-gray-500">
-                                    Você ainda não iniciou nenhuma conversa. Selecione uma conversa à esquerda para começar agora e conecte-se!
+                                    Você não selecionou uma conversa. Selecione uma conversa à esquerda para começar agora e conecte-se!
                                 </p>
-                                <div className="mt-6">
-                                    <button
-                                        className="px-6 py-3 bg-[#00A884] text-white font-semibold rounded-lg hover:bg-[#099999] transition duration-300"
-                                        onClick={() => { }}
-                                    >
-                                        Iniciar Conversa
-                                    </button>
-                                </div>
                             </div>
                         ) : <>
                             <div className="flex items-center justify-between p-4 bg-[#F0F2F5] shadow-sm">

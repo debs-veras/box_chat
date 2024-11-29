@@ -15,7 +15,10 @@ export const Chat = () => {
     const [userId] = useState<string>(Math.random().toString(36).substring(2));
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const [activeConversation, setActiveConversation] = useState<number | null>(null);
+    const [conversationSelect, setConversationSelect] = useState<Conversation | null>(null);
     const [isMenuOpen, setIsMenuOpen] = useState(true);
+    const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
+    const [showContacts, setShowContacts] = useState(false);
 
     const [conversations, setConversations] = useState<Conversation[]>([
         {
@@ -54,8 +57,6 @@ export const Chat = () => {
 
         }
     ])
-
-    const [showContacts, setShowContacts] = useState(false);
 
     const [contacts] = useState<Contato[]>([
         { id: 1, nome: 'KillJoy', foto: '/images.jpeg' },
@@ -122,17 +123,19 @@ export const Chat = () => {
     const handleConversationClick = (conversationId: number) => {
         setActiveConversation(conversationId);
         setConversations((prevConversations) =>
-            prevConversations.map((conversation) =>
-                conversation.id === conversationId
-                    ? { ...conversation, mensagensPendentes: 0 }
-                    : conversation
-            )
+            prevConversations.map((conversation) => {
+                if (conversation.id === conversationId) {
+                    setConversationSelect(conversation);
+                    setNewMessage('');
+                    return { ...conversation, mensagensPendentes: 0 }
+                } else return conversation
+            })
         );
-    }; ''
+    };
 
-    useEffect(() => {
+    const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [messages]);
+    };
 
     const toggleContacts = () => {
         setShowContacts(true);
@@ -150,12 +153,13 @@ export const Chat = () => {
         setIsMenuOpen((prev) => !prev);
     };
 
-    const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
-
     const handleEmojiSelect = (emoji: any) => {
         setNewMessage(prev => prev + emoji.native);
     };
 
+    useEffect(() => {
+        scrollToBottom();
+    }, [messages]);
     return (
         <div className='background-chat'>
             <div className="flex h-[95vh] max-w-[100rem] w-full m-auto rounded-xl overflow-hidden shadow-lg">
@@ -280,8 +284,8 @@ export const Chat = () => {
                                 {activeConversation && (
                                     <>
                                         <div className="flex items-center space-x-4">
-                                            <img src="/images.jpeg" alt="Perfil" className="w-12 h-12 rounded-full object-cover" />
-                                            <h1 className="text-lg">KillJoy</h1>
+                                            <img src={conversationSelect?.contato.foto} alt="Perfil" className="w-12 h-12 rounded-full object-cover" />
+                                            <h1 className="text-lg">{conversationSelect?.contato.nome}</h1>
                                         </div>
                                         <div className="flex gap-6">
                                             <FontAwesomeIcon icon={faSearch} className="cursor-pointer" />
@@ -335,6 +339,7 @@ export const Chat = () => {
                                     )}
 
                                 </div>
+
                                 <input
                                     type="text"
                                     placeholder="Digite uma mensagem"

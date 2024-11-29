@@ -14,7 +14,7 @@ export type Contato = {
     foto: string;
 }
 
-export type Conversation = {
+export type Conversa = {
     id: number;
     ultimaMensagem: Menssagem | null;
     contato: Contato;

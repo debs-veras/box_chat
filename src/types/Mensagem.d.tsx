@@ -1,7 +1,8 @@
 export type Menssagem = {
     id?: number;
-    autor?: string;
-    menssagem?: string;
+    remetente?: string;
+    destinatario?: string;
+    texto?: string;
     horario?: string;
     data_envio?: string;
     data_recebimento?: string;

@@ -1,7 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPaperPlane, faPaperclip, faSearch, faEllipsisV, faComments, faUser, faAngleLeft, faSmile } from '@fortawesome/free-solid-svg-icons';
-// import { io } from 'socket.io-client';
 import "./styles.css";
 import { Contato, Conversa, Menssagem } from '../../types/Mensagem.d';
 import data from '@emoji-mart/data'
@@ -9,15 +8,17 @@ import Picker from '@emoji-mart/react'
 import { CardMenssagem } from '../../components/CardMenssagem';
 import { CardContato } from '../../components/CardContato';
 import { getListContatos } from '../../services/contato';
+import Loading from '../../components/Loading';
 
 export const Chat = () => {
     const [menssagem, setMenssagem] = useState<Menssagem[]>([]);
+    const [listaContatos, setListaContato] = useState<Array<Contato>>([]);
     const [novaMenssagem, setNovaMenssagem] = useState<string>('');
+    const [loading, setLoading] = useState<boolean>(false);
     const [userId] = useState<string>(Math.random().toString(36).substring(2));
     const menssagemEndRef = useRef<HTMLDivElement>(null);
     const [conversaAtiva, setConversaAtiva] = useState<number | null>(null);
     const [conversaSelecionada, setConversaSelecionada] = useState<Conversa | null>(null);
-    const [listaContatos, setListaContato] = useState<Array<Contato>>([]);
     const [isMenuOpen, setIsMenuOpen] = useState(true);
     const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
     const [showContatos, setShowContatos] = useState(false);
@@ -32,8 +33,8 @@ export const Chat = () => {
                 numero: ''
             },
             ultimaMensagem: {
-                autor: 'Killjoy',
-                menssagem: 'vamos jogar mais tarde?',
+                remetente: 'Killjoy',
+                texto: 'vamos jogar mais tarde?',
                 horario: '12:45',
                 data_envio: '12:45',
                 data_recebimento: '12:45',
@@ -50,8 +51,8 @@ export const Chat = () => {
                 numero: ''
             },
             ultimaMensagem: {
-                autor: 'Killjoy',
-                menssagem: 'blz?',
+                remetente: 'Killjoy',
+                texto: 'blz?',
                 horario: '12:45',
                 data_envio: '12:45',
                 data_recebimento: '12:45',
@@ -73,8 +74,8 @@ export const Chat = () => {
                 id: Date.now(),
                 contato: listaContatos.find(contato => contato.id === contatoId)!,
                 ultimaMensagem: {
-                    autor: '',
-                    menssagem: '',
+                    remetente: '',
+                    texto: '',
                     horario: '',
                     data_envio: '',
                     data_recebimento: '',
@@ -112,8 +113,8 @@ export const Chat = () => {
                         ? {
                             ...conversa,
                             ultimaMensagem: {
-                                autor: userId,
-                                menssagem: novaMenssagem,
+                                remetente: userId,
+                                texto: novaMenssagem,
                                 horario: tempo,
                                 data_envio: tempo,
                                 data_recebimento: '',
@@ -153,6 +154,7 @@ export const Chat = () => {
         setShowContatos(true);
         if (!isMenuOpen)
             setIsMenuOpen(true);
+        carregaContatos();
     };
 
     const toggleConversas = () => {
@@ -170,17 +172,13 @@ export const Chat = () => {
     };
 
     const carregaContatos = async (): Promise<void> => {
+        setLoading(true);
         const request = () => getListContatos();
         const response = await request();
-
         if (response.sucesso)
             setListaContato(response.dados);
+        setLoading(false);
     };
-
-
-    useEffect(() => {
-        carregaContatos();
-    }, []);
 
     return (
         <div className='background-chat'>
@@ -233,7 +231,11 @@ export const Chat = () => {
                             </div>
 
                             {showContatos ? (
-                                <CardContato listaContatos={listaContatos} ClickCriarConversa={ClickCriarConversa} />
+                                <>
+                                    {!loading ?
+                                        <CardContato listaContatos={listaContatos} ClickCriarConversa={ClickCriarConversa} /> : <Loading />
+                                    }
+                                </>
                             ) : (
 
                                 conversas.map((conversation) => (
@@ -249,7 +251,7 @@ export const Chat = () => {
                                         />
                                         <div className="flex-1 text-left truncate">
                                             <h3 className="text-md font-medium truncate">{conversation.contato.nome}</h3>
-                                            <p className="text-sm text-gray-500 truncate">{conversation.ultimaMensagem?.menssagem}</p>
+                                            <p className="text-sm text-gray-500 truncate">{conversation.ultimaMensagem?.texto}</p>
                                         </div>
                                         <div className='flex flex-col gap-1'>
                                             <div className="text-xs text-gray-500">

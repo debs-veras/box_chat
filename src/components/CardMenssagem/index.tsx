@@ -21,12 +21,12 @@ export const CardMenssagem = ({ menssagem, menssagemEndRef, userId }: MenssagemC
                 <div
                     ref={menssagemEndRef}
                     key={index}
-                    className={`flex ${menssagem.autor === userId ? 'justify-end' : 'justify-start'}`}
+                    className={`flex ${menssagem.remetente === userId ? 'justify-end' : 'justify-start'}`}
                 >
                     <div
-                        className={`px-3 py-1 rounded-lg max-w-[50%] shadow-md text-start ${menssagem.autor === userId ? 'bg-[#D9FDD3]' : 'bg-white'}`}
+                        className={`px-3 py-1 rounded-lg max-w-[50%] shadow-md text-start ${menssagem.remetente === userId ? 'bg-[#D9FDD3]' : 'bg-white'}`}
                     >
-                        <p>{menssagem.menssagem}</p>
+                        <p>{menssagem.texto}</p>
                         <div className='flex items-center justify-center gap-2'>
                             <div className="text-xs text-gray-500 w-full text-end pt-1">{menssagem.horario}</div>
                             {menssagem.data_visualizacao ? (

@@ -1,4 +1,5 @@
 import { Contato } from '../../types/Mensagem.d';
+import { formatarTelefone } from '../../utils/formatar';
 
 interface ContatoComponentProps {
     listaContatos: Array<Contato>;
@@ -23,7 +24,7 @@ export const CardContato = ({ listaContatos = [], ClickCriarConversa }: ContatoC
                         />
                         <div className="flex-1 text-left">
                             <h3 className="font-medium">{contato.nome}</h3>
-                            <h4>{contato.numero}</h4>
+                            <h4>{formatarTelefone(contato.numero)}</h4>
                         </div>
                     </div>
                 ))

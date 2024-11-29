@@ -9,6 +9,7 @@ import { CardMenssagem } from '../../components/CardMenssagem';
 import { CardContato } from '../../components/CardContato';
 import { getListContatos } from '../../services/contato';
 import Loading from '../../components/Loading';
+import { formatarTelefone } from '../../utils/formatar';
 
 export const Chat = () => {
     const [menssagem, setMenssagem] = useState<Menssagem[]>([]);
@@ -30,7 +31,7 @@ export const Chat = () => {
                 id: 1,
                 nome: 'KillJoy',
                 foto: '/images.jpeg',
-                numero: ''
+                numero: '88992531384'
             },
             ultimaMensagem: {
                 remetente: 'Killjoy',
@@ -286,8 +287,12 @@ export const Chat = () => {
                                 {conversaAtiva && (
                                     <>
                                         <div className="flex items-center space-x-4">
+
                                             <img src={conversaSelecionada?.contato.foto} alt="Perfil" className="w-12 h-12 rounded-full object-cover" />
-                                            <h1 className="text-lg">{conversaSelecionada?.contato.nome}</h1>
+                                            <div className='flex flex-col  items-start'>
+                                                <span className="text-lg">{conversaSelecionada?.contato.nome}</span>
+                                                <span className="text-sm text-zinc-400">{formatarTelefone(conversaSelecionada?.contato.numero || '')}</span>
+                                            </div>
                                         </div>
                                         <div className="flex gap-6">
                                             <FontAwesomeIcon icon={faSearch} className="cursor-pointer" />

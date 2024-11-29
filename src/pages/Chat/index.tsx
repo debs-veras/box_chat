@@ -64,6 +64,12 @@ export const Chat = () => {
         }
     ])
 
+    const [showInput, setShowInput] = useState(false);
+
+    const toggleInput = () => {
+        setShowInput((prev) => !prev);
+    };
+
     const ClickCriarConversa = (contatoId?: number) => {
         const existeConversa = conversas.find(convo => convo.contato.id === contatoId);
 
@@ -246,7 +252,7 @@ export const Chat = () => {
                                         className={`p-4 cursor-pointer flex items-center space-x-4  ${conversaAtiva === conversation.id ? 'bg-blue-100' : 'bg-white'} hover:bg-blue-50 transition`}
                                     >
                                         <img
-                                            src={conversation.contato.foto}
+                                            src={conversation.contato.foto ?? './imagens/user.png'}
                                             alt="Perfil"
                                             className="w-12 h-12 rounded-full object-cover"
                                         />
@@ -287,15 +293,27 @@ export const Chat = () => {
                                 {conversaAtiva && (
                                     <>
                                         <div className="flex items-center space-x-4">
-
                                             <img src={conversaSelecionada?.contato.foto} alt="Perfil" className="w-12 h-12 rounded-full object-cover" />
-                                            <div className='flex flex-col  items-start'>
+                                            <div className='flex flex-col items-start'>
                                                 <span className="text-lg">{conversaSelecionada?.contato.nome}</span>
                                                 <span className="text-sm text-zinc-400">{formatarTelefone(conversaSelecionada?.contato.numero || '')}</span>
                                             </div>
                                         </div>
-                                        <div className="flex gap-6">
-                                            <FontAwesomeIcon icon={faSearch} className="cursor-pointer" />
+                                        <div className="flex items-center justify-center gap-2 relative">
+                                            <FontAwesomeIcon
+                                                icon={faSearch}
+                                                className={`${showInput ? 'absolute transform -translate-y-1/2 left-4 top-1/2 ' : 'relative'} cursor-pointer`}
+                                                onClick={toggleInput}
+                                            />
+                                            <div
+                                                className={`rounded px-2 py-1 transition-all duration-300 overflow-hidden ${showInput ? 'w-48 opacity-100' : 'w-0 opacity-0'}`}
+                                            >
+                                                <input
+                                                    type="text"
+                                                    className="w-full pl-10 pr-4 py-2 bg-[#DAD7D3] rounded-md border-none focus:outline-none"
+                                                    placeholder="Digite sua busca"
+                                                />
+                                            </div>
                                             <FontAwesomeIcon icon={faEllipsisV} className="cursor-pointer" />
                                         </div>
                                     </>

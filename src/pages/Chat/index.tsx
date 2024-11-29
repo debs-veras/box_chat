@@ -1,15 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPaperPlane, faPaperclip, faSearch, faEllipsisV, faComments, faUser, faAngleLeft, faSmile } from '@fortawesome/free-solid-svg-icons';
-import { io } from 'socket.io-client';
+// import { io } from 'socket.io-client';
 import "./styles.css";
 import { Contato, Conversa, Menssagem } from '../../types/Mensagem.d';
 import data from '@emoji-mart/data'
 import Picker from '@emoji-mart/react'
 import { CardMenssagem } from '../../components/CardMenssagem';
 import { CardContato } from '../../components/CardContato';
-
-const socket = io('http://localhost:3001');
+import { getListContatos } from '../../services/contato';
 
 export const Chat = () => {
     const [menssagem, setMenssagem] = useState<Menssagem[]>([]);
@@ -18,6 +17,7 @@ export const Chat = () => {
     const menssagemEndRef = useRef<HTMLDivElement>(null);
     const [conversaAtiva, setConversaAtiva] = useState<number | null>(null);
     const [conversaSelecionada, setConversaSelecionada] = useState<Conversa | null>(null);
+    const [listaContatos, setListaContato] = useState<Array<Contato>>([]);
     const [isMenuOpen, setIsMenuOpen] = useState(true);
     const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
     const [showContatos, setShowContatos] = useState(false);
@@ -28,7 +28,8 @@ export const Chat = () => {
             contato: {
                 id: 1,
                 nome: 'KillJoy',
-                foto: '/images.jpeg'
+                foto: '/images.jpeg',
+                numero: ''
             },
             ultimaMensagem: {
                 autor: 'Killjoy',
@@ -45,7 +46,8 @@ export const Chat = () => {
             contato: {
                 id: 2,
                 nome: 'Raze',
-                foto: '/imagens/users/raze.webp'
+                foto: '/imagens/users/raze.webp',
+                numero: ''
             },
             ultimaMensagem: {
                 autor: 'Killjoy',
@@ -60,12 +62,6 @@ export const Chat = () => {
         }
     ])
 
-    const [contatos] = useState<Contato[]>([
-        { id: 1, nome: 'KillJoy', foto: '/images.jpeg' },
-        { id: 2, nome: 'Raze', foto: '/imagens/users/raze.webp' },
-        { id: 3, nome: 'Breach', foto: '/imagens/users/breach.jpg' }
-    ]);
-
     const ClickCriarConversa = (contatoId?: number) => {
         const existeConversa = conversas.find(convo => convo.contato.id === contatoId);
 
@@ -75,7 +71,7 @@ export const Chat = () => {
         } else {
             const novaConversa: Conversa = {
                 id: Date.now(),
-                contato: contatos.find(contato => contato.id === contatoId)!,
+                contato: listaContatos.find(contato => contato.id === contatoId)!,
                 ultimaMensagem: {
                     autor: '',
                     menssagem: '',
@@ -173,20 +169,23 @@ export const Chat = () => {
         setNovaMenssagem(prev => prev + emoji.native);
     };
 
-    useEffect(() => {
-        socket.on('chat message', (msg: Menssagem) => {
-            setMenssagem((prevMessages) => [...prevMessages, msg]);
-        });
+    const carregaContatos = async (): Promise<void> => {
+        const request = () => getListContatos();
+        const response = await request();
 
-        return () => {
-            socket.off('chat message');
-        };
+        if (response.sucesso)
+            setListaContato(response.dados);
+    };
+
+
+    useEffect(() => {
+        carregaContatos();
     }, []);
 
     return (
         <div className='background-chat'>
             <div className="flex h-[95vh] max-w-[100rem] w-full m-auto rounded-xl overflow-hidden shadow-lg">
-                <div className={`bg-[#F0F2F5] flex flex-col transition-all duration-300 ${isMenuOpen ? 'w-[25%]' : 'w-[5%]'}`}>
+                <div className={`bg-[#F0F2F5] flex flex-col transition-all duration-300 ${isMenuOpen ? 'lg:w-[25%] md:w-[50%] w-full' : 'sm:w-[5%] w-[15%]'}`}>
                     <div className='flex max-w-full h-full'>
                         <div className='h-full w-16 #F0F2F5 px-1 py-4 flex flex-col gap-8 items-center'>
                             <FontAwesomeIcon
@@ -234,7 +233,7 @@ export const Chat = () => {
                             </div>
 
                             {showContatos ? (
-                                <CardContato contatos={contatos} ClickCriarConversa={ClickCriarConversa}/>
+                                <CardContato listaContatos={listaContatos} ClickCriarConversa={ClickCriarConversa} />
                             ) : (
 
                                 conversas.map((conversation) => (
@@ -269,7 +268,7 @@ export const Chat = () => {
                     </div>
                 </div>
 
-                <div className={`flex flex-col bg-[#EFEAE2] transition-all duration-300 ${isMenuOpen ? 'w-[75%]' : 'w-[100%]'}`}>
+                <div className={`sm:flex sm:flex-col bg-[#EFEAE2] transition-all duration-300 ${isMenuOpen ? 'lg:w-[75%] hidden' : 'w-full flex flex-col'}`}>
                     {
                         conversaAtiva == null ? (
                             <div className="flex flex-col items-center justify-center h-full text-center p-8 text-gray-600">

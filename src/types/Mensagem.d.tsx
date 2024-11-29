@@ -11,7 +11,8 @@ export type Menssagem = {
 export type Contato = {
     id?: number;
     nome: string;
-    foto: string;
+    numero: string;
+    foto?: string;
 }
 
 export type Conversa = {

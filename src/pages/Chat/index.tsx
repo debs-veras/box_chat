@@ -97,8 +97,8 @@ export const Chat = () => {
 
             const msg = {
                 id: Date.now(),
-                autor: userId,
-                menssagem: novaMenssagem,
+                remetente: userId,
+                texto: novaMenssagem,
                 horario: tempo,
                 data_envio: tempo,
                 data_recebimento: '',

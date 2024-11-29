@@ -155,6 +155,7 @@ export const Chat = () => {
                 } else return conversas
             })
         );
+        setShowInput(false);
     };
 
     const toggleContatos = () => {
@@ -293,7 +294,7 @@ export const Chat = () => {
                                 {conversaAtiva && (
                                     <>
                                         <div className="flex items-center space-x-4">
-                                            <img src={conversaSelecionada?.contato.foto} alt="Perfil" className="w-12 h-12 rounded-full object-cover" />
+                                            <img src={conversaSelecionada?.contato.foto ?? 'imagens/user.png'} alt="Perfil" className="w-12 h-12 rounded-full object-cover" />
                                             <div className='flex flex-col items-start'>
                                                 <span className="text-lg">{conversaSelecionada?.contato.nome}</span>
                                                 <span className="text-sm text-zinc-400">{formatarTelefone(conversaSelecionada?.contato.numero || '')}</span>

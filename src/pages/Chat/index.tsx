@@ -1,23 +1,23 @@
 import { useState, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPaperPlane, faPaperclip, faSearch, faEllipsisV, faComments, faUser, faAngleLeft, faSmile } from '@fortawesome/free-solid-svg-icons';
-import "./styles.css";
-import { Contato, Conversa, Menssagem } from '../../types/Mensagem.d';
+import { Contato, Mensagem } from '../../types/Mensagem.d';
+import { Conversa } from '../../types/Conversa.d';
 import data from '@emoji-mart/data'
 import Picker from '@emoji-mart/react'
-import { CardMenssagem } from '../../components/CardMenssagem';
+import { CardMensagem } from '../../components/CardMensagem';
 import { CardContato } from '../../components/CardContato';
 import { getListContatos } from '../../services/contato';
 import Loading from '../../components/Loading';
 import { formatarTelefone } from '../../utils/formatar';
 
 export const Chat = () => {
-    const [menssagem, setMenssagem] = useState<Menssagem[]>([]);
+    const [mensagem, setMensagem] = useState<Mensagem[]>([]);
     const [listaContatos, setListaContato] = useState<Array<Contato>>([]);
-    const [novaMenssagem, setNovaMenssagem] = useState<string>('');
+    const [novaMensagem, setNovaMensagem] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
     const [userId] = useState<string>(Math.random().toString(36).substring(2));
-    const menssagemEndRef = useRef<HTMLDivElement>(null);
+    const mensagemEndRef = useRef<HTMLDivElement>(null);
     const [conversaAtiva, setConversaAtiva] = useState<number | null>(null);
     const [conversaSelecionada, setConversaSelecionada] = useState<Conversa | null>(null);
     const [isMenuOpen, setIsMenuOpen] = useState(true);
@@ -95,24 +95,24 @@ export const Chat = () => {
             setConversaSelecionada(novaConversa);
         }
         setShowContatos(false);
-        setNovaMenssagem('');
+        setNovaMensagem('');
     };
 
-    const enviarMenssagem = () => {
-        if (novaMenssagem.trim() !== '') {
+    const enviarMensagem = () => {
+        if (novaMensagem.trim() !== '') {
             const tempo = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
             const msg = {
                 id: Date.now(),
                 remetente: userId,
-                texto: novaMenssagem,
+                texto: novaMensagem,
                 horario: tempo,
                 data_envio: tempo,
                 data_recebimento: '',
                 data_visualizacao: '',
             };
 
-            setMenssagem((prevMessages) => [...prevMessages, msg]);
+            setMensagem((prevMessages) => [...prevMessages, msg]);
 
             setConversas((prevConversas) =>
                 prevConversas.map((conversa) =>
@@ -121,7 +121,7 @@ export const Chat = () => {
                             ...conversa,
                             ultimaMensagem: {
                                 remetente: userId,
-                                texto: novaMenssagem,
+                                texto: novaMensagem,
                                 horario: tempo,
                                 data_envio: tempo,
                                 data_recebimento: '',
@@ -133,14 +133,14 @@ export const Chat = () => {
                 )
             );
 
-            setNovaMenssagem('');
+            setNovaMensagem('');
         }
     };
 
     const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
             e.preventDefault();
-            enviarMenssagem();
+            enviarMensagem();
         }
     };
 
@@ -150,7 +150,7 @@ export const Chat = () => {
             prevConversas.map((conversas) => {
                 if (conversas.id === conversationId) {
                     setConversaSelecionada(conversas);
-                    setNovaMenssagem('');
+                    setNovaMensagem('');
                     return { ...conversas, mensagensPendentes: 0 }
                 } else return conversas
             })
@@ -176,7 +176,7 @@ export const Chat = () => {
     };
 
     const handleEmojiSelect = (emoji: any) => {
-        setNovaMenssagem(prev => prev + emoji.native);
+        setNovaMensagem(prev => prev + emoji.native);
     };
 
     const carregaContatos = async (): Promise<void> => {
@@ -189,7 +189,7 @@ export const Chat = () => {
     };
 
     return (
-        <div className='background-chat'>
+        <div className="mx-auto py-[1rem] px-[2rem] text-center bg-gradient-to-b from-[#00A884] to-[#DAD7D3] via-[#DAD7D3] h-screen">
             <div className="flex h-[95vh] max-w-[100rem] w-full m-auto rounded-xl overflow-hidden shadow-lg">
                 <div className={`bg-[#F0F2F5] flex flex-col transition-all duration-300 ${isMenuOpen ? 'lg:w-[25%] md:w-[50%] w-full' : 'sm:w-[5%] w-[15%]'}`}>
                     <div className='flex max-w-full h-full'>
@@ -321,7 +321,7 @@ export const Chat = () => {
                                 )}
                             </div>
 
-                            <CardMenssagem menssagem={menssagem} menssagemEndRef={menssagemEndRef} userId={userId} />
+                            <CardMensagem mensagem={mensagem} mensagemEndRef={mensagemEndRef} userId={userId} />
 
                             <div className="flex items-center gap-2 p-4 bg-[#F0F2F5] shadow-lg flex-wrap">
                                 <div className='flex gap-5 relative'>
@@ -345,13 +345,13 @@ export const Chat = () => {
                                 <input
                                     type="text"
                                     placeholder="Digite uma mensagem"
-                                    value={novaMenssagem}
-                                    onChange={(e) => setNovaMenssagem(e.target.value)}
+                                    value={novaMensagem}
+                                    onChange={(e) => setNovaMensagem(e.target.value)}
                                     onKeyDown={handleKeyPress}
                                     className="flex-1 border-none rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 />
                                 <button
-                                    onClick={enviarMenssagem}
+                                    onClick={enviarMensagem}
                                     className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center shadow-md hover:bg-blue-700 transition"
                                 >
                                     <FontAwesomeIcon icon={faPaperPlane} className="mr-2" />

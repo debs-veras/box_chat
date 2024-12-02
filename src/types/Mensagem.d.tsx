@@ -1,4 +1,4 @@
-export type Menssagem = {
+export type Mensagem = {
     id?: number;
     remetente?: string;
     destinatario?: string;
@@ -14,11 +14,4 @@ export type Contato = {
     nome: string;
     numero: string;
     foto?: string;
-}
-
-export type Conversa = {
-    id: number;
-    ultimaMensagem: Menssagem | null;
-    contato: Contato;
-    mensagensPendentes: number;
 }

@@ -6,10 +6,10 @@ interface ContatoComponentProps {
     ClickCriarConversa: (contatoId?: number) => void;
 }
 
-export const CardContato = ({ listaContatos = [], ClickCriarConversa }: ContatoComponentProps) => {
+export const ListagemContato = ({ listaContatos = [], ClickCriarConversa }: ContatoComponentProps) => {
 
     return (
-        <div>
+        <>
             {listaContatos.length > 0 ? (
                 listaContatos.map((contato) => (
                     <div
@@ -31,6 +31,6 @@ export const CardContato = ({ listaContatos = [], ClickCriarConversa }: ContatoC
             ) : (
                 <p>Nenhum contato disponível.</p>
             )}
-        </div>
+        </>
     );
 };

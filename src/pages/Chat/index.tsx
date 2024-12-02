@@ -1,15 +1,17 @@
 import { useState, useRef, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPaperPlane, faPaperclip, faSearch, faEllipsisV, faComments, faUser, faAngleLeft, faSmile } from '@fortawesome/free-solid-svg-icons';
+import { faPaperPlane, faPaperclip, faSearch, faEllipsisV, faSmile } from '@fortawesome/free-solid-svg-icons';
 import { Contato, Mensagem } from '../../types/Mensagem.d';
 import { Conversa } from '../../types/Conversa.d';
 import data from '@emoji-mart/data'
 import Picker from '@emoji-mart/react'
-import { CardMensagem } from '../../components/CardMensagem';
-import { CardContato } from '../../components/CardContato';
+import { ListagemMensagem } from '../../components/ListagemMensagem';
+import { ListagemContato } from '../../components/ListagemContato';
 import { getListContatos } from '../../services/contato';
 import Loading from '../../components/Loading';
 import { formatarTelefone } from '../../utils/formatar';
+import { Menu } from '../../components/Menu';
+import { ListagemConversa } from '../../components/ListagemConversa';
 
 export const Chat = () => {
     const [mensagem, setMensagem] = useState<Mensagem[]>([]);
@@ -22,8 +24,13 @@ export const Chat = () => {
     const [conversaSelecionada, setConversaSelecionada] = useState<Conversa | null>(null);
     const [isMenuOpen, setIsMenuOpen] = useState(true);
     const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
-    const [showContatos, setShowContatos] = useState(false);
     const [buscarConversa, setBuscarConversa] = useState<string>('');
+    const [conversasFiltradas, setConversasFiltradas] = useState<Conversa[]>([]);
+
+    const [showConversas, setShowConversas] = useState(true);
+    const [showContatos, setShowContatos] = useState(false);
+    const [showSettings, setShowSettings] = useState(false);
+    const [showInput, setShowInput] = useState(false);
 
     const [conversas, setConversas] = useState<Conversa[]>([
         {
@@ -64,9 +71,7 @@ export const Chat = () => {
 
         }
     ])
-    const [conversasFiltradas, setConversasFiltradas] = useState<Conversa[]>([]);
 
-    const [showInput, setShowInput] = useState(false);
 
     const toggleInput = () => {
         setShowInput((prev) => !prev);
@@ -96,7 +101,7 @@ export const Chat = () => {
             setConversaAtiva(novaConversa.id);
             setConversaSelecionada(novaConversa);
         }
-        setShowContatos(false);
+        toggleConversas();
         setNovaMensagem('');
     };
 
@@ -162,12 +167,24 @@ export const Chat = () => {
 
     const toggleContatos = () => {
         setShowContatos(true);
+        setShowConversas(false);
+        setShowSettings(false);
         if (!isMenuOpen)
             setIsMenuOpen(true);
         carregaContatos();
     };
 
     const toggleConversas = () => {
+        setShowConversas(true);
+        setShowContatos(false);
+        setShowSettings(false);
+        if (!isMenuOpen)
+            setIsMenuOpen(true);
+    };
+
+    const toggleSettings = () => {
+        setShowSettings(true);
+        setShowConversas(false);
         setShowContatos(false);
         if (!isMenuOpen)
             setIsMenuOpen(true);
@@ -210,35 +227,20 @@ export const Chat = () => {
             <div className="flex h-[95vh] max-w-[100rem] w-full m-auto rounded-xl overflow-hidden shadow-lg">
                 <div className={`bg-[#F0F2F5] flex flex-col transition-all duration-300 ${isMenuOpen ? 'lg:w-[25%] md:w-[50%] w-full' : 'sm:w-[5%] w-[15%]'}`}>
                     <div className='flex max-w-full h-full'>
-                        <div className='h-full w-16 #F0F2F5 px-1 py-4 flex flex-col gap-8 items-center'>
-                            <FontAwesomeIcon
-                                icon={faAngleLeft}
-                                size="lg"
-                                color="#54656F"
-                                onClick={toggleMenuCollapse}
-                                className={`cursor-pointer transition-transform duration-300 ${isMenuOpen ? 'rotate-0' : 'rotate-180'}`}
-                            />
-
-                            <FontAwesomeIcon
-                                icon={faComments}
-                                size="lg"
-                                color={!showContatos && isMenuOpen ? "#00A884" : "#54656F"}
-                                onClick={toggleConversas}
-                                className={`cursor-pointer transition-all duration-300 ${!showContatos && isMenuOpen ? 'scale-110 bg-[#D9DBDF] w-fit p-2 rounded-full' : ''}`}
-                            />
-
-                            <FontAwesomeIcon
-                                icon={faUser}
-                                size="lg"
-                                color={showContatos && isMenuOpen ? "#00A884" : "#54656F"}
-                                onClick={toggleContatos}
-                                className={`cursor-pointer transition-all duration-300  ${showContatos && isMenuOpen ? 'scale-110 bg-[#D9DBDF] w-fit p-2 rounded-full' : ''}`}
-                            />
-                        </div>
+                        <Menu
+                            isMenuOpen={isMenuOpen}
+                            showContatos={showContatos}
+                            showConversas={showConversas}
+                            showSettings={showSettings}
+                            toggleMenuCollapse={toggleMenuCollapse}
+                            toggleConversas={toggleConversas}
+                            toggleContatos={toggleContatos}
+                            toggleSettings={toggleSettings}
+                        />
 
                         <div className={`flex-1 h-full bg-white overflow-y-auto overflow-x-hidden barraRolagem transition-opacity duration-300 ${isMenuOpen ? 'opacity-100' : 'opacity-0 hidden'}`}>
-                            <div className="p-4 text-left">
-                                <h2 className="text-lg font-semibold"> {showContatos ? 'Contatos' : 'Conversas'} </h2>
+                            <div className="p-5 text-left">
+                                <h2 className="text-lg font-semibold"> {showContatos ? 'Contatos' : showConversas ? 'Conversas' : "Configuração"} </h2>
                             </div>
 
                             <div className="px-4 flex items-center space-x-2 mb-5">
@@ -247,6 +249,7 @@ export const Chat = () => {
                                         icon={faSearch}
                                         className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
                                     />
+
                                     <input
                                         type="text"
                                         placeholder="Pesquisar"
@@ -260,43 +263,17 @@ export const Chat = () => {
                             {showContatos ? (
                                 <>
                                     {!loading ?
-                                        <CardContato listaContatos={listaContatos} ClickCriarConversa={ClickCriarConversa} /> : <Loading />
+                                        <ListagemContato listaContatos={listaContatos} ClickCriarConversa={ClickCriarConversa} /> : <Loading />
                                     }
                                 </>
                             ) : (
-                                conversasFiltradas.length > 0 ? (
-                                    conversasFiltradas.map((conversa) => (
-                                        <div
-                                            key={conversa.id}
-                                            onClick={() => handleConversationClick(conversa.id)}
-                                            className={`p-4 cursor-pointer flex items-center space-x-4  ${conversaAtiva === conversa.id ? 'bg-blue-100' : 'bg-white'} hover:bg-blue-50 transition`}
-                                        >
-                                            <img
-                                                src={conversa.contato.foto ?? './imagens/user.png'}
-                                                alt="Perfil"
-                                                className="w-12 h-12 rounded-full object-cover"
-                                            />
-                                            <div className="flex-1 text-left truncate">
-                                                <h3 className="text-md font-medium truncate">{conversa.contato.nome}</h3>
-                                                <p className="text-sm text-gray-500 truncate">{conversa.ultimaMensagem?.texto}</p>
-                                            </div>
-                                            <div className='flex flex-col gap-1'>
-                                                <div className="text-xs text-gray-500">
-                                                    {conversa.ultimaMensagem?.data_envio}
-                                                </div>
-                                                {conversa.mensagensPendentes > 0 && (
-                                                    <div className="text-xs bg-red-500 text-white rounded-full px-2">
-                                                        {conversa.mensagensPendentes}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    ))
-                                ) : (
-                                    <div className="text-center text-gray-500 py-4">
-                                        Nenhuma conversa encontrada com o termo "{buscarConversa}".
-                                    </div>
-                                )
+                                showConversas ? (
+                                    <ListagemConversa
+                                        conversaAtiva={conversaAtiva ?? null}
+                                        conversasFiltradas={conversasFiltradas}
+                                        handleConversationClick={(conversationId) => handleConversationClick(conversationId!)}
+                                    />
+                                ) : <></>
                             )}
                         </div>
                     </div>
@@ -345,7 +322,7 @@ export const Chat = () => {
                                 )}
                             </div>
 
-                            <CardMensagem mensagem={mensagem} mensagemEndRef={mensagemEndRef} userId={userId} />
+                            <ListagemMensagem mensagem={mensagem} mensagemEndRef={mensagemEndRef} userId={userId} />
 
                             <div className="flex items-center gap-2 p-4 bg-[#F0F2F5] shadow-lg flex-wrap">
                                 <div className='flex gap-5 relative'>

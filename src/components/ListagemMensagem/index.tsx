@@ -9,7 +9,7 @@ interface MensagemComponentProps {
     userId: string;
 }
 
-export const CardMensagem = ({ mensagem, mensagemEndRef, userId }: MensagemComponentProps) => {
+export const ListagemMensagem = ({ mensagem, mensagemEndRef, userId }: MensagemComponentProps) => {
 
     useEffect(() => {
         mensagemEndRef.current?.scrollIntoView({ behavior: 'smooth' });

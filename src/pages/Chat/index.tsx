@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPaperPlane, faPaperclip, faSearch, faEllipsisV, faComments, faUser, faAngleLeft, faSmile } from '@fortawesome/free-solid-svg-icons';
 import { Contato, Mensagem } from '../../types/Mensagem.d';
@@ -23,6 +23,7 @@ export const Chat = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(true);
     const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
     const [showContatos, setShowContatos] = useState(false);
+    const [buscarConversa, setBuscarConversa] = useState<string>('');
 
     const [conversas, setConversas] = useState<Conversa[]>([
         {
@@ -63,6 +64,7 @@ export const Chat = () => {
 
         }
     ])
+    const [conversasFiltradas, setConversasFiltradas] = useState<Conversa[]>([]);
 
     const [showInput, setShowInput] = useState(false);
 
@@ -188,6 +190,21 @@ export const Chat = () => {
         setLoading(false);
     };
 
+    useEffect(() => {
+        if (!buscarConversa.trim())
+            setConversasFiltradas(conversas);
+        else {
+            const termo = buscarConversa.toLowerCase();
+            const conversasFiltradas = conversas.filter((conversa) => {
+                const nomeContato = conversa.contato.nome.toLowerCase();
+                const numeroContato = conversa.contato.numero?.replace(/\D/g, '');
+                return nomeContato.includes(termo) || numeroContato.includes(termo);
+            });
+            setConversasFiltradas(conversasFiltradas);
+        }
+    }, [buscarConversa, conversas]);
+
+
     return (
         <div className="mx-auto py-[1rem] px-[2rem] text-center bg-gradient-to-b from-[#00A884] to-[#DAD7D3] via-[#DAD7D3] h-screen">
             <div className="flex h-[95vh] max-w-[100rem] w-full m-auto rounded-xl overflow-hidden shadow-lg">
@@ -234,6 +251,8 @@ export const Chat = () => {
                                         type="text"
                                         placeholder="Pesquisar"
                                         className="w-full pl-10 pr-4 py-2 bg-[#F5F5F5] rounded-md border-none focus:outline-none"
+                                        value={buscarConversa}
+                                        onChange={(e) => setBuscarConversa(e.target.value)}
                                     />
                                 </div>
                             </div>
@@ -245,34 +264,39 @@ export const Chat = () => {
                                     }
                                 </>
                             ) : (
-
-                                conversas.map((conversation) => (
-                                    <div
-                                        key={conversation.id}
-                                        onClick={() => handleConversationClick(conversation.id)}
-                                        className={`p-4 cursor-pointer flex items-center space-x-4  ${conversaAtiva === conversation.id ? 'bg-blue-100' : 'bg-white'} hover:bg-blue-50 transition`}
-                                    >
-                                        <img
-                                            src={conversation.contato.foto ?? './imagens/user.png'}
-                                            alt="Perfil"
-                                            className="w-12 h-12 rounded-full object-cover"
-                                        />
-                                        <div className="flex-1 text-left truncate">
-                                            <h3 className="text-md font-medium truncate">{conversation.contato.nome}</h3>
-                                            <p className="text-sm text-gray-500 truncate">{conversation.ultimaMensagem?.texto}</p>
-                                        </div>
-                                        <div className='flex flex-col gap-1'>
-                                            <div className="text-xs text-gray-500">
-                                                {conversation.ultimaMensagem?.data_envio}
+                                conversasFiltradas.length > 0 ? (
+                                    conversasFiltradas.map((conversa) => (
+                                        <div
+                                            key={conversa.id}
+                                            onClick={() => handleConversationClick(conversa.id)}
+                                            className={`p-4 cursor-pointer flex items-center space-x-4  ${conversaAtiva === conversa.id ? 'bg-blue-100' : 'bg-white'} hover:bg-blue-50 transition`}
+                                        >
+                                            <img
+                                                src={conversa.contato.foto ?? './imagens/user.png'}
+                                                alt="Perfil"
+                                                className="w-12 h-12 rounded-full object-cover"
+                                            />
+                                            <div className="flex-1 text-left truncate">
+                                                <h3 className="text-md font-medium truncate">{conversa.contato.nome}</h3>
+                                                <p className="text-sm text-gray-500 truncate">{conversa.ultimaMensagem?.texto}</p>
                                             </div>
-                                            {conversation.mensagensPendentes > 0 && (
-                                                <div className="text-xs bg-red-500 text-white rounded-full px-2">
-                                                    {conversation.mensagensPendentes}
+                                            <div className='flex flex-col gap-1'>
+                                                <div className="text-xs text-gray-500">
+                                                    {conversa.ultimaMensagem?.data_envio}
                                                 </div>
-                                            )}
+                                                {conversa.mensagensPendentes > 0 && (
+                                                    <div className="text-xs bg-red-500 text-white rounded-full px-2">
+                                                        {conversa.mensagensPendentes}
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
+                                    ))
+                                ) : (
+                                    <div className="text-center text-gray-500 py-4">
+                                        Nenhuma conversa encontrada com o termo "{buscarConversa}".
                                     </div>
-                                ))
+                                )
                             )}
                         </div>
                     </div>

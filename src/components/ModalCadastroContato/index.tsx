@@ -1,6 +1,6 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import Formulario from '../Input';
-import { Contato, ContatoCadastro } from '../../types/Contato.d';
+import { Contato, ContatoCadastro } from '../../types/contato.d';
 import { useForm } from 'react-hook-form';
 import { useEffect } from 'react';
 

@@ -1,4 +1,5 @@
-import { Contato, Mensagem } from "./Mensagem.d";
+import { Contato } from "./contato.d";
+import { Mensagem } from "./mensagem.d";
 
 export type Conversa = {
     id: number;

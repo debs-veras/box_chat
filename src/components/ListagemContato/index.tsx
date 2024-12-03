@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Contato } from "../../types/Contato.d";
+import { Contato } from "../../types/contato.d";
 import { formatarTelefone } from '../../utils/formatar';
 import { faEdit } from "@fortawesome/free-solid-svg-icons";
 

@@ -1,9 +1,10 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faComments, faUser, faAngleLeft, faCog } from '@fortawesome/free-solid-svg-icons';
+import { itensMenu } from '../../types/itensMenu.d';
 
 interface MenuComponentProps {
     isMenuOpen: boolean;
-    settings: 'conversas' | 'contatos' | 'settings';
+    settings: itensMenu;
     toggleMenuCollapse: () => void;
     toggleConversas: () => void;
     toggleContatos: () => void;

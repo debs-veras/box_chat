@@ -1,4 +1,4 @@
-import { ConversaListagem } from "../types/Conversa.d";
+import { ConversaListagem } from "../types/conversa.d";
 import { postRequest } from "../utils/axiosRequest";
 
 export const getListConversa = async (param: ConversaListagem) => {

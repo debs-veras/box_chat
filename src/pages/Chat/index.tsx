@@ -1,8 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPaperPlane, faPaperclip, faSearch, faEllipsisV, faSmile, faPlus } from '@fortawesome/free-solid-svg-icons';
-import { Mensagem } from '../../types/Mensagem.d';
-import { Conversa } from '../../types/Conversa.d';
 import data from '@emoji-mart/data'
 import Picker from '@emoji-mart/react'
 import { ListagemMensagem } from '../../components/ListagemMensagem';
@@ -14,8 +12,11 @@ import { Menu } from '../../components/Menu';
 import { ListagemConversa } from '../../components/ListagemConversa';
 import Configuracoes from '../../components/Configuracoes';
 import ModalCadastroContato from '../../components/ModalCadastroContato';
-import { Contato } from '../../types/Contato.d';
+import { Contato } from '../../types/contato.d';
 import { DadosConta } from '../../components/DadosConta';
+import { Mensagem } from '../../types/mensagem.d';
+import { Conversa } from '../../types/conversa.d';
+import { itensMenu } from '../../types/itensMenu.d';
 
 export const Chat = () => {
     const [mensagem, setMensagem] = useState<Mensagem[]>([]);
@@ -72,7 +73,7 @@ export const Chat = () => {
 
         }
     ])
-    const [activeSection, setActiveSection] = useState<'conversas' | 'contatos' | 'settings'>('conversas');
+    const [activeSection, setActiveSection] = useState<itensMenu>('conversas');
 
 
     const [isModalCadastroContatoOpen, setIsModalCadastroContatoOpen] = useState(false);

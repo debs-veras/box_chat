@@ -1,4 +1,4 @@
-import { Mensagem } from "../types/Mensagem.d";
+import { Mensagem } from "../types/mensagem.d";
 import { postRequest } from "../utils/axiosRequest";
 
 export const postEnviarMensagem = async (param: Mensagem) => {

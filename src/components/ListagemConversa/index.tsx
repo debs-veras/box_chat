@@ -1,4 +1,4 @@
-import { Conversa } from '../../types/Conversa.d';
+import { Conversa } from '../../types/conversa.d';
 
 interface ConversaComponentProps {
     conversaAtiva: number | null;

@@ -25,7 +25,7 @@ const Configuracoes = () => {
                             size="lg"
                             className={`cursor-pointer transition-all duration-300`}
                         />
-                        Perfil
+                        Editar Conta
                     </li>
                     <li className="cursor-pointer transition hover:bg-[#F5F6F6] py-3 px-5 flex gap-4">
                         <FontAwesomeIcon

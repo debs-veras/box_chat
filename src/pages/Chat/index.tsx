@@ -16,7 +16,6 @@ import Configuracoes from '../../components/Configuracoes';
 import ModalCadastroContato from '../../components/ModalCadastroContato';
 import { Contato } from '../../types/Contato.d';
 
-
 export const Chat = () => {
     const [mensagem, setMensagem] = useState<Mensagem[]>([]);
     const [listaContatos, setListaContato] = useState<Array<Contato>>([]);
@@ -32,9 +31,6 @@ export const Chat = () => {
     const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
     const [buscarConversa, setBuscarConversa] = useState<string>('');
     const [conversasFiltradas, setConversasFiltradas] = useState<Conversa[]>([]);
-    const [showConversas, setShowConversas] = useState(true);
-    const [showContatos, setShowContatos] = useState(false);
-    const [showSettings, setShowSettings] = useState(false);
     const [showInput, setShowInput] = useState(false);
     const [conversas, setConversas] = useState<Conversa[]>([
         {
@@ -75,6 +71,8 @@ export const Chat = () => {
 
         }
     ])
+    const [activeSection, setActiveSection] = useState<'conversas' | 'contatos' | 'settings'>('conversas');
+
 
     const [isModalCadastroContatoOpen, setIsModalCadastroContatoOpen] = useState(false);
 
@@ -197,26 +195,20 @@ export const Chat = () => {
     };
 
     const toggleContatos = () => {
-        setShowContatos(true);
-        setShowConversas(false);
-        setShowSettings(false);
+        setActiveSection('contatos');
         if (!isMenuOpen)
             setIsMenuOpen(true);
         carregaContatos();
     };
 
     const toggleConversas = () => {
-        setShowConversas(true);
-        setShowContatos(false);
-        setShowSettings(false);
+        setActiveSection('conversas');
         if (!isMenuOpen)
             setIsMenuOpen(true);
     };
 
     const toggleSettings = () => {
-        setShowSettings(true);
-        setShowConversas(false);
-        setShowContatos(false);
+        setActiveSection('settings');
         if (!isMenuOpen)
             setIsMenuOpen(true);
     };
@@ -252,7 +244,6 @@ export const Chat = () => {
         }
     }, [buscarConversa, conversas]);
 
-
     return (
         <div className="mx-auto py-[1rem] px-[2rem] text-center bg-gradient-to-b from-[#00A884] to-[#DAD7D3] via-[#DAD7D3] h-screen">
             <div className="flex h-[95vh] max-w-[100rem] w-full m-auto rounded-xl overflow-hidden shadow-lg">
@@ -260,9 +251,7 @@ export const Chat = () => {
                     <div className='flex max-w-full h-full'>
                         <Menu
                             isMenuOpen={isMenuOpen}
-                            showContatos={showContatos}
-                            showConversas={showConversas}
-                            showSettings={showSettings}
+                            settings={activeSection}
                             toggleMenuCollapse={toggleMenuCollapse}
                             toggleConversas={toggleConversas}
                             toggleContatos={toggleContatos}
@@ -271,9 +260,9 @@ export const Chat = () => {
 
                         <div className={`flex-1 h-full bg-white overflow-y-auto overflow-x-hidden barraRolagem transition-opacity duration-300 ${isMenuOpen ? 'opacity-100' : 'opacity-0 hidden'}`}>
                             <div className="p-5 text-left flex justify-between items-center">
-                                <h2 className="text-lg font-semibold"> {showContatos ? 'Contatos' : showConversas ? 'Conversas' : "Configuração"} </h2>
+                                <h2 className="text-lg font-semibold"> {activeSection == 'contatos' ? 'Contatos' : activeSection == 'conversas' ? 'Conversas' : "Configuração"} </h2>
                                 {
-                                    showContatos &&
+                                    activeSection == 'contatos' &&
                                     <FontAwesomeIcon
                                         icon={faPlus}
                                         size="lg"
@@ -284,7 +273,7 @@ export const Chat = () => {
                                 }
                             </div>
 
-                            {!showSettings && <>
+                            {activeSection != 'settings' && <>
                                 <div className="px-4 flex items-center space-x-2 mb-5">
                                     <div className="relative flex-1">
                                         <FontAwesomeIcon
@@ -303,23 +292,23 @@ export const Chat = () => {
                             </>
                             }
 
-                            {showContatos ? (
+                            {activeSection == 'contatos' &&
                                 <>
                                     {!loading ?
                                         <ListagemContato listaContatos={listaContatos} ClickCriarConversa={ClickCriarConversa} onClick={handleContatoEdit} /> : <Loading />
                                     }
                                 </>
-                            ) : (
-                                showConversas ? (
-                                    <ListagemConversa
-                                        conversaAtiva={conversaAtiva ?? null}
-                                        conversasFiltradas={conversasFiltradas}
-                                        handleConversationClick={(conversationId) => handleConversationClick(conversationId!)}
-                                    />
-                                ) : <>
-                                    <Configuracoes />
-                                </>
-                            )}
+                            }
+
+                            {activeSection == 'conversas' &&
+                                <ListagemConversa
+                                    conversaAtiva={conversaAtiva ?? null}
+                                    conversasFiltradas={conversasFiltradas}
+                                    handleConversationClick={(conversationId) => handleConversationClick(conversationId!)}
+                                />
+                            }
+
+                            {activeSection == 'settings' && <Configuracoes />}
                         </div>
                     </div>
                 </div>

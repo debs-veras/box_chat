@@ -15,6 +15,7 @@ import { ListagemConversa } from '../../components/ListagemConversa';
 import Configuracoes from '../../components/Configuracoes';
 import ModalCadastroContato from '../../components/ModalCadastroContato';
 import { Contato } from '../../types/Contato.d';
+import { DadosConta } from '../../components/DadosConta';
 
 export const Chat = () => {
     const [mensagem, setMensagem] = useState<Mensagem[]>([]);
@@ -312,10 +313,9 @@ export const Chat = () => {
                         </div>
                     </div>
                 </div>
-
                 <div className={`sm:flex sm:flex-col bg-[#EFEAE2] transition-all duration-300 ${isMenuOpen ? 'lg:w-[75%] hidden' : 'w-full flex flex-col'}`}>
-                    {
-                        conversaAtiva == null ? (
+                    {!conversaAtiva && activeSection != 'settings' ?
+                        (
                             <div className="flex flex-col items-center justify-center h-full text-center p-8 text-gray-600">
                                 <h3 className="text-2xl font-semibold text-gray-800">
                                     Nenhuma conversa selecionada no momento
@@ -324,77 +324,77 @@ export const Chat = () => {
                                     Você não selecionou uma conversa. Selecione uma conversa à esquerda para começar agora e conecte-se!
                                 </p>
                             </div>
-                        ) : <>
-                            <div className="flex items-center justify-between p-4 bg-[#F0F2F5] shadow-sm">
-                                {conversaAtiva && (
-                                    <>
-                                        <div className="flex items-center space-x-4">
-                                            <img src={conversaSelecionada?.contato.foto ?? 'imagens/user.png'} alt="Perfil" className="w-12 h-12 rounded-full object-cover" />
-                                            <div className='flex flex-col items-start'>
-                                                <span className="text-lg">{conversaSelecionada?.contato.nome}</span>
-                                                <span className="text-sm text-zinc-400">{formatarTelefone(conversaSelecionada?.contato.numero || '')}</span>
-                                            </div>
+                        )
+                        :
+                        (activeSection == 'settings' ? <DadosConta /> : (
+                            <>
+                                <div className="flex items-center justify-between p-4 bg-[#F0F2F5] shadow-sm">
+
+                                    <div className="flex items-center space-x-4">
+                                        <img src={conversaSelecionada?.contato.foto ?? 'imagens/user.png'} alt="Perfil" className="w-12 h-12 rounded-full object-cover" />
+                                        <div className='flex flex-col items-start'>
+                                            <span className="text-lg">{conversaSelecionada?.contato.nome}</span>
+                                            <span className="text-sm text-zinc-400">{formatarTelefone(conversaSelecionada?.contato.numero || '')}</span>
                                         </div>
-                                        <div className="flex items-center justify-center gap-2 relative">
-                                            <FontAwesomeIcon
-                                                icon={faSearch}
-                                                className={`${showInput ? 'absolute transform -translate-y-1/2 left-4 top-1/2 ' : 'relative'} cursor-pointer`}
-                                                onClick={toggleInput}
+                                    </div>
+                                    <div className="flex items-center justify-center gap-2 relative">
+                                        <FontAwesomeIcon
+                                            icon={faSearch}
+                                            className={`${showInput ? 'absolute transform -translate-y-1/2 left-4 top-1/2 ' : 'relative'} cursor-pointer`}
+                                            onClick={toggleInput}
+                                        />
+                                        <div
+                                            className={`rounded px-2 py-1 transition-all duration-300 overflow-hidden ${showInput ? 'w-48 opacity-100' : 'w-0 opacity-0'}`}
+                                        >
+                                            <input
+                                                type="text"
+                                                className="w-full pl-10 pr-4 py-2 bg-[#DAD7D3] rounded-md border-none focus:outline-none"
+                                                placeholder="Digite sua busca"
                                             />
-                                            <div
-                                                className={`rounded px-2 py-1 transition-all duration-300 overflow-hidden ${showInput ? 'w-48 opacity-100' : 'w-0 opacity-0'}`}
-                                            >
-                                                <input
-                                                    type="text"
-                                                    className="w-full pl-10 pr-4 py-2 bg-[#DAD7D3] rounded-md border-none focus:outline-none"
-                                                    placeholder="Digite sua busca"
-                                                />
-                                            </div>
-                                            <FontAwesomeIcon icon={faEllipsisV} className="cursor-pointer" />
                                         </div>
-                                    </>
-                                )}
-                            </div>
-
-                            <ListagemMensagem mensagem={mensagem} mensagemEndRef={mensagemEndRef} userId={userId} />
-
-                            <div className="flex items-center gap-2 p-4 bg-[#F0F2F5] shadow-lg flex-wrap">
-                                <div className='flex gap-5 relative'>
-                                    <FontAwesomeIcon icon={faPaperclip} className="text-gray-400 text-xl cursor-pointer hover:text-gray-500" />
-
-                                    <FontAwesomeIcon
-                                        icon={faSmile}
-                                        size="lg"
-                                        className="text-gray-700 text-xl cursor-pointer hover:text-gray-600"
-                                        onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                                    />
-
-                                    {showEmojiPicker && (
-                                        <div className="absolute bottom-10 left-0 z-10">
-                                            <Picker data={data} onEmojiSelect={handleEmojiSelect} />
-                                        </div>
-                                    )}
-
+                                        <FontAwesomeIcon icon={faEllipsisV} className="cursor-pointer" />
+                                    </div>
                                 </div>
 
-                                <input
-                                    type="text"
-                                    placeholder="Digite uma mensagem"
-                                    value={novaMensagem}
-                                    onChange={(e) => setNovaMensagem(e.target.value)}
-                                    onKeyDown={handleKeyPress}
-                                    className="flex-1 border-none rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                />
-                                <button
-                                    onClick={enviarMensagem}
-                                    className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center shadow-md hover:bg-blue-700 transition"
-                                >
-                                    <FontAwesomeIcon icon={faPaperPlane} className="mr-2" />
-                                    <span>Enviar</span>
-                                </button>
-                            </div>
-                        </>
-                    }
+                                <ListagemMensagem mensagem={mensagem} mensagemEndRef={mensagemEndRef} userId={userId} />
+
+                                <div className="flex items-center gap-2 p-4 bg-[#F0F2F5] shadow-lg flex-wrap">
+                                    <div className='flex gap-5 relative'>
+                                        <FontAwesomeIcon icon={faPaperclip} className="text-gray-400 text-xl cursor-pointer hover:text-gray-500" />
+
+                                        <FontAwesomeIcon
+                                            icon={faSmile}
+                                            size="lg"
+                                            className="text-gray-700 text-xl cursor-pointer hover:text-gray-600"
+                                            onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                                        />
+
+                                        {showEmojiPicker && (
+                                            <div className="absolute bottom-10 left-0 z-10">
+                                                <Picker data={data} onEmojiSelect={handleEmojiSelect} />
+                                            </div>
+                                        )}
+
+                                    </div>
+
+                                    <input
+                                        type="text"
+                                        placeholder="Digite uma mensagem"
+                                        value={novaMensagem}
+                                        onChange={(e) => setNovaMensagem(e.target.value)}
+                                        onKeyDown={handleKeyPress}
+                                        className="flex-1 border-none rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    />
+                                    <button
+                                        onClick={enviarMensagem}
+                                        className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center shadow-md hover:bg-blue-700 transition"
+                                    >
+                                        <FontAwesomeIcon icon={faPaperPlane} className="mr-2" />
+                                        <span>Enviar</span>
+                                    </button>
+                                </div>
+                            </>
+                        ))}
                 </div>
             </div>
 

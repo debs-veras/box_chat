@@ -69,7 +69,6 @@ export default function LoginForm(): JSX.Element {
     <div className="p-6 bg-gray-50 rounded-lg shadow-md">
       <div className="mb-3">
         <h1 className="font-extrabold text-3xl sm:text-4xl text-gray-800 ">Chat - Box<sup>3</sup></h1>
-        <p className="text-gray-600 text-sm sm:text-base">Conecte-se ao seu mundo de conversas.</p>
       </div>
       <Formulario>
         <Formulario.InputTexto

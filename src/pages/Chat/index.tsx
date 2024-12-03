@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPaperPlane, faPaperclip, faSearch, faEllipsisV, faSmile } from '@fortawesome/free-solid-svg-icons';
-import { Contato, Mensagem } from '../../types/Mensagem.d';
+import { faPaperPlane, faPaperclip, faSearch, faEllipsisV, faSmile, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { Mensagem } from '../../types/Mensagem.d';
 import { Conversa } from '../../types/Conversa.d';
 import data from '@emoji-mart/data'
 import Picker from '@emoji-mart/react'
@@ -12,6 +12,10 @@ import Loading from '../../components/Loading';
 import { formatarTelefone } from '../../utils/formatar';
 import { Menu } from '../../components/Menu';
 import { ListagemConversa } from '../../components/ListagemConversa';
+import Configuracoes from '../../components/Configuracoes';
+import ModalCadastroContato from '../../components/ModalCadastroContato';
+import { Contato } from '../../types/Contato.d';
+
 
 export const Chat = () => {
     const [mensagem, setMensagem] = useState<Mensagem[]>([]);
@@ -22,16 +26,16 @@ export const Chat = () => {
     const mensagemEndRef = useRef<HTMLDivElement>(null);
     const [conversaAtiva, setConversaAtiva] = useState<number | null>(null);
     const [conversaSelecionada, setConversaSelecionada] = useState<Conversa | null>(null);
+    const [contatoSelecionado, setContatoSelecionado] = useState<Contato | null>(null);
     const [isMenuOpen, setIsMenuOpen] = useState(true);
+    const [salvando, setSalvando] = useState<boolean>(false);
     const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
     const [buscarConversa, setBuscarConversa] = useState<string>('');
     const [conversasFiltradas, setConversasFiltradas] = useState<Conversa[]>([]);
-
     const [showConversas, setShowConversas] = useState(true);
     const [showContatos, setShowContatos] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
     const [showInput, setShowInput] = useState(false);
-
     const [conversas, setConversas] = useState<Conversa[]>([
         {
             id: 1,
@@ -72,6 +76,12 @@ export const Chat = () => {
         }
     ])
 
+    const [isModalCadastroContatoOpen, setIsModalCadastroContatoOpen] = useState(false);
+
+    const handleCloseModalCadastroContato = () => {
+        setContatoSelecionado(null);
+        setIsModalCadastroContatoOpen(false);
+    };
 
     const toggleInput = () => {
         setShowInput((prev) => !prev);
@@ -144,6 +154,22 @@ export const Chat = () => {
         }
     };
 
+    const handleSalvarContato = (novoContato: Contato) => {
+        console.log(novoContato);
+        setListaContato((prevContatos) => {
+            const existeContato = prevContatos.some((contato) => contato.id === novoContato.id);
+            if (existeContato)
+                return prevContatos.map((contato) =>
+                    contato.id === novoContato.id ? novoContato : contato
+                );
+            else
+                return [...prevContatos, novoContato];
+        });
+
+        handleCloseModalCadastroContato();
+        setContatoSelecionado(null);
+    };
+
     const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
             e.preventDefault();
@@ -151,11 +177,11 @@ export const Chat = () => {
         }
     };
 
-    const handleConversationClick = (conversationId: number) => {
-        setConversaAtiva(conversationId);
+    const handleConversationClick = (converaId: number) => {
+        setConversaAtiva(converaId);
         setConversas((prevConversas) =>
             prevConversas.map((conversas) => {
-                if (conversas.id === conversationId) {
+                if (conversas.id === converaId) {
                     setConversaSelecionada(conversas);
                     setNovaMensagem('');
                     return { ...conversas, mensagensPendentes: 0 }
@@ -163,6 +189,11 @@ export const Chat = () => {
             })
         );
         setShowInput(false);
+    };
+
+    const handleContatoEdit = (contato: Contato) => {
+        setIsModalCadastroContatoOpen(true);
+        setContatoSelecionado(contato);
     };
 
     const toggleContatos = () => {
@@ -239,31 +270,43 @@ export const Chat = () => {
                         />
 
                         <div className={`flex-1 h-full bg-white overflow-y-auto overflow-x-hidden barraRolagem transition-opacity duration-300 ${isMenuOpen ? 'opacity-100' : 'opacity-0 hidden'}`}>
-                            <div className="p-5 text-left">
+                            <div className="p-5 text-left flex justify-between items-center">
                                 <h2 className="text-lg font-semibold"> {showContatos ? 'Contatos' : showConversas ? 'Conversas' : "Configuração"} </h2>
-                            </div>
-
-                            <div className="px-4 flex items-center space-x-2 mb-5">
-                                <div className="relative flex-1">
+                                {
+                                    showContatos &&
                                     <FontAwesomeIcon
-                                        icon={faSearch}
-                                        className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                                        icon={faPlus}
+                                        size="lg"
+                                        color='#54656F'
+                                        className="cursor-pointer transition-all duration-300"
+                                        onClick={() => setIsModalCadastroContatoOpen(true)}
                                     />
-
-                                    <input
-                                        type="text"
-                                        placeholder="Pesquisar"
-                                        className="w-full pl-10 pr-4 py-2 bg-[#F5F5F5] rounded-md border-none focus:outline-none"
-                                        value={buscarConversa}
-                                        onChange={(e) => setBuscarConversa(e.target.value)}
-                                    />
-                                </div>
+                                }
                             </div>
+
+                            {!showSettings && <>
+                                <div className="px-4 flex items-center space-x-2 mb-5">
+                                    <div className="relative flex-1">
+                                        <FontAwesomeIcon
+                                            icon={faSearch}
+                                            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                                        />
+                                        <input
+                                            type="text"
+                                            placeholder="Pesquisar"
+                                            className="w-full pl-10 pr-4 py-2 bg-[#F5F5F5] rounded-md border-none focus:outline-none"
+                                            value={buscarConversa}
+                                            onChange={(e) => setBuscarConversa(e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+                            </>
+                            }
 
                             {showContatos ? (
                                 <>
                                     {!loading ?
-                                        <ListagemContato listaContatos={listaContatos} ClickCriarConversa={ClickCriarConversa} /> : <Loading />
+                                        <ListagemContato listaContatos={listaContatos} ClickCriarConversa={ClickCriarConversa} onClick={handleContatoEdit} /> : <Loading />
                                     }
                                 </>
                             ) : (
@@ -273,7 +316,9 @@ export const Chat = () => {
                                         conversasFiltradas={conversasFiltradas}
                                         handleConversationClick={(conversationId) => handleConversationClick(conversationId!)}
                                     />
-                                ) : <></>
+                                ) : <>
+                                    <Configuracoes />
+                                </>
                             )}
                         </div>
                     </div>
@@ -363,6 +408,15 @@ export const Chat = () => {
                     }
                 </div>
             </div>
+
+            <ModalCadastroContato
+                isOpen={isModalCadastroContatoOpen}
+                handleClose={handleCloseModalCadastroContato}
+                salvando={salvando}
+                onSave={handleSalvarContato}
+                contato={contatoSelecionado}
+            />
         </div>
+
     );
 };

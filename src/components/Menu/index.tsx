@@ -12,35 +12,33 @@ interface MenuComponentProps {
     toggleSettings: () => void;
 }
 
-export const Menu = ({ isMenuOpen, showContatos, showSettings, showConversas, toggleMenuCollapse, toggleConversas, toggleContatos, toggleSettings }: MenuComponentProps) => {
+export const Menu = ({ isMenuOpen, showContatos, showSettings, showConversas, toggleMenuCollapse, toggleConversas, toggleContatos,  toggleSettings }: MenuComponentProps) => {
     return (
-        <div className='h-full w-16 #F0F2F5 px-1 py-6 flex flex-col justify-between items-center'>
-            <div className='flex flex-col gap-6'>
-                <FontAwesomeIcon
-                    icon={faAngleLeft}
-                    size="lg"
-                    color="#54656F"
-                    onClick={toggleMenuCollapse}
-                    className={`cursor-pointer transition-transform duration-300 ${isMenuOpen ? 'rotate-0' : 'rotate-180'}`}
-                />
+        <div className='h-full w-16 #F0F2F5 px-1 py-4 flex flex-col gap-8 items-center'>
+            <FontAwesomeIcon
+                icon={faAngleLeft}
+                size="lg"
+                color="#54656F"
+                onClick={toggleMenuCollapse}
+                className={`cursor-pointer transition-transform duration-300 ${isMenuOpen ? 'rotate-0' : 'rotate-180'}`}
+            />
 
-                <FontAwesomeIcon
-                    icon={faComments}
-                    size="lg"
-                    color={showConversas && isMenuOpen ? "#00A884" : "#54656F"}
-                    onClick={toggleConversas}
-                    className={`cursor-pointer transition-all duration-300 ${showConversas && isMenuOpen ? 'scale-110 bg-[#D9DBDF] w-fit p-2 rounded-full' : ''}`}
-                />
+            <FontAwesomeIcon
+                icon={faComments}
+                size="lg"
+                color={showConversas && isMenuOpen ? "#00A884" : "#54656F"}
+                onClick={toggleConversas}
+                className={`cursor-pointer transition-all duration-300 ${showConversas && isMenuOpen ? 'scale-110 bg-[#D9DBDF] w-fit p-2 rounded-full' : ''}`}
+            />
 
-                <FontAwesomeIcon
-                    icon={faUser}
-                    size="lg"
-                    color={showContatos && isMenuOpen ? "#00A884" : "#54656F"}
-                    onClick={toggleContatos}
-                    className={`cursor-pointer transition-all duration-300 ${showContatos && isMenuOpen ? 'scale-110 bg-[#D9DBDF] w-fit p-2 rounded-full' : ''}`}
-                />
+            <FontAwesomeIcon
+                icon={faUser}
+                size="lg"
+                color={showContatos && isMenuOpen ? "#00A884" : "#54656F"}
+                onClick={toggleContatos}
+                className={`cursor-pointer transition-all duration-300 ${showContatos && isMenuOpen  ? 'scale-110 bg-[#D9DBDF] w-fit p-2 rounded-full' : ''}`}
+            />
 
-            </div>
             <FontAwesomeIcon
                 icon={faCog}
                 size="lg"

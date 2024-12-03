@@ -9,9 +9,3 @@ export type Mensagem = {
     data_visualizacao?: string;
 }
 
-export type Contato = {
-    id?: number;
-    nome: string;
-    numero: string;
-    foto?: string;
-}

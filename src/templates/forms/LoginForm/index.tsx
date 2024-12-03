@@ -67,8 +67,9 @@ export default function LoginForm(): JSX.Element {
 
   return (
     <div className="p-6 bg-gray-50 rounded-lg shadow-md">
-      <div className="mb-3">
-        <h1 className="font-extrabold text-3xl sm:text-4xl text-gray-800 ">Chat - Box<sup>3</sup></h1>
+      <div className="mb-3 flex items-center gap-2">
+        <img className="w-12 h-12 object-contain" src="imagens/logo.png" alt="logo" />
+        <span className="font-extrabold text-lg sm:text-2xl text-gray-800 ">Chat - Box<sup>3</sup></span>
       </div>
       <Formulario>
         <Formulario.InputTexto

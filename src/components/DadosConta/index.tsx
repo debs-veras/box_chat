@@ -12,10 +12,10 @@ export const DadosConta = () => {
     });
 
     return (
-        <div className="w-full h-full flex flex-col bg-gray-50 text-gray-800 p-6 rounded-lg shadow-md">
-            <h1 className="text-2xl font-bold mb-6 text-[#54656F] text-left">Dados da Conta</h1>
+        <div className="w-full h-full flex flex-col text-gray-800 p-6 rounded-lg shadow-md">
+            <h2 className="text-2xl font-semibold text-left">Dados da Conta</h2>
 
-            <div className="grid xl:grid-cols-3 gap-4 w-full">
+            <div className="grid xl:grid-cols-3 gap-4 w-full mt-6">
                 <div className="flex gap-4 p-4 bg-white rounded-lg shadow-sm border text-left">
                     <div className="w-12 h-12 rounded-full bg-teal-600 text-white flex items-center justify-center text-xl font-bold">
                         <FontAwesomeIcon

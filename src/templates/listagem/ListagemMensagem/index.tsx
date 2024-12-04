@@ -1,6 +1,6 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck, faCheckDouble } from '@fortawesome/free-solid-svg-icons';
-import { Mensagem } from '../../types/mensagem.d';
+import { Mensagem } from '../../../types/mensagem.d';
 import { useEffect } from 'react';
 
 interface MensagemComponentProps {

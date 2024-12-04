@@ -135,10 +135,11 @@ export const Chat = () => {
     const substituirTags = (texto: string, contato?: Contato): string => {
         setExibirModelos(false);
         return texto
-            .replace("{nome}", contato?.nome || "usuário")
-            .replace("{numero}", contato?.numero || "desconhecido");
+            .replace(/{nome}/g, contato?.nome || "usuário")
+            .replace(/{email}/g, contato?.email || "sem e-mail")
+            .replace(/{numero}/g, contato?.numero || "desconhecido");
     };
-
+    
     const enviarMensagem = () => {
         if (novaMensagem.trim() !== '') {
             const tempo = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -265,14 +266,12 @@ export const Chat = () => {
         const value = e.target.value;
         setNovaMensagem(value);
         if (value.startsWith("/")) {
-            const termoFiltro = value.slice(1).trim().toLowerCase(); 
-            const modelosFiltrados = modelos.filter(modelo =>
-                modelo.titulo.toLowerCase().includes(termoFiltro) 
-            );
+            const termoFiltro = value.slice(1).trim().toLowerCase();
+            const modelosFiltrados = modelos.filter(modelo => modelo.titulo.toLowerCase().includes(termoFiltro));
             setModelosFiltrados(modelosFiltrados);
-            setExibirModelos(true);  
+            setExibirModelos(true);
         } else {
-            setExibirModelos(false); 
+            setExibirModelos(false);
         }
     };
 
@@ -430,6 +429,7 @@ export const Chat = () => {
                                     )}
 
                                 </div>
+
                                 <input
                                     type="text"
                                     placeholder="Digite uma mensagem"
@@ -465,7 +465,7 @@ export const Chat = () => {
                             </div>
                         </>
                     }
-                    {activeSection == 'modeloMensagem' && <ModelosMensagem />}
+                    {activeSection == 'modeloMensagem' && <ModelosMensagem modelos={modelos} setModelos={setModelos} />}
                 </div>
             </div>
 

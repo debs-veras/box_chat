@@ -5,23 +5,13 @@ import Botao from "../Button";
 import { ModalCadastroModeloMensagem } from "../ModalCadastroModeloMensagem";
 import { ModeloMensagem } from "../../types/modeloMensagem";
 
+type PropsModelosMensagem = {
+  modelos: ModeloMensagem[];
+  setModelos: React.Dispatch<React.SetStateAction<ModeloMensagem[]>>;
+};
 
-const ModelosMensagem = () => {
-  const [modelos, setModelos] = useState<ModeloMensagem[]>([
-    {
-      id: 1,
-      titulo: "Saudação Pessoal",
-      conteudo: "Olá {nome}, como posso ajudar você hoje?",
-      tags: ["{nome}"],
-    },
-    {
-      id: 2,
-      titulo: "Confirmação de Pedido",
-      conteudo: "Olá {nome}, seu pedido #{numero} foi confirmado com sucesso!",
-      tags: ["{nome}", "{numero}"],
-    },
-  ]);
 
+const ModelosMensagem = ({ modelos, setModelos }: PropsModelosMensagem) => {
   const [modalAberto, setModalAberto] = useState(false);
   const [modeloEditando, setModeloEditando] = useState<ModeloMensagem | null>(null);
 
@@ -87,7 +77,7 @@ const ModelosMensagem = () => {
                   <FontAwesomeIcon icon={faTag} className="mr-1 text-blue-600" />
                   {tag}
                 </span>
-              )) }
+              ))}
             </div>
           </div>
         ))}

@@ -14,7 +14,7 @@ interface ModalCadastroModeloProps {
 
 export const ModalCadastroModeloMensagem = ({ isOpen, handleClose, onSave, modelo }: ModalCadastroModeloProps) => {
   const { register, handleSubmit, reset, setValue, watch } = useForm<ModeloMensagem>();
-  const tagsDisponiveis = ['{nome}', '{numero}', '{email}', '{cidade}'];
+  const tagsDisponiveis = ['{nome}', '{numero}', '{email}'];
 
   const sincronizarTagsComConteudo = (conteudo: string): string[] => {
     return tagsDisponiveis.filter((tag) => conteudo.includes(tag));

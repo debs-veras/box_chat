@@ -9,7 +9,7 @@ import { getListContatos } from '../../services/contato';
 import Loading from '../../components/Loading';
 import { formatarTelefone } from '../../utils/formatar';
 import { Menu } from '../../components/Menu';
-import { ListagemConversa } from '../../templates/listagem/ListagemConversa'; 
+import { ListagemConversa } from '../../templates/listagem/ListagemConversa';
 import Configuracoes from '../../components/Configuracoes';
 import ModalCadastroContato from '../../components/ModalCadastroContato';
 import { Contato } from '../../types/contato.d';
@@ -18,6 +18,7 @@ import { Mensagem } from '../../types/mensagem.d';
 import { Conversa } from '../../types/conversa.d';
 import { itensMenu } from '../../types/itensMenu.d';
 import ModelosMensagem from '../../components/ModelosMensagem';
+import { ModeloMensagem } from '../../types/modeloMensagem';
 
 export const Chat = () => {
     const [mensagem, setMensagem] = useState<Mensagem[]>([]);
@@ -76,6 +77,23 @@ export const Chat = () => {
         }
     ])
 
+    const [modelos, setModelos] = useState<ModeloMensagem[]>([
+        {
+            id: 1,
+            titulo: "Saudação Pessoal",
+            conteudo: "Olá {nome}, como posso ajudar você hoje?",
+            tags: ["{nome}"],
+        },
+        {
+            id: 2,
+            titulo: "Confirmação de Pedido",
+            conteudo: "Olá {nome}, seu pedido #{numero} foi confirmado com sucesso!",
+            tags: ["{nome}", "{numero}"],
+        },
+    ]);
+
+    const [modelosFiltrados, setModelosFiltrados] = useState<ModeloMensagem[]>(modelos);
+
     const [isModalCadastroContatoOpen, setIsModalCadastroContatoOpen] = useState(false);
 
     const handleCloseModalCadastroContato = () => {
@@ -112,7 +130,13 @@ export const Chat = () => {
             setConversaSelecionada(novaConversa);
         }
         toggleConversas();
-        setNovaMensagem('');
+    };
+
+    const substituirTags = (texto: string, contato?: Contato): string => {
+        setExibirModelos(false);
+        return texto
+            .replace("{nome}", contato?.nome || "usuário")
+            .replace("{numero}", contato?.numero || "desconhecido");
     };
 
     const enviarMensagem = () => {
@@ -182,7 +206,6 @@ export const Chat = () => {
             prevConversas.map((conversas) => {
                 if (conversas.id === converaId) {
                     setConversaSelecionada(conversas);
-                    setNovaMensagem('');
                     return { ...conversas, mensagensPendentes: 0 }
                 } else return conversas
             })
@@ -236,6 +259,23 @@ export const Chat = () => {
         setLoading(false);
     };
 
+    const [exibirModelos, setExibirModelos] = useState(false);
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setNovaMensagem(value);
+        if (value.startsWith("/")) {
+            const termoFiltro = value.slice(1).trim().toLowerCase(); 
+            const modelosFiltrados = modelos.filter(modelo =>
+                modelo.titulo.toLowerCase().includes(termoFiltro) 
+            );
+            setModelosFiltrados(modelosFiltrados);
+            setExibirModelos(true);  
+        } else {
+            setExibirModelos(false); 
+        }
+    };
+
     useEffect(() => {
         if (!buscarConversa.trim())
             setConversasFiltradas(conversas);
@@ -249,6 +289,11 @@ export const Chat = () => {
             setConversasFiltradas(conversasFiltradas);
         }
     }, [buscarConversa, conversas]);
+
+    useEffect(() => {
+        setNovaMensagem('');
+        setExibirModelos(false);
+    }, [activeSection, conversaSelecionada]);
 
     return (
         <div className="mx-auto py-[1rem] px-[2rem] text-center bg-gradient-to-b from-[#00A884] to-[#DAD7D3] via-[#DAD7D3] h-screen">
@@ -385,15 +430,31 @@ export const Chat = () => {
                                     )}
 
                                 </div>
-
                                 <input
                                     type="text"
                                     placeholder="Digite uma mensagem"
                                     value={novaMensagem}
-                                    onChange={(e) => setNovaMensagem(e.target.value)}
                                     onKeyDown={handleKeyPress}
+                                    onChange={handleInputChange}
                                     className="flex-1 border-none rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 />
+
+                                {exibirModelos && modelosFiltrados.length > 0 && (
+                                    <div className="mt-2 p-2 border border-gray-300 rounded-lg shadow-md bg-white w-full">
+                                        <ul className="space-y-2">
+                                            {modelosFiltrados.map((modelo) => (
+                                                <li
+                                                    key={modelo.id}
+                                                    className="cursor-pointer rounded-lg bg-gray-50 p-3 hover:bg-blue-50 transition-colors ease-in-out"
+                                                    onClick={() => setNovaMensagem(substituirTags(modelo.conteudo, conversaSelecionada?.contato))}
+                                                >
+                                                    <div className="font-semibold text-lg text-blue-600">{modelo.titulo}</div>
+                                                    <p className="text-sm text-gray-700 mt-1">{modelo.conteudo}</p>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
                                 <button
                                     onClick={enviarMensagem}
                                     className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center shadow-md hover:bg-blue-700 transition"

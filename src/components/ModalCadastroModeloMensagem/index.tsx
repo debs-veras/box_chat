@@ -42,7 +42,6 @@ export const ModalCadastroModeloMensagem = ({ isOpen, handleClose, onSave, model
     })();
   }
 
-
   useEffect(() => {
     if (modelo) {
       reset({ ...modelo });

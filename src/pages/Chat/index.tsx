@@ -17,6 +17,7 @@ import { DadosConta } from '../../components/DadosConta';
 import { Mensagem } from '../../types/mensagem.d';
 import { Conversa } from '../../types/conversa.d';
 import { itensMenu } from '../../types/itensMenu.d';
+import ModelosMensagem from '../../components/ModelosMensagem';
 
 export const Chat = () => {
     const [mensagem, setMensagem] = useState<Mensagem[]>([]);
@@ -34,6 +35,7 @@ export const Chat = () => {
     const [buscarConversa, setBuscarConversa] = useState<string>('');
     const [conversasFiltradas, setConversasFiltradas] = useState<Conversa[]>([]);
     const [showInput, setShowInput] = useState(false);
+    const [activeSection, setActiveSection] = useState<itensMenu>('conversas');
     const [conversas, setConversas] = useState<Conversa[]>([
         {
             id: 1,
@@ -73,8 +75,6 @@ export const Chat = () => {
 
         }
     ])
-    const [activeSection, setActiveSection] = useState<itensMenu>('conversas');
-
 
     const [isModalCadastroContatoOpen, setIsModalCadastroContatoOpen] = useState(false);
 
@@ -215,6 +215,11 @@ export const Chat = () => {
             setIsMenuOpen(true);
     };
 
+    const toggleModelosMensagem = () => {
+        setActiveSection("modeloMensagem");
+        if (!isMenuOpen) setIsMenuOpen(true);
+    };
+
     const toggleMenuCollapse = () => {
         setIsMenuOpen((prev) => !prev);
     };
@@ -258,6 +263,7 @@ export const Chat = () => {
                             toggleConversas={toggleConversas}
                             toggleContatos={toggleContatos}
                             toggleSettings={toggleSettings}
+                            toggleModelosMensagem={toggleModelosMensagem}
                         />
 
                         <div className={`flex-1 h-full bg-white overflow-y-auto overflow-x-hidden barraRolagem transition-opacity duration-300 ${isMenuOpen ? 'opacity-100' : 'opacity-0 hidden'}`}>
@@ -275,23 +281,24 @@ export const Chat = () => {
                                 }
                             </div>
 
-                            {activeSection != 'settings' && <>
-                                <div className="px-4 flex items-center space-x-2 mb-5">
-                                    <div className="relative flex-1">
-                                        <FontAwesomeIcon
-                                            icon={faSearch}
-                                            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                                        />
-                                        <input
-                                            type="text"
-                                            placeholder="Pesquisar"
-                                            className="w-full pl-10 pr-4 py-2 bg-[#F5F5F5] rounded-md border-none focus:outline-none"
-                                            value={buscarConversa}
-                                            onChange={(e) => setBuscarConversa(e.target.value)}
-                                        />
+                            {activeSection != 'settings' &&
+                                <>
+                                    <div className="px-4 flex items-center space-x-2 mb-5">
+                                        <div className="relative flex-1">
+                                            <FontAwesomeIcon
+                                                icon={faSearch}
+                                                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                                            />
+                                            <input
+                                                type="text"
+                                                placeholder="Pesquisar"
+                                                className="w-full pl-10 pr-4 py-2 bg-[#F5F5F5] rounded-md border-none focus:outline-none"
+                                                value={buscarConversa}
+                                                onChange={(e) => setBuscarConversa(e.target.value)}
+                                            />
+                                        </div>
                                     </div>
-                                </div>
-                            </>
+                                </>
                             }
 
                             {activeSection == 'contatos' &&
@@ -302,7 +309,7 @@ export const Chat = () => {
                                 </>
                             }
 
-                            {activeSection == 'conversas' &&
+                            { activeSection == 'conversas' &&
                                 <ListagemConversa
                                     conversaAtiva={conversaAtiva ?? null}
                                     conversasFiltradas={conversasFiltradas}
@@ -327,7 +334,7 @@ export const Chat = () => {
                             </div>
                         )
                         :
-                        (activeSection == 'settings' ? <DadosConta /> : (
+                        (activeSection == 'settings' ? <ModelosMensagem /> : (
                             <>
                                 <div className="flex items-center justify-between p-4 bg-[#F0F2F5] shadow-sm">
 

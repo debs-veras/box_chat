@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faComments, faUser, faAngleLeft, faCog } from '@fortawesome/free-solid-svg-icons';
+import { faComments, faUser, faAngleLeft, faCog, faFileAlt } from '@fortawesome/free-solid-svg-icons';
 import { itensMenu } from '../../types/itensMenu.d';
 
 interface MenuComponentProps {
@@ -9,9 +9,10 @@ interface MenuComponentProps {
     toggleConversas: () => void;
     toggleContatos: () => void;
     toggleSettings: () => void;
+    toggleModelosMensagem: () => void;
 }
 
-export const Menu = ({ isMenuOpen, settings, toggleMenuCollapse, toggleConversas, toggleContatos, toggleSettings }: MenuComponentProps) => {
+export const Menu = ({ isMenuOpen, settings, toggleMenuCollapse, toggleConversas, toggleContatos, toggleSettings, toggleModelosMensagem }: MenuComponentProps) => {
     return (
         <div className='h-full w-16 #F0F2F5 px-1 py-4 flex flex-col gap-8 items-center'>
             <FontAwesomeIcon
@@ -36,6 +37,13 @@ export const Menu = ({ isMenuOpen, settings, toggleMenuCollapse, toggleConversas
                 color={settings == 'contatos' && isMenuOpen ? "#00A884" : "#54656F"}
                 onClick={toggleContatos}
                 className={`cursor-pointer transition-all duration-300 ${settings == 'contatos' && isMenuOpen ? 'scale-110 bg-[#D9DBDF] w-fit p-2 rounded-full' : ''}`}
+            />
+            <FontAwesomeIcon
+                icon={faFileAlt}
+                size="lg"
+                color={settings == 'modeloMensagem' && isMenuOpen ? "#00A884" : "#54656F"}
+                onClick={toggleModelosMensagem}
+                className={`cursor-pointer transition-all duration-300 ${settings == 'modeloMensagem' && isMenuOpen ? 'scale-110 bg-[#D9DBDF] w-fit p-2 rounded-full' : ''}`}
             />
 
             <FontAwesomeIcon

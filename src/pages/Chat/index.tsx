@@ -268,7 +268,12 @@ export const Chat = () => {
         if (value.startsWith("/")) {
             const termoFiltro = value.slice(1).trim().toLowerCase();
             const modelosFiltrados = modelos.filter(modelo => modelo.titulo.toLowerCase().includes(termoFiltro));
+            const modeloSelecionado = modelos.find(modelo => modelo.titulo.toLowerCase() === termoFiltro.toLowerCase());
             setModelosFiltrados(modelosFiltrados);
+            if (modeloSelecionado) {
+                const modeloComTagsSubstituídas = substituirTags(modeloSelecionado.conteudo, conversaSelecionada?.contato);
+                setNovaMensagem(modeloComTagsSubstituídas);
+            }
             setExibirModelos(true);
         } else {
             setExibirModelos(false);

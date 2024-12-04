@@ -139,7 +139,7 @@ export const Chat = () => {
             .replace(/{email}/g, contato?.email || "sem e-mail")
             .replace(/{numero}/g, contato?.numero || "desconhecido");
     };
-    
+
     const enviarMensagem = () => {
         if (novaMensagem.trim() !== '') {
             const tempo = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -302,75 +302,76 @@ export const Chat = () => {
     return (
         <div className="mx-auto py-[1rem] px-[2rem] text-center bg-gradient-to-b from-[#00A884] to-[#DAD7D3] via-[#DAD7D3] h-screen">
             <div className="flex h-[95vh] max-w-[100rem] w-full m-auto rounded-xl overflow-hidden shadow-lg">
-                <div className={`bg-[#F0F2F5] flex flex-col transition-all duration-300 ${isMenuOpen ? 'lg:w-[25%] md:w-[50%] w-full' : 'sm:w-[5%] w-[15%]'}`}>
+                <div className={`bg-[#F0F2F5] flex flex-col transition-all duration-300 ${(isMenuOpen && activeSection != 'modeloMensagem') ? 'lg:w-[25%] md:w-[50%] w-full' : 'sm:w-[5%] w-[15%]'}`}>
                     <div className='flex max-w-full h-full'>
                         <Menu
                             isMenuOpen={isMenuOpen}
-                            settings={activeSection}
+                            activeSection={activeSection}
                             toggleMenuCollapse={toggleMenuCollapse}
                             toggleConversas={toggleConversas}
                             toggleContatos={toggleContatos}
                             toggleSettings={toggleSettings}
                             toggleModelosMensagem={toggleModelosMensagem}
                         />
+                        {activeSection != 'modeloMensagem' &&
+                            <div className={`flex-1 h-full bg-white overflow-y-auto overflow-x-hidden barraRolagem transition-opacity duration-300 ${isMenuOpen ? 'opacity-100' : 'opacity-0 hidden'}`}>
+                                <div className="p-5 text-left flex justify-between items-center">
+                                    <h2 className="text-lg font-semibold"> {activeSection == 'contatos' ? 'Contatos' : activeSection == 'conversas' ? 'Conversas' : "Configuração"} </h2>
+                                    {
+                                        activeSection == 'contatos' &&
+                                        <FontAwesomeIcon
+                                            icon={faPlus}
+                                            size="lg"
+                                            color='#54656F'
+                                            className="cursor-pointer transition-all duration-300"
+                                            onClick={() => setIsModalCadastroContatoOpen(true)}
+                                        />
+                                    }
+                                </div>
 
-                        <div className={`flex-1 h-full bg-white overflow-y-auto overflow-x-hidden barraRolagem transition-opacity duration-300 ${isMenuOpen ? 'opacity-100' : 'opacity-0 hidden'}`}>
-                            <div className="p-5 text-left flex justify-between items-center">
-                                <h2 className="text-lg font-semibold"> {activeSection == 'contatos' ? 'Contatos' : activeSection == 'conversas' ? 'Conversas' : "Configuração"} </h2>
-                                {
-                                    activeSection == 'contatos' &&
-                                    <FontAwesomeIcon
-                                        icon={faPlus}
-                                        size="lg"
-                                        color='#54656F'
-                                        className="cursor-pointer transition-all duration-300"
-                                        onClick={() => setIsModalCadastroContatoOpen(true)}
+                                {activeSection != 'settings' &&
+                                    <>
+                                        <div className="px-4 flex items-center space-x-2 mb-5">
+                                            <div className="relative flex-1">
+                                                <FontAwesomeIcon
+                                                    icon={faSearch}
+                                                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                                                />
+                                                <input
+                                                    type="text"
+                                                    placeholder="Pesquisar"
+                                                    className="w-full pl-10 pr-4 py-2 bg-[#F5F5F5] rounded-md border-none focus:outline-none"
+                                                    value={buscarConversa}
+                                                    onChange={(e) => setBuscarConversa(e.target.value)}
+                                                />
+                                            </div>
+                                        </div>
+                                    </>
+                                }
+
+                                {activeSection == 'contatos' &&
+                                    <>
+                                        {!loading ?
+                                            <ListagemContato listaContatos={listaContatos} ClickCriarConversa={ClickCriarConversa} onClick={handleContatoEdit} /> : <Loading />
+                                        }
+                                    </>
+                                }
+
+                                {activeSection == 'conversas' &&
+                                    <ListagemConversa
+                                        conversaAtiva={conversaAtiva ?? null}
+                                        conversasFiltradas={conversasFiltradas}
+                                        handleConversationClick={(conversationId) => handleConversationClick(conversationId!)}
                                     />
                                 }
-                            </div>
 
-                            {activeSection != 'settings' &&
-                                <>
-                                    <div className="px-4 flex items-center space-x-2 mb-5">
-                                        <div className="relative flex-1">
-                                            <FontAwesomeIcon
-                                                icon={faSearch}
-                                                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                                            />
-                                            <input
-                                                type="text"
-                                                placeholder="Pesquisar"
-                                                className="w-full pl-10 pr-4 py-2 bg-[#F5F5F5] rounded-md border-none focus:outline-none"
-                                                value={buscarConversa}
-                                                onChange={(e) => setBuscarConversa(e.target.value)}
-                                            />
-                                        </div>
-                                    </div>
-                                </>
-                            }
+                                {activeSection == 'settings' && <Configuracoes />}
+                            </div>}
 
-                            {activeSection == 'contatos' &&
-                                <>
-                                    {!loading ?
-                                        <ListagemContato listaContatos={listaContatos} ClickCriarConversa={ClickCriarConversa} onClick={handleContatoEdit} /> : <Loading />
-                                    }
-                                </>
-                            }
-
-                            {activeSection == 'conversas' &&
-                                <ListagemConversa
-                                    conversaAtiva={conversaAtiva ?? null}
-                                    conversasFiltradas={conversasFiltradas}
-                                    handleConversationClick={(conversationId) => handleConversationClick(conversationId!)}
-                                />
-                            }
-
-                            {activeSection == 'settings' && <Configuracoes />}
-                        </div>
                     </div>
                 </div>
 
-                <div className={`sm:flex sm:flex-col bg-[#EFEAE2] transition-all duration-300 ${isMenuOpen ? 'lg:w-[75%] hidden' : 'w-full flex flex-col'}`}>
+                <div className={`sm:flex sm:flex-col bg-[#EFEAE2] transition-all duration-300 ${isMenuOpen && activeSection != 'modeloMensagem' ? 'lg:w-[75%] hidden' : 'w-full flex flex-col'}`}>
                     {!conversaAtiva && (activeSection == 'conversas' || activeSection == 'contatos') && (
                         <div className="flex flex-col items-center justify-center h-full text-center p-8 text-gray-600">
                             <h3 className="text-2xl font-semibold text-gray-800">

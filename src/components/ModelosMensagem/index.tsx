@@ -4,16 +4,17 @@ import { faEdit, faTrash, faPlus, faTag } from "@fortawesome/free-solid-svg-icon
 import Botao from "../Button";
 import { ModalCadastroModeloMensagem } from "../ModalCadastroModeloMensagem";
 import { ModeloMensagem } from "../../types/modeloMensagem";
+import useToastLoading from "../../hooks/useToastLoading";
 
 type PropsModelosMensagem = {
   modelos: ModeloMensagem[];
   setModelos: React.Dispatch<React.SetStateAction<ModeloMensagem[]>>;
 };
 
-
 const ModelosMensagem = ({ modelos, setModelos }: PropsModelosMensagem) => {
   const [modalAberto, setModalAberto] = useState(false);
   const [modeloEditando, setModeloEditando] = useState<ModeloMensagem | null>(null);
+  const toast = useToastLoading();
 
   const abrirModal = () => setModalAberto(true);
 
@@ -23,17 +24,23 @@ const ModelosMensagem = ({ modelos, setModelos }: PropsModelosMensagem) => {
   };
 
   const salvarModelo = (modelo: ModeloMensagem) => {
-    if (modelo.id) {
-      setModelos((prev) =>
-        prev.map((m) => (m.id === modelo.id ? modelo : m))
-      );
-    } else {
-      setModelos((prev) => [
-        ...prev,
-        { ...modelo, id: Date.now() },
-      ]);
+    try {
+      if (modelo.id) {
+        setModelos((prev) =>
+          prev.map((m) => (m.id === modelo.id ? modelo : m))
+        );
+      } else {
+        setModelos((prev) => [
+          ...prev,
+          { ...modelo, id: Date.now() }
+        ]);
+      }
+      toast({ tipo: "success", mensagem: "Modelo de mensagem cadastrado com sucesso!" });
+      fecharModal();
+    } catch (error) {
+      console.error("Erro ao salvar o modelo:", error);
+      toast({ tipo: "error", mensagem: "Ocorreu um erro ao salvar o modelo de mensagem. Tente novamente." });
     }
-    fecharModal();
   };
 
   const excluirModelo = (id?: number) => {
@@ -46,7 +53,7 @@ const ModelosMensagem = ({ modelos, setModelos }: PropsModelosMensagem) => {
   };
 
   return (
-    <div className="p-5">
+    <div className="p-5 w-full">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-semibold">Modelos de Mensagem</h2>
         <Botao tipo="informacao" onClick={abrirModal} texto={"Adicionar"} icone={<FontAwesomeIcon icon={faPlus} />} />
@@ -59,7 +66,7 @@ const ModelosMensagem = ({ modelos, setModelos }: PropsModelosMensagem) => {
             className="p-4 border rounded-lg shadow-md bg-white hover:shadow-lg transition"
           >
             <div className="flex justify-between items-center mb-3">
-              <h3 className="font-bold text-lg truncate">/{modelo.titulo}</h3>
+              <h3 className="font-medium text-lg truncate">/{modelo.titulo}</h3>
               <div className="flex gap-3">
                 <FontAwesomeIcon icon={faEdit} className="text-blue-600 hover:text-blue-800 cursor-pointer" onClick={() => editarModelo(modelo)} />
                 <FontAwesomeIcon icon={faTrash} className="text-red-600 hover:text-red-800 cursor-pointer" onClick={() => excluirModelo(modelo.id)} />

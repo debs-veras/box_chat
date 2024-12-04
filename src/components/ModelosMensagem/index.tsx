@@ -23,12 +23,36 @@ const ModelosMensagem = () => {
   ]);
 
   const [modalAberto, setModalAberto] = useState(false);
+  const [modeloEditando, setModeloEditando] = useState<ModeloMensagem | null>(null);
 
   const abrirModal = () => setModalAberto(true);
-  const fecharModal = () => setModalAberto(false);
+
+  const fecharModal = () => {
+    setModeloEditando(null);
+    setModalAberto(false);
+  };
 
   const salvarModelo = (modelo: ModeloMensagem) => {
-    setModelos((prev) => [...prev, modelo]);
+    if (modelo.id) {
+      setModelos((prev) =>
+        prev.map((m) => (m.id === modelo.id ? modelo : m))
+      );
+    } else {
+      setModelos((prev) => [
+        ...prev,
+        { ...modelo, id: Date.now() },
+      ]);
+    }
+    fecharModal();
+  };
+
+  const excluirModelo = (id?: number) => {
+    setModelos((prev) => prev.filter((modelo) => modelo.id !== id));
+  };
+
+  const editarModelo = (modelo: ModeloMensagem) => {
+    setModeloEditando(modelo);
+    abrirModal();
   };
 
   return (
@@ -47,15 +71,15 @@ const ModelosMensagem = () => {
             <div className="flex justify-between items-center mb-3">
               <h3 className="font-bold text-lg truncate">/{modelo.titulo}</h3>
               <div className="flex gap-3">
-                <FontAwesomeIcon icon={faEdit} className="text-blue-600 hover:text-blue-800 cursor-pointer" />
-                <FontAwesomeIcon icon={faTrash} className="text-red-600 hover:text-red-800 cursor-pointer" />
+                <FontAwesomeIcon icon={faEdit} className="text-blue-600 hover:text-blue-800 cursor-pointer" onClick={() => editarModelo(modelo)} />
+                <FontAwesomeIcon icon={faTrash} className="text-red-600 hover:text-red-800 cursor-pointer" onClick={() => excluirModelo(modelo.id)} />
               </div>
             </div>
             <p className="text-gray-700 text-sm mb-3 text-left">
               {modelo.conteudo}
             </p>
             <div className="flex flex-wrap gap-2 mt-2">
-              {modelo.tags.map((tag, index) => (
+              {modelo.tags?.map((tag, index) => (
                 <span
                   key={index}
                   className="flex items-center bg-blue-100 text-blue-800 text-sm px-2 py-1 rounded-full shadow-sm"
@@ -63,7 +87,7 @@ const ModelosMensagem = () => {
                   <FontAwesomeIcon icon={faTag} className="mr-1 text-blue-600" />
                   {tag}
                 </span>
-              ))}
+              )) }
             </div>
           </div>
         ))}
@@ -73,6 +97,7 @@ const ModelosMensagem = () => {
         isOpen={modalAberto}
         handleClose={fecharModal}
         onSave={salvarModelo}
+        modelo={modeloEditando}
       />
     </div>
   );

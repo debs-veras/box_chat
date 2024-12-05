@@ -9,3 +9,8 @@ export type Mensagem = {
     data_visualizacao?: string;
 }
 
+export type EnviarMensagem = {
+    remetente: string;
+    destinatario: string;
+    texto: string;
+}

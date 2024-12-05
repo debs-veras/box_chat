@@ -4,4 +4,3 @@
     conteudo: string;
     tags: Array<string>
 }
-

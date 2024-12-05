@@ -1,18 +1,18 @@
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faTrash, faPlus, faTag } from "@fortawesome/free-solid-svg-icons";
-import Botao from "../Button";
-import { ModalCadastroModeloMensagem } from "../../templates/modal/ModalCadastroModeloMensagem";
-import { ModeloMensagem } from "../../types/modeloMensagem";
-import useToastLoading from "../../hooks/useToastLoading";
-import Modal from "../Modal";
+import Botao from "../../../components/Button";
+import { ModalCadastroModeloMensagem } from "../../modal/ModalCadastroModeloMensagem";
+import { ModeloMensagem } from "../../../types/modeloMensagem";
+import useToastLoading from "../../../hooks/useToastLoading";
+import Modal from "../../../components/Modal";
 
 type PropsModelosMensagem = {
   modelos: ModeloMensagem[];
   setModelos: React.Dispatch<React.SetStateAction<ModeloMensagem[]>>;
 };
 
-const ModelosMensagem = ({ modelos, setModelos }: PropsModelosMensagem) => {
+export const ModelosMensagem = ({ modelos, setModelos }: PropsModelosMensagem) => {
   const [modalAberto, setModalAberto] = useState(false);
   const [confirmacaoDeletar, setConfirmacaoDeletar] = useState<boolean>(false);
   const [modeloSelecionado, setModeloSelecionado] = useState<ModeloMensagem | null>(null);
@@ -125,5 +125,3 @@ const ModelosMensagem = ({ modelos, setModelos }: PropsModelosMensagem) => {
     </>
   );
 };
-
-export default ModelosMensagem;

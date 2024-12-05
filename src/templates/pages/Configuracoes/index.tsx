@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { ModalPerfil } from '../../templates/modal/ModalPerfil';
+import { ModalPerfil } from '../../modal/ModalPerfil';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPowerOff, faUser } from '@fortawesome/free-solid-svg-icons';
 
-const Configuracoes = () => {
+export const Configuracoes = () => {
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
     const handleCloseModal = () => {
@@ -47,5 +47,3 @@ const Configuracoes = () => {
         </div>
     );
 };
-
-export default Configuracoes;

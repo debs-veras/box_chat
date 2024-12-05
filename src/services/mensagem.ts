@@ -1,7 +1,7 @@
-import { Mensagem } from "../types/mensagem.d";
+import { EnviarMensagem } from "../types/mensagem.d";
 import { postRequest } from "../utils/axiosRequest";
 
-export const postEnviarMensagem = async (param: Mensagem) => {
-    return await postRequest("/Mensagem", param);
+export const postEnviarMensagem = async (param: EnviarMensagem) => {
+    return await postRequest("/Mensagem/enviar", param);
 
 }

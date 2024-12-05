@@ -1,9 +1,9 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import Formulario from '../Input';
-import { ModeloMensagem } from '../../types/modeloMensagem';
+import Formulario from '../../../components/Input';
+import { ModeloMensagem } from '../../../types/modeloMensagem';
 import { useForm } from 'react-hook-form';
 import { useEffect } from 'react';
-import Botao from '../Button';
+import Botao from '../../../components/Button';
 
 interface ModalCadastroModeloProps {
   isOpen: boolean;

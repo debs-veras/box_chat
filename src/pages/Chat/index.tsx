@@ -11,7 +11,7 @@ import { formatarTelefone } from '../../utils/formatar';
 import { Menu } from '../../components/Menu';
 import { ListagemConversa } from '../../templates/listagem/ListagemConversa';
 import Configuracoes from '../../components/Configuracoes';
-import ModalCadastroContato from '../../components/ModalCadastroContato';
+import ModalCadastroContato from '../../templates/modal/ModalCadastroContato';
 import { Contato } from '../../types/contato.d';
 import { DadosConta } from '../../components/DadosConta';
 import { Mensagem } from '../../types/mensagem.d';

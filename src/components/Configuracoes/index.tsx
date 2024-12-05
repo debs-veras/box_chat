@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ModalPerfil } from '../ModalPerfil';
+import { ModalPerfil } from '../../templates/modal/ModalPerfil';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPowerOff, faUser } from '@fortawesome/free-solid-svg-icons';
 

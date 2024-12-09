@@ -19,7 +19,6 @@ interface ChatDeMensagemProps {
     activeSection: itensMenu;
     conversaSelecionada: Conversa | null;
     setConversas: React.Dispatch<React.SetStateAction<Array<Conversa>>>;
-
 }
 
 export const ChatDeMensagem = ({ modelos, activeSection, conversaSelecionada, setConversas }: ChatDeMensagemProps) => {
@@ -32,9 +31,8 @@ export const ChatDeMensagem = ({ modelos, activeSection, conversaSelecionada, se
     const [novaMensagem, setNovaMensagem] = useState<string>('');
     const [exibirModelos, setExibirModelos] = useState(false);
     const [showInput, setShowInput] = useState(false);
-    const enviarMensagem = async () => {
-        console.log(conversaSelecionada?.contato?.numero);
 
+    const enviarMensagem = async () => {
         if (novaMensagem.trim() !== '') {
             const tempo = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 

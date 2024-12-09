@@ -1,5 +1,5 @@
 import { Contato } from "./contato.d";
-import { grupoDeMensagem } from "./grupoDeMensagem.d";
+import { grupoDeMensagem } from "./grupoDeContatos";
 import { Mensagem } from "./mensagem.d";
 
 export type Conversa = {

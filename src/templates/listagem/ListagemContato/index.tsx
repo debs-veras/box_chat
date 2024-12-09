@@ -71,12 +71,12 @@ export const ListagemContato = ({ ClickCriarConversa }: ContatoComponentProps) =
             setListaContatosFiltrados(listaContatos);
         else {
             const termo = pesquisaContato.toLowerCase();
-            const conversasFiltradas = listaContatos.filter((contato) => {
+            const contatosFiltrados = listaContatos.filter((contato) => {
                 const nomeContato = contato?.nome.toLowerCase();
                 const numeroContato = contato?.numero?.replace(/\D/g, '');
                 return nomeContato?.includes(termo) || numeroContato?.includes(termo);
             });
-            setListaContatosFiltrados(conversasFiltradas);
+            setListaContatosFiltrados(contatosFiltrados);
         }
     }, [pesquisaContato, listaContatos]);
 

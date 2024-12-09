@@ -8,10 +8,13 @@ interface MenuComponentProps {
     activeSection: itensMenu;
     setIsMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
     setActiveSection: React.Dispatch<React.SetStateAction<itensMenu>>;
-    toggleMenuCollapse: () => void;
 }
 
-export const Menu = ({ isMenuOpen, activeSection, toggleMenuCollapse, setActiveSection, setIsMenuOpen }: MenuComponentProps) => {
+export const Menu = ({ isMenuOpen, activeSection, setActiveSection, setIsMenuOpen }: MenuComponentProps) => {
+    const toggleMenuCollapse = () => {
+        setIsMenuOpen((prev) => !prev);
+    };
+
     useEffect(() => {
         if (!isMenuOpen) setIsMenuOpen(true);
     }, [activeSection]);
@@ -29,41 +32,41 @@ export const Menu = ({ isMenuOpen, activeSection, toggleMenuCollapse, setActiveS
             <FontAwesomeIcon
                 icon={faComments}
                 size="lg"
-                color={activeSection == 'conversas' && isMenuOpen ? "#00A884" : "#54656F"}
+                color={activeSection == 'conversas' ? "#00A884" : "#54656F"}
                 onClick={() => setActiveSection('conversas')}
-                className={`cursor-pointer transition-all duration-300 ${activeSection == 'conversas' && isMenuOpen ? 'scale-110 bg-[#D9DBDF] w-fit p-2 rounded-full' : ''}`}
+                className={`cursor-pointer transition-all duration-300 ${activeSection == 'conversas' ? 'scale-110 bg-[#D9DBDF] w-fit p-2 rounded-full' : ''}`}
             />
 
             <FontAwesomeIcon
                 icon={faUser}
                 size="lg"
-                color={activeSection == 'contatos' && isMenuOpen ? "#00A884" : "#54656F"}
+                color={activeSection == 'contatos' ? "#00A884" : "#54656F"}
                 onClick={() => setActiveSection('contatos')}
-                className={`cursor-pointer transition-all duration-300 ${activeSection == 'contatos' && isMenuOpen ? 'scale-110 bg-[#D9DBDF] w-fit p-2 rounded-full' : ''}`}
+                className={`cursor-pointer transition-all duration-300 ${activeSection == 'contatos' ? 'scale-110 bg-[#D9DBDF] w-fit p-2 rounded-full' : ''}`}
             />
             
             <FontAwesomeIcon
                 icon={faFileAlt}
                 size="lg"
-                color={activeSection == 'modeloMensagem' && isMenuOpen ? "#00A884" : "#54656F"}
+                color={activeSection == 'modeloMensagem' ? "#00A884" : "#54656F"}
                 onClick={() => setActiveSection('modeloMensagem')}
-                className={`cursor-pointer transition-all duration-300 ${activeSection == 'modeloMensagem' && isMenuOpen ? 'scale-110 bg-[#D9DBDF] w-fit p-2 rounded-full' : ''}`}
+                className={`cursor-pointer transition-all duration-300 ${activeSection == 'modeloMensagem' ? 'scale-110 bg-[#D9DBDF] w-fit p-2 rounded-full' : ''}`}
             />
 
             <FontAwesomeIcon
                 icon={faUsers}
                 size="lg"
-                color={activeSection == 'gruposContatos' && isMenuOpen ? "#00A884" : "#54656F"}
+                color={activeSection == 'gruposContatos' ? "#00A884" : "#54656F"}
                 onClick={() => setActiveSection('gruposContatos')}
-                className={`cursor-pointer transition-all duration-300 ${activeSection == 'gruposContatos' && isMenuOpen ? 'scale-110 bg-[#D9DBDF] w-fit p-2 rounded-full' : ''}`}
+                className={`cursor-pointer transition-all duration-300 ${activeSection == 'gruposContatos' ? 'scale-110 bg-[#D9DBDF] w-fit p-2 rounded-full' : ''}`}
             />
 
             <FontAwesomeIcon
                 icon={faCog}
                 size="lg"
-                color={activeSection == 'settings' && isMenuOpen ? "#00A884" : "#54656F"}
+                color={activeSection == 'settings' ? "#00A884" : "#54656F"}
                 onClick={() => setActiveSection('settings')}
-                className={`cursor-pointer transition-all duration-300 ${activeSection == 'settings' && isMenuOpen ? 'scale-110 bg-[#D9DBDF] w-fit p-2 rounded-full' : ''}`}
+                className={`cursor-pointer transition-all duration-300 ${activeSection == 'settings' ? 'scale-110 bg-[#D9DBDF] w-fit p-2 rounded-full' : ''}`}
             />
         </div>
     );

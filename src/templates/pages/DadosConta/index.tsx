@@ -13,7 +13,7 @@ export const DadosConta = () => {
 
     return (
         <div className="w-full h-full flex flex-col text-gray-800 p-6 rounded-lg shadow-md">
-            <h2 className="text-2xl font-semibold text-left">Dados da Conta</h2>
+            <h2 className="text-3xl font-semibold text-left">Dados da Conta</h2>
 
             <div className="grid xl:grid-cols-3 gap-4 w-full mt-6">
                 <div className="flex gap-4 p-4 bg-white rounded-lg shadow-sm border text-left">

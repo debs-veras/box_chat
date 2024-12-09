@@ -11,12 +11,12 @@ import { ModelosMensagem } from '../../templates/pages/ModelosMensagem';
 import { ModeloMensagem } from '../../types/modeloMensagem';
 import { ChatDeMensagem } from '../../templates/pages/ChatDeMensagem';
 import { ListagemGrupoContato } from '../../templates/listagem/ListagemGrupoContato';
-import { grupoDeMensagem } from '../../types/grupoDeMensagem.d';
+import { PageGruposDeContatos } from '../../templates/pages/PageGruposDeContatos';
 
 export const Chat = () => {
     const [conversaSelecionada, setConversaSelecionada] = useState<Conversa | null>(null);
     const [isMenuOpen, setIsMenuOpen] = useState(true);
-
+    const [isAtivaGrupoContato, setIsAtivaGrupoContato] = useState<boolean>(false);
     const [activeSection, setActiveSection] = useState<itensMenu>('conversas');
 
     const [conversas, setConversas] = useState<Conversa[]>([
@@ -74,54 +74,6 @@ export const Chat = () => {
         },
     ]);
 
-    const [grupoAtivo, setGrupoAtivo] = useState<grupoDeMensagem | null>(null);
-
-    const [gruposDeContatos, setGruposDeContatos] = useState<Array<grupoDeMensagem>>([
-        {
-            id: 1,
-            nome: 'Amigos',
-            membros: [
-                { id: 1, nome: 'KillJoy', foto: '/images.jpeg', numero: '88992531384' },
-                { id: 2, nome: 'Raze', foto: '/imagens/users/raze.webp', numero: '' }
-            ]
-        },
-        {
-            id: 2,
-            nome: 'Família',
-            membros: [
-                { id: 3, nome: 'Brimstone', foto: '/imagens/users/brimstone.jpg', numero: '88992531385' }
-            ]
-        }
-    ]);
-
-    const handleGrupoClick = (grupoSelecionado: grupoDeMensagem) => {
-        setGrupoAtivo(grupoSelecionado);
-        if (grupoSelecionado) {
-            const existeConversa = conversas.find(convo => convo.grupo?.id === grupoSelecionado.id);
-
-            if (existeConversa) setConversaSelecionada(existeConversa);
-            else {
-                const novaConversa: Conversa = {
-                    id: Date.now(),
-                    grupo: grupoSelecionado,
-                    ultimaMensagem: {
-                        remetente: '',
-                        texto: '',
-                        horario: '',
-                        dataEnvio: '',
-                        dataRecebimento: '',
-                        dataVisualizacao: ''
-                    },
-                    mensagensPendentes: 0
-                };
-                console.log(novaConversa);
-
-                setConversas(prevConversas => [...prevConversas, novaConversa]);
-                setConversaSelecionada(novaConversa);
-            }
-        }
-    };
-
     const clickCriarConversa = (contato?: Contato) => {
         let conversa = conversas.find(convo => convo.contato?.id == contato?.id);
         if (!conversa) {
@@ -144,10 +96,6 @@ export const Chat = () => {
         setActiveSection('conversas');
     };
 
-    const toggleMenuCollapse = () => {
-        setIsMenuOpen((prev) => !prev);
-    };
-
     return (
         <div className="mx-auto py-[1rem] px-[2rem] text-center bg-gradient-to-b from-[#00A884] to-[#DAD7D3] via-[#DAD7D3] h-screen">
             <div className="flex h-[95vh] max-w-[100rem] w-full m-auto rounded-xl overflow-hidden shadow-lg">
@@ -156,7 +104,6 @@ export const Chat = () => {
                         <Menu
                             isMenuOpen={isMenuOpen}
                             activeSection={activeSection}
-                            toggleMenuCollapse={toggleMenuCollapse}
                             setActiveSection={setActiveSection}
                             setIsMenuOpen={setIsMenuOpen}
                         />
@@ -177,7 +124,7 @@ export const Chat = () => {
                                 }
 
                                 {activeSection === 'gruposContatos' && (
-                                    <ListagemGrupoContato gruposDeContatos={gruposDeContatos} onSelectGrupo={handleGrupoClick} />
+                                    <ListagemGrupoContato setIsOpen={setIsAtivaGrupoContato}/>
                                 )}
 
                                 {activeSection == 'settings' && <Configuracoes />}
@@ -205,9 +152,9 @@ export const Chat = () => {
                         <ChatDeMensagem activeSection={activeSection} conversaSelecionada={conversaSelecionada} modelos={modelos} setConversas={setConversas} />
                     }
 
-                    {grupoAtivo && (
-                        <></>
-                    )}
+                    {isAtivaGrupoContato && (activeSection == 'gruposContatos') &&
+                        <PageGruposDeContatos />
+                    }
 
                     {activeSection == 'modeloMensagem' && <ModelosMensagem modelos={modelos} setModelos={setModelos} />}
                 </div>

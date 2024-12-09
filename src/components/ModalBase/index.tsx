@@ -19,7 +19,7 @@ const ModalBase = ({ isOpen, title, handleClose, children, footer }: ModalBasePr
                 />
                 <Dialog.Content
                     aria-labelledby="modal-title"
-                    className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg p-6 w-[24rem] max-w-full shadow-lg z-50 transition-all duration-500 ease-in-out"
+                    className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg p-6 min-w-[24rem] max-w-full shadow-lg z-50 transition-all duration-500 ease-in-out"
                 >
                     <div className="flex justify-between items-center mb-4 border-b pb-2">
                         <Dialog.Title id="modal-title" className="text-xl font-semibold text-gray-800">

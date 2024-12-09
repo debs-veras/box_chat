@@ -29,9 +29,9 @@ export const ListagemMensagem = ({ mensagem, mensagemEndRef, userId }: MensagemC
                         <p>{mensagem.texto}</p>
                         <div className='flex items-center justify-center gap-2'>
                             <div className="text-xs text-gray-500 w-full text-end pt-1">{mensagem.horario}</div>
-                            {mensagem.data_visualizacao ? (
+                            {mensagem.dataVisualizacao ? (
                                 <FontAwesomeIcon icon={faCheckDouble} color="blue" />
-                            ) : mensagem.data_recebimento ? (
+                            ) : mensagem.dataRecebimento ? (
                                 <FontAwesomeIcon icon={faCheckDouble} />
                             ) : (
                                 <FontAwesomeIcon icon={faCheck} />

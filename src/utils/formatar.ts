@@ -16,6 +16,12 @@ export const formatarTelefone = (telefone: string): string => {
     return r;
 };
 
+export const removeMascara = (phone: string): string => {
+    const digitsOnly = phone.replace(/\D/g, '');
+    if (!digitsOnly.startsWith('55')) 
+      return `55${digitsOnly}`;
+    return digitsOnly;
+  };
 
 export const formatarDataHora = (data: Date | string, tipo: "" | "data" | "hora" = "", segundos: boolean = false): string => {
     if (tipo == "data") return moment(data).format("DD/MM/YYYY");

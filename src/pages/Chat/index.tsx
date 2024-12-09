@@ -1,13 +1,8 @@
-import { useState, useEffect } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { useState } from 'react';
 import { ListagemContato } from '../../templates/listagem/ListagemContato';
-import { getListContatos } from '../../services/contato';
-import Loading from '../../components/Loading';
 import { Menu } from '../../components/Menu';
 import { ListagemConversa } from '../../templates/listagem/ListagemConversa';
-import { Configuracoes } from '../../templates/pages/Configuracoes';
-import { ModalCadastroContato } from '../../templates/modal/ModalCadastroContato';
+import { Configuracoes } from '../../templates/listagem/Configuracoes';
 import { Contato } from '../../types/contato.d';
 import { DadosConta } from '../../templates/pages/DadosConta';
 import { Conversa } from '../../types/conversa.d';
@@ -15,53 +10,49 @@ import { itensMenu } from '../../types/itensMenu.d';
 import { ModelosMensagem } from '../../templates/pages/ModelosMensagem';
 import { ModeloMensagem } from '../../types/modeloMensagem';
 import { ChatDeMensagem } from '../../templates/pages/ChatDeMensagem';
+import { ListagemGrupoContato } from '../../templates/listagem/ListagemGrupoContato';
+import { grupoDeMensagem } from '../../types/grupoDeMensagem.d';
 
 export const Chat = () => {
-    const [listaContatos, setListaContato] = useState<Array<Contato>>([]);
-    const [loading, setLoading] = useState<boolean>(false);
-    const [conversaAtiva, setConversaAtiva] = useState<number | null>(null);
     const [conversaSelecionada, setConversaSelecionada] = useState<Conversa | null>(null);
-    const [contatoSelecionado, setContatoSelecionado] = useState<Contato | null>(null);
     const [isMenuOpen, setIsMenuOpen] = useState(true);
-    const [salvando, setSalvando] = useState<boolean>(false);
-    const [buscarConversa, setBuscarConversa] = useState<string>('');
-    const [conversasFiltradas, setConversasFiltradas] = useState<Conversa[]>([]);
-    const [showInput, setShowInput] = useState(false);
+
     const [activeSection, setActiveSection] = useState<itensMenu>('conversas');
+
     const [conversas, setConversas] = useState<Conversa[]>([
         {
-            id: 1,
+            id: 100,
             contato: {
-                id: 1,
+                id: 100,
                 nome: 'KillJoy',
                 foto: '/images.jpeg',
-                numero: '88992531384'
+                numero: '5588992531384'
             },
             ultimaMensagem: {
                 remetente: 'Killjoy',
                 texto: 'vamos jogar mais tarde?',
                 horario: '12:45',
-                data_envio: '12:45',
-                data_recebimento: '12:45',
-                data_visualizacao: ''
+                dataEnvio: '12:45',
+                dataRecebimento: '12:45',
+                dataVisualizacao: ''
             },
             mensagensPendentes: 1
         },
         {
-            id: 2,
+            id: 200,
             contato: {
-                id: 2,
+                id: 200,
                 nome: 'Raze',
                 foto: '/imagens/users/raze.webp',
-                numero: ''
+                numero: '558892799971'
             },
             ultimaMensagem: {
                 remetente: 'Killjoy',
                 texto: 'blz?',
                 horario: '12:45',
-                data_envio: '12:45',
-                data_recebimento: '12:45',
-                data_visualizacao: ''
+                dataEnvio: '12:45',
+                dataRecebimento: '12:45',
+                dataVisualizacao: ''
             },
             mensagensPendentes: 3
 
@@ -83,120 +74,79 @@ export const Chat = () => {
         },
     ]);
 
-    const [isModalCadastroContatoOpen, setIsModalCadastroContatoOpen] = useState(false);
+    const [grupoAtivo, setGrupoAtivo] = useState<grupoDeMensagem | null>(null);
 
-    const handleCloseModalCadastroContato = () => {
-        setContatoSelecionado(null);
-        setIsModalCadastroContatoOpen(false);
+    const [gruposDeContatos, setGruposDeContatos] = useState<Array<grupoDeMensagem>>([
+        {
+            id: 1,
+            nome: 'Amigos',
+            membros: [
+                { id: 1, nome: 'KillJoy', foto: '/images.jpeg', numero: '88992531384' },
+                { id: 2, nome: 'Raze', foto: '/imagens/users/raze.webp', numero: '' }
+            ]
+        },
+        {
+            id: 2,
+            nome: 'Família',
+            membros: [
+                { id: 3, nome: 'Brimstone', foto: '/imagens/users/brimstone.jpg', numero: '88992531385' }
+            ]
+        }
+    ]);
+
+    const handleGrupoClick = (grupoSelecionado: grupoDeMensagem) => {
+        setGrupoAtivo(grupoSelecionado);
+        if (grupoSelecionado) {
+            const existeConversa = conversas.find(convo => convo.grupo?.id === grupoSelecionado.id);
+
+            if (existeConversa) setConversaSelecionada(existeConversa);
+            else {
+                const novaConversa: Conversa = {
+                    id: Date.now(),
+                    grupo: grupoSelecionado,
+                    ultimaMensagem: {
+                        remetente: '',
+                        texto: '',
+                        horario: '',
+                        dataEnvio: '',
+                        dataRecebimento: '',
+                        dataVisualizacao: ''
+                    },
+                    mensagensPendentes: 0
+                };
+                console.log(novaConversa);
+
+                setConversas(prevConversas => [...prevConversas, novaConversa]);
+                setConversaSelecionada(novaConversa);
+            }
+        }
     };
 
-    const ClickCriarConversa = (contatoId?: number) => {
-        const existeConversa = conversas.find(convo => convo.contato.id === contatoId);
-
-        if (existeConversa) {
-            setConversaAtiva(existeConversa.id);
-            setConversaSelecionada(existeConversa);
-        } else {
-            const novaConversa: Conversa = {
+    const clickCriarConversa = (contato?: Contato) => {
+        let conversa = conversas.find(convo => convo.contato?.id == contato?.id);
+        if (!conversa) {
+            conversa = {
                 id: Date.now(),
-                contato: listaContatos.find(contato => contato.id === contatoId)!,
+                contato: contato!,
                 ultimaMensagem: {
                     remetente: '',
                     texto: '',
                     horario: '',
-                    data_envio: '',
-                    data_recebimento: '',
-                    data_visualizacao: ''
+                    dataEnvio: '',
+                    dataRecebimento: '',
+                    dataVisualizacao: ''
                 },
                 mensagensPendentes: 0
             };
-            setConversas(prevConversations => [...prevConversations, novaConversa]);
-            setConversaAtiva(novaConversa.id);
-            setConversaSelecionada(novaConversa);
+            setConversas(prevConversations => [...prevConversations, conversa!]);
         }
-        toggleConversas();
-    };
-
-    const handleSalvarContato = (novoContato: Contato) => {
-        setListaContato((prevContatos) => {
-            const existeContato = prevContatos.some((contato) => contato.id === novoContato.id);
-            if (existeContato)
-                return prevContatos.map((contato) => contato.id === novoContato.id ? novoContato : contato);
-            else return [...prevContatos, novoContato];
-        });
-
-        handleCloseModalCadastroContato();
-        setContatoSelecionado(null);
-    };
-
-    const handleConversationClick = (converaId: number) => {
-        setConversaAtiva(converaId);
-        setConversas((prevConversas) =>
-            prevConversas.map((conversas) => {
-                if (conversas.id === converaId) {
-                    setConversaSelecionada(conversas);
-                    return { ...conversas, mensagensPendentes: 0 }
-                } else return conversas
-            })
-        );
-        setShowInput(false);
-    };
-
-    const handleContatoEdit = (contato: Contato) => {
-        setIsModalCadastroContatoOpen(true);
-        setContatoSelecionado(contato);
-    };
-
-    const toggleContatos = () => {
-        setActiveSection('contatos');
-        if (!isMenuOpen)
-            setIsMenuOpen(true);
-        carregaContatos();
-    };
-
-    const toggleConversas = () => {
+        setConversaSelecionada(conversa);
         setActiveSection('conversas');
-        if (!isMenuOpen)
-            setIsMenuOpen(true);
-    };
-
-    const toggleSettings = () => {
-        setActiveSection('settings');
-        if (!isMenuOpen)
-            setIsMenuOpen(true);
-    };
-
-    const toggleModelosMensagem = () => {
-        setActiveSection("modeloMensagem");
-        if (!isMenuOpen) setIsMenuOpen(true);
     };
 
     const toggleMenuCollapse = () => {
         setIsMenuOpen((prev) => !prev);
     };
-
-    const carregaContatos = async (): Promise<void> => {
-        setLoading(true);
-        const request = () => getListContatos();
-        const response = await request();
-        if (response.sucesso)
-            setListaContato(response.dados);
-        setLoading(false);
-    };
-
-    useEffect(() => {
-        if (!buscarConversa.trim())
-            setConversasFiltradas(conversas);
-        else {
-            const termo = buscarConversa.toLowerCase();
-            const conversasFiltradas = conversas.filter((conversa) => {
-                const nomeContato = conversa.contato.nome.toLowerCase();
-                const numeroContato = conversa.contato.numero?.replace(/\D/g, '');
-                return nomeContato.includes(termo) || numeroContato.includes(termo);
-            });
-            setConversasFiltradas(conversasFiltradas);
-        }
-    }, [buscarConversa, conversas]);
 
     return (
         <div className="mx-auto py-[1rem] px-[2rem] text-center bg-gradient-to-b from-[#00A884] to-[#DAD7D3] via-[#DAD7D3] h-screen">
@@ -207,72 +157,38 @@ export const Chat = () => {
                             isMenuOpen={isMenuOpen}
                             activeSection={activeSection}
                             toggleMenuCollapse={toggleMenuCollapse}
-                            toggleConversas={toggleConversas}
-                            toggleContatos={toggleContatos}
-                            toggleSettings={toggleSettings}
-                            toggleModelosMensagem={toggleModelosMensagem}
+                            setActiveSection={setActiveSection}
+                            setIsMenuOpen={setIsMenuOpen}
                         />
+
                         {activeSection != 'modeloMensagem' &&
                             <div className={`flex-1 h-full bg-white overflow-y-auto overflow-x-hidden barraRolagem transition-opacity duration-300 ${isMenuOpen ? 'opacity-100' : 'opacity-0 hidden'}`}>
-                                <div className="p-5 text-left flex justify-between items-center">
-                                    <h2 className="text-lg font-semibold"> {activeSection == 'contatos' ? 'Contatos' : activeSection == 'conversas' ? 'Conversas' : "Configuração"} </h2>
-                                    {
-                                        activeSection == 'contatos' &&
-                                        <FontAwesomeIcon
-                                            icon={faPlus}
-                                            size="lg"
-                                            color='#54656F'
-                                            className="cursor-pointer transition-all duration-300"
-                                            onClick={() => setIsModalCadastroContatoOpen(true)}
-                                        />
-                                    }
-                                </div>
-
-                                {activeSection != 'settings' &&
-                                    <>
-                                        <div className="px-4 flex items-center space-x-2 mb-5">
-                                            <div className="relative flex-1">
-                                                <FontAwesomeIcon
-                                                    icon={faSearch}
-                                                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                                                />
-                                                <input
-                                                    type="text"
-                                                    placeholder="Pesquisar"
-                                                    className="w-full pl-10 pr-4 py-2 bg-[#F5F5F5] rounded-md border-none focus:outline-none"
-                                                    value={buscarConversa}
-                                                    onChange={(e) => setBuscarConversa(e.target.value)}
-                                                />
-                                            </div>
-                                        </div>
-                                    </>
-                                }
-
-                                {activeSection == 'contatos' &&
-                                    <>
-                                        {!loading ?
-                                            <ListagemContato listaContatos={listaContatos} ClickCriarConversa={ClickCriarConversa} onClick={handleContatoEdit} /> : <Loading />
-                                        }
-                                    </>
-                                }
-
                                 {activeSection == 'conversas' &&
                                     <ListagemConversa
-                                        conversaAtiva={conversaAtiva ?? null}
-                                        conversasFiltradas={conversasFiltradas}
-                                        handleConversationClick={(conversationId) => handleConversationClick(conversationId!)}
+                                        conversaSelecionada={conversaSelecionada}
+                                        conversas={conversas}
+                                        setConversaSelecionada={setConversaSelecionada}
+                                        setConversas={setConversas}
                                     />
                                 }
 
-                                {activeSection == 'settings' && <Configuracoes />}
-                            </div>}
+                                {activeSection == 'contatos' &&
+                                    <ListagemContato ClickCriarConversa={clickCriarConversa} />
+                                }
 
+                                {activeSection === 'gruposContatos' && (
+                                    <ListagemGrupoContato gruposDeContatos={gruposDeContatos} onSelectGrupo={handleGrupoClick} />
+                                )}
+
+                                {activeSection == 'settings' && <Configuracoes />}
+                            </div>
+                        }
                     </div>
                 </div>
 
                 <div className={`sm:flex sm:flex-col bg-[#EFEAE2] transition-all duration-300 ${isMenuOpen && activeSection != 'modeloMensagem' ? 'lg:w-[75%] hidden' : 'w-full flex flex-col'}`}>
-                    
-                    {!conversaAtiva && (activeSection == 'conversas' || activeSection == 'contatos') && (
+
+                    {!conversaSelecionada && (activeSection == 'conversas' || activeSection == 'contatos') && (
                         <div className="flex flex-col items-center justify-center h-full text-center p-8 text-gray-600">
                             <h3 className="text-2xl font-semibold text-gray-800">
                                 Nenhuma conversa selecionada no momento
@@ -285,23 +201,17 @@ export const Chat = () => {
 
                     {activeSection == 'settings' && <DadosConta />}
 
-                    {conversaAtiva && (activeSection == 'conversas' || activeSection == 'contatos') &&
-                        <>
-                            <ChatDeMensagem activeSection={activeSection} conversaSelecionada={conversaSelecionada} modelos={modelos} setConversas={setConversas} setShowInput={setShowInput} showInput={showInput} />
-                        </>
+                    {conversaSelecionada && (activeSection == 'conversas' || activeSection == 'contatos') &&
+                        <ChatDeMensagem activeSection={activeSection} conversaSelecionada={conversaSelecionada} modelos={modelos} setConversas={setConversas} />
                     }
+
+                    {grupoAtivo && (
+                        <></>
+                    )}
 
                     {activeSection == 'modeloMensagem' && <ModelosMensagem modelos={modelos} setModelos={setModelos} />}
                 </div>
             </div>
-
-            <ModalCadastroContato
-                isOpen={isModalCadastroContatoOpen}
-                handleClose={handleCloseModalCadastroContato}
-                salvando={salvando}
-                onSave={handleSalvarContato}
-                contato={contatoSelecionado}
-            />
         </div>
 
     );

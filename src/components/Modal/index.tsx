@@ -152,13 +152,14 @@ Modal.BotaoAcao = (props: PropsBotaoAcao): JSX.Element => {
     )
 }
 
-Modal.BotaoCancelar = ({ texto = "Cancelar" }: { texto?: string }): JSX.Element => {
+Modal.BotaoCancelar = ({texto = "Cancelar", acao}: {texto?: string; acao?: React.MouseEventHandler<HTMLButtonElement>;}): JSX.Element => {
     return (
         <AlertDialog.Cancel asChild>
             <Botao
-                tipo={"padrao"}
+                tipo="padrao"
                 texto={texto}
+                onClick={acao}
             />
         </AlertDialog.Cancel>
-    )
-}
+    );
+};

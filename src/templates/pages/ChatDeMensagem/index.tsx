@@ -16,14 +16,13 @@ import useToastLoading from "../../../hooks/useToastLoading";
 
 interface ChatDeMensagemProps {
     modelos: Array<ModeloMensagem>;
-    showInput: boolean;
     activeSection: itensMenu;
     conversaSelecionada: Conversa | null;
     setConversas: React.Dispatch<React.SetStateAction<Array<Conversa>>>;
-    setShowInput: React.Dispatch<React.SetStateAction<boolean>>;
+
 }
 
-export const ChatDeMensagem = ({ modelos, showInput, activeSection, conversaSelecionada, setConversas, setShowInput }: ChatDeMensagemProps) => {
+export const ChatDeMensagem = ({ modelos, activeSection, conversaSelecionada, setConversas }: ChatDeMensagemProps) => {
     const toast = useToastLoading();
     const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
     const mensagemEndRef = useRef<HTMLDivElement>(null);
@@ -32,8 +31,10 @@ export const ChatDeMensagem = ({ modelos, showInput, activeSection, conversaSele
     const [mensagem, setMensagem] = useState<Mensagem[]>([]);
     const [novaMensagem, setNovaMensagem] = useState<string>('');
     const [exibirModelos, setExibirModelos] = useState(false);
-
+    const [showInput, setShowInput] = useState(false);
     const enviarMensagem = async () => {
+        console.log(conversaSelecionada?.contato?.numero);
+
         if (novaMensagem.trim() !== '') {
             const tempo = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
@@ -47,7 +48,7 @@ export const ChatDeMensagem = ({ modelos, showInput, activeSection, conversaSele
                 data_visualizacao: '',
             };
 
-            const request = () => postEnviarMensagem({ remetente: userId, destinatario: conversaSelecionada?.contato.numero ?? '', texto: novaMensagem });
+            const request = () => postEnviarMensagem({ remetente: userId, destinatario: conversaSelecionada?.contato?.numero ?? '', texto: novaMensagem });
             const response = await request();
             if (response.sucesso) {
                 setMensagem((prevMessages) => [...prevMessages, msg]);
@@ -60,9 +61,9 @@ export const ChatDeMensagem = ({ modelos, showInput, activeSection, conversaSele
                                     remetente: userId,
                                     texto: novaMensagem,
                                     horario: tempo,
-                                    data_envio: tempo,
-                                    data_recebimento: '',
-                                    data_visualizacao: '',
+                                    dataEnvio: tempo,
+                                    dataRecebimento: '',
+                                    dataVisualizacao: '',
                                 },
                                 mensagensPendentes: 0
                             }
@@ -115,7 +116,7 @@ export const ChatDeMensagem = ({ modelos, showInput, activeSection, conversaSele
     };
 
     const carregaMensagem = async (): Promise<void> => {
-        const request = () => getListConversa({ destinatario: userId, remetente: conversaSelecionada?.contato.numero ?? '' });
+        const request = () => getListConversa({ destinatario: userId, remetente: conversaSelecionada?.contato?.numero ?? '' });
         const response = await request();
         if (response.sucesso) setMensagem(response.dados);
         else toast({ tipo: response.tipo, mensagem: response.mensagem });
@@ -124,6 +125,7 @@ export const ChatDeMensagem = ({ modelos, showInput, activeSection, conversaSele
     useEffect(() => {
         setNovaMensagem('');
         setExibirModelos(false);
+        setShowInput(false);
     }, [activeSection, conversaSelecionada]);
 
     useEffect(() => {
@@ -134,10 +136,10 @@ export const ChatDeMensagem = ({ modelos, showInput, activeSection, conversaSele
         <>
             <div className="flex items-center justify-between p-4 bg-[#F0F2F5] shadow-sm">
                 <div className="flex items-center space-x-4">
-                    <img src={conversaSelecionada?.contato.foto ?? 'imagens/user.png'} alt="Perfil" className="w-12 h-12 rounded-full object-cover" />
+                    <img src={conversaSelecionada?.contato?.foto ?? 'imagens/user.png'} alt="Perfil" className="w-12 h-12 rounded-full object-cover" />
                     <div className='flex flex-col items-start'>
-                        <span className="text-lg">{conversaSelecionada?.contato.nome}</span>
-                        <span className="text-sm text-zinc-400">{formatarTelefone(conversaSelecionada?.contato.numero || '')}</span>
+                        <span className="text-lg">{conversaSelecionada?.contato?.nome}</span>
+                        <span className="text-sm text-zinc-400">{formatarTelefone(conversaSelecionada?.contato?.numero || '')}</span>
                     </div>
                 </div>
 
@@ -206,7 +208,7 @@ export const ChatDeMensagem = ({ modelos, showInput, activeSection, conversaSele
                         </ul>
                     </div>
                 )}
-                
+
                 <button
                     onClick={enviarMensagem}
                     className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center shadow-md hover:bg-blue-700 transition"

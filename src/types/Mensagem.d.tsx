@@ -4,9 +4,9 @@ export type Mensagem = {
     destinatario?: string;
     texto?: string;
     horario?: string;
-    data_envio?: string;
-    data_recebimento?: string;
-    data_visualizacao?: string;
+    dataEnvio?: string;
+    dataRecebimento?: string;
+    dataVisualizacao?: string;
 }
 
 export type EnviarMensagem = {

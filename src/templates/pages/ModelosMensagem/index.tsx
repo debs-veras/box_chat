@@ -68,7 +68,7 @@ export const ModelosMensagem = ({ modelos, setModelos }: PropsModelosMensagem) =
     <>
       <div className="p-5 w-full">
         <div className="flex justify-between items-center">
-          <h2 className="text-3xl font-semibold">Modelos de Mensagem</h2>
+          <h2 className="text-2xl font-semibold">Modelos de Mensagem</h2>
           <Botao tipo="informacao" onClick={abrirModal} texto={"Adicionar"} icone={<FontAwesomeIcon icon={faPlus} />} />
         </div>
 

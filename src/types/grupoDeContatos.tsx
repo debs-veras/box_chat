@@ -1,7 +1,13 @@
-import { Contato } from "./contato.d";
-
 export interface GruposDeContatos {
     id: number;
     nome: string;
-    membros: Contato[];
+    descricao: string;
+    contatoIds: number[];
+}
+
+export interface CadastroGruposDeContatos {
+    id?: number;
+    nome: string;
+    descricao: string;
+    contatoIds: Array<number>;
 }

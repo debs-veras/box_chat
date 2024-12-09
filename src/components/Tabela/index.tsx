@@ -16,7 +16,7 @@ type PropsTabela = {
     Body?: PropsBody;
     tags?: JSX.Element;
     icone?: JSX.Element;
-    filtro?: JSX.Element;
+    iconeDestaque?: boolean;
 }
 
 type PropsHeader = {
@@ -43,18 +43,19 @@ type PropsBodyLinhaColuna = {
     children: JSX.Element;
 }
 
-function Tabela({ titulo, tamanhoTitulo = "grande", descricao, children, botoes, tags, filtro }: PropsTabela): JSX.Element {
+function Tabela({ titulo, tamanhoTitulo = "grande", descricao, children, botoes, tags,  iconeDestaque }: PropsTabela): JSX.Element {
     return (
         <div className="bg-white sm:rounded-lg rounded-t-lg divide-y">
             <div className="sm:flex pb-4 sm:items-center border-gray-200">
                 <div className="sm:flex-auto">
-                    <div className='flex flex-col gap-2'>
+                    <div className='flex flex-row items-center gap-2'>
+                        <div className={classNames(iconeDestaque && "p-2 bg-primary-900 rounded-md")}>
+                       
+                        </div>
                         <h1 className={classNames(
-                            'font-semibold text-left text-primary-900',
+                            'font-semibold text-primary-900',
                             (tamanhoTitulo == "normal" ? "text-lg" : (tamanhoTitulo == "pequeno" ? "text-base" : "text-2xl"))
                         )}>{titulo}</h1>
-
-                        {filtro}
                     </div>
                     {descricao && <span className="text-sm font-normal text-gray-500">{descricao}</span>}
                 </div>

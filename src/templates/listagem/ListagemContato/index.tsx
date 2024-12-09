@@ -99,7 +99,7 @@ export const ListagemContato = ({ ClickCriarConversa }: ContatoComponentProps) =
                     listaContatosFiltrados.map((contato) => (
                         <div
                             key={contato.id}
-                            className="p-4  flex items-center space-x-4 hover:bg-blue-50 transition"
+                            className="p-4 flex items-center space-x-4 hover:bg-blue-50 transition"
                         >
                             <img
                                 src={contato?.foto || '/imagens/user.png'}

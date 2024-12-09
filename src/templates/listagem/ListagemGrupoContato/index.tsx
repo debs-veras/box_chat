@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { GruposDeContatos } from "../../../types/grupoDeContatos";
 import { HeaderComponent } from "../../../components/HeaderListagem";
+import useDebounce from "../../../hooks/useDebounce";
+import useToastLoading from "../../../hooks/useToastLoading";
+import { getListGrupo } from "../../../services/grupoContato";
+import { FaUsers } from "react-icons/fa";
+import Loading from "../../../components/Loading";
 
 interface ListagemGrupoContatoProps {
     setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -8,52 +13,25 @@ interface ListagemGrupoContatoProps {
 
 export const ListagemGrupoContato = ({ setIsOpen }: ListagemGrupoContatoProps) => {
     const [pesquisaGrupoContato, setPesquisaGrupoContato] = useState<string>('');
+    const toast = useToastLoading();
+    const [loading, setLoading] = useState<boolean>(false);
     const [gruposContatosFiltrados, setGruposContatosFiltrados] = useState<Array<GruposDeContatos>>([]);
-    const [gruposDeContatos, setGruposDeContatos] = useState<Array<GruposDeContatos>>([
-        {
-            id: 1,
-            nome: 'Amigos',
-            membros: [
-                { id: 1, nome: 'KillJoy', foto: '/images.jpeg', numero: '88992531384' },
-                { id: 2, nome: 'Raze', foto: '/imagens/users/raze.webp', numero: '' }
-            ]
-        },
-        {
-            id: 2,
-            nome: 'Família',
-            membros: [
-                { id: 3, nome: 'Brimstone', foto: '/imagens/users/brimstone.jpg', numero: '88992531385' }
-            ]
-        }
-    ]);
+    const [gruposDeContatos, setGruposDeContatos] = useState<Array<GruposDeContatos>>([]);
 
-    // const handleGrupoClick = (grupoSelecionado: gruposDeContatos) => {
-    //     setGrupoAtivo(grupoSelecionado);
-    //     if (grupoSelecionado) {
-    //         const existeConversa = conversas.find(convo => convo.grupo?.id === grupoSelecionado.id);
+    const carregaContatos = async (): Promise<void> => {
+        setLoading(true);
+        const request = () => getListGrupo();
+        const response = await request();
+        if (response.sucesso) setGruposDeContatos(response.dados);
+        else toast({ tipo: response.tipo, mensagem: response.mensagem });
+        setLoading(false);
+    };
 
-    //         if (existeConversa) setConversaSelecionada(existeConversa);
-    //         else {
-    //             const novaConversa: Conversa = {
-    //                 id: Date.now(),
-    //                 grupo: grupoSelecionado,
-    //                 ultimaMensagem: {
-    //                     remetente: '',
-    //                     texto: '',
-    //                     horario: '',
-    //                     dataEnvio: '',
-    //                     dataRecebimento: '',
-    //                     dataVisualizacao: ''
-    //                 },
-    //                 mensagensPendentes: 0
-    //             };
-    //             console.log(novaConversa);
+    const filtroDebounce = useDebounce(carregaContatos, 500);
 
-    //             setConversas(prevConversas => [...prevConversas, novaConversa]);
-    //             setConversaSelecionada(novaConversa);
-    //         }
-    //     }
-    // };
+    useEffect(() => {
+        filtroDebounce();
+    }, [])
 
     useEffect(() => {
         if (!pesquisaGrupoContato.trim()) setGruposContatosFiltrados(gruposDeContatos);
@@ -77,21 +55,34 @@ export const ListagemGrupoContato = ({ setIsOpen }: ListagemGrupoContatoProps) =
                 setPesquisa={setPesquisaGrupoContato}
             />
 
-            <div className="px-4">
-                <ul className="space-y-2">
-                    {gruposContatosFiltrados.map((grupo) => (
-                        <li
-                            key={grupo.id}
-                            className="flex justify-between items-center p-2 bg-[#F5F5F5] rounded-md cursor-pointer"
-                        // onClick={() => onSelectGrupo(grupo)}
-                        >
-                            <div>
-                                <h3 className="font-semibold">{grupo.nome}</h3>
-                                <span className="text-sm text-gray-500">{grupo.membros.length} membros</span>
+            <div className="px-4 py-2 flex flex-col gap-2">
+                {loading ? (
+                    <Loading />
+                ) : (
+                    gruposContatosFiltrados.length > 0 ? (
+                        gruposContatosFiltrados.map((grupo) => (
+                            <div
+                                key={grupo.id}
+                                className="flex justify-between gap-1 items-center p-4 bg-white rounded-lg cursor-pointer"
+                            >
+                                <div className="truncate">
+                                    <h3 className="font-semibold text-left text-lg text-gray-800 truncate">
+                                        {grupo.nome}
+                                    </h3>
+                                    <span className="text-sm text-gray-500 max-w-full">
+                                        {grupo.descricao}
+                                    </span>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                    <FaUsers className="text-blue-500" />
+                                    <span className="text-sm text-gray-500">
+                                        {grupo.contatoIds?.length ?? 0}
+                                    </span>
+                                </div>
                             </div>
-                        </li>
-                    ))}
-                </ul>
+
+                        ))) : <p>Nenhum contato disponível.</p>
+                )}
             </div>
         </>
     );

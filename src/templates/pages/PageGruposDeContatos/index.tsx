@@ -48,7 +48,7 @@ export const PageGruposDeContatos = () => {
     const [paginaAtual, setPaginaAtual] = useState<number>(0)
     const [totalRegistros, setTotalRegistros] = useState<number>(0)
     const [totalPaginas, setTotalPaginas] = useState<number>(0)
-    const registrosPorPagina: number = 10
+    const registrosPorPagina: number = 3
     const watchUseEffect = watchFiltros();
 
     const carregaContatos = async (pageSize: number = registrosPorPagina, currentPage: number = 0): Promise<void> => {

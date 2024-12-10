@@ -3,9 +3,12 @@ import { GruposDeContatos } from "../../../types/grupoDeContatos";
 import { HeaderComponent } from "../../../components/HeaderListagem";
 import useDebounce from "../../../hooks/useDebounce";
 import useToastLoading from "../../../hooks/useToastLoading";
-import { getListGrupo } from "../../../services/grupoContato";
+import { deleteGrupo, getListGrupo } from "../../../services/grupoContato";
 import { FaUsers } from "react-icons/fa";
 import Loading from "../../../components/Loading";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
+import Modal from "../../../components/Modal";
 
 interface ListagemGrupoContatoProps {
     setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -17,6 +20,8 @@ export const ListagemGrupoContato = ({ setIsOpen }: ListagemGrupoContatoProps) =
     const [loading, setLoading] = useState<boolean>(false);
     const [gruposContatosFiltrados, setGruposContatosFiltrados] = useState<Array<GruposDeContatos>>([]);
     const [gruposDeContatos, setGruposDeContatos] = useState<Array<GruposDeContatos>>([]);
+    const [grupoSelecionado, setGrupoSelecionado] = useState<GruposDeContatos | null>(null);
+    const [confirmacaoDeletar, setConfirmacaoDeletar] = useState<boolean>(false);
 
     const carregaContatos = async (): Promise<void> => {
         setLoading(true);
@@ -27,6 +32,25 @@ export const ListagemGrupoContato = ({ setIsOpen }: ListagemGrupoContatoProps) =
         setLoading(false);
     };
 
+    function abrirModalExcluir(dados: GruposDeContatos): void {
+        setGrupoSelecionado(dados);
+        setConfirmacaoDeletar(true);
+    }
+
+    async function confirmDeleteGrupo(): Promise<void> {
+        if (grupoSelecionado == null) {
+            toast({ tipo: "error", mensagem: "Erro ao deletar: nenhum item selecionado!" })
+            return;
+        }
+        const response = await deleteGrupo(grupoSelecionado.id);
+
+        if (response.sucesso) {
+            carregaContatos();
+            setGrupoSelecionado(null)
+            toast({ tipo: 'success', mensagem: 'Grupo deletado com sucesso.' });
+        }
+        else toast({ tipo: response.tipo, mensagem: response.mensagem });
+    }
     const filtroDebounce = useDebounce(carregaContatos, 500);
 
     useEffect(() => {
@@ -63,27 +87,52 @@ export const ListagemGrupoContato = ({ setIsOpen }: ListagemGrupoContatoProps) =
                         gruposContatosFiltrados.map((grupo) => (
                             <div
                                 key={grupo.id}
-                                className="flex justify-between gap-1 items-center p-4 bg-white rounded-lg cursor-pointer"
+                                className="grid grid-cols-4 gap-1 p-4 bg-white border-b cursor-pointer hover:shadow-sm transition-shadow"
                             >
-                                <div className="truncate">
-                                    <h3 className="font-semibold text-left text-lg text-gray-800 truncate">
+                                <div className="col-span-3 truncate items-start flex flex-col">
+                                    <h3 className="font-semibold text-lg text-gray-800 truncate">
                                         {grupo.nome}
                                     </h3>
-                                    <span className="text-sm text-gray-500 max-w-full">
+                                    <span className="text-sm text-gray-500 truncate">
                                         {grupo.descricao}
                                     </span>
+                                    <div className="flex items-center space-x-2">
+                                        <FaUsers className="text-blue-500" />
+                                        <span className="text-sm text-gray-500">
+                                            {grupo.contatoIds?.length ?? 0} membros
+                                        </span>
+                                    </div>
                                 </div>
-                                <div className="flex items-center space-x-2">
-                                    <FaUsers className="text-blue-500" />
-                                    <span className="text-sm text-gray-500">
-                                        {grupo.contatoIds?.length ?? 0}
-                                    </span>
+
+                                <div className="col-span-1 flex gap-2 items-center justify-center">
+                                    <FontAwesomeIcon
+                                        icon={faEdit}
+                                        size="lg"
+                                        color='#54656F'
+                                        className="cursor-pointer transition-all duration-300"
+                                    // onClick={() => handleContatoEdit(contato)}
+                                    />
+                                    <FontAwesomeIcon
+                                        icon={faTrash}
+                                        size="lg"
+                                        color='red'
+                                        className="cursor-pointer transition-all duration-300"
+                                        onClick={() => abrirModalExcluir(grupo)}
+                                    />
                                 </div>
                             </div>
 
                         ))) : <p>Nenhum contato disponível.</p>
                 )}
             </div>
+            <Modal open={confirmacaoDeletar} setOpen={setConfirmacaoDeletar}>
+                <Modal.Titulo texto={`Deletar`} />
+                <Modal.Descricao texto={`Deseja realmente deletar o grupo "${grupoSelecionado?.nome}"?`} />
+                <Modal.ContainerBotoes>
+                    <Modal.BotaoAcao textoBotao="Deletar" acao={confirmDeleteGrupo} />
+                    <Modal.BotaoCancelar acao={() => setGrupoSelecionado(null)} />
+                </Modal.ContainerBotoes>
+            </Modal>
         </>
     );
 };

@@ -114,35 +114,38 @@ export const ListagemContato = ({ setConversaSelecionada, setActiveSection }: Co
                     listaContatosFiltrados.map((contato) => (
                         <div
                             key={contato.id}
-                            className="p-4 flex items-center space-x-4 hover:bg-blue-50 transition"
+                            className="p-4 flex items-center space-x-4 hover:bg-gray-100 transition rounded-lg"
                         >
-                            <img
-                                src={contato?.foto || '/imagens/user.png'}
-                                alt="Perfil"
-                                className="w-12 h-12 rounded-full object-cover"
-                            />
-                            <div className="flex-1 text-left cursor-pointer" onClick={() => clickCriarConversa(contato)}>
-                                <h3 className="font-medium">{contato.nome}</h3>
-                                <h4>{formatarTelefone(contato.numero)}</h4>
+                            <div className="w-12 h-12 rounded-full flex items-center justify-center bg-gray-200 text-lg font-semibold text-gray-800">
+                                {contato?.nome?.charAt(0).toUpperCase() || "?"}
+                            </div>
+                            <div
+                                className="flex-1 text-left cursor-pointer"
+                                onClick={() => clickCriarConversa(contato)}
+                            >
+                                <h3 className="font-medium text-gray-900">{contato.nome}</h3>
+                                <h4 className="text-sm text-gray-500">
+                                    {formatarTelefone(contato.numero)}
+                                </h4>
                             </div>
                             <div className="flex gap-2 items-center justify-center">
                                 <FaEdit
                                     size="1.25rem"
-                                    color="#54656F"
-                                    className="cursor-pointer transition-all duration-300"
+                                    color="#6B7280"
+                                    className="cursor-pointer transition-all duration-300 hover:text-blue-500 hover:scale-105"
                                     onClick={() => handleContatoEdit(contato)}
                                 />
                                 <FaTrash
                                     size="1.25rem"
-                                    color="red"
-                                    className="cursor-pointer transition-all duration-300"
+                                    color="#EF4444"
+                                    className="cursor-pointer transition-all duration-300 hover:scale-105"
                                     onClick={() => abrirModalExcluir(contato)}
                                 />
                             </div>
                         </div>
                     ))
                 ) : (
-                    <p>Nenhum contato disponível.</p>
+                    <p className="text-gray-500">Nenhum contato disponível.</p>
                 )
             ) : (
                 <Loading />

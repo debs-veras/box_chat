@@ -63,11 +63,9 @@ export const ListagemConversa = ({ conversaSelecionada, setConversaSelecionada }
                             onClick={() => handleConversationClick(conversa)}
                             className={`p-4 cursor-pointer flex items-center space-x-4  ${conversaSelecionada?.id === conversa.id ? 'bg-blue-100' : 'bg-white'} hover:bg-blue-50 transition`}
                         >
-                            <img
-                                src={'./imagens/user.png'}
-                                alt="Perfil"
-                                className="w-12 h-12 rounded-full object-cover"
-                            />
+                            <div className="w-12 h-12 rounded-full flex items-center justify-center bg-gray-200 text-lg font-semibold text-gray-800">
+                                {conversa.contatoNome.charAt(0).toUpperCase() || "?"}
+                            </div>
                             <div className="flex-1 text-left truncate">
                                 <h3 className="text-md font-medium truncate">{conversa.contatoNome}</h3>
                                 <p className="text-sm text-gray-500 truncate">{conversa.ultimaMensagem}</p>

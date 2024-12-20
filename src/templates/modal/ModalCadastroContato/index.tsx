@@ -71,7 +71,7 @@ export const ModalCadastroContato = ({ isOpen, handleClose, carregaContatos, con
                     lowercase
                     placeholder="Digite o nome"
                 />
-                
+
                 <Formulario.InputCelular
                     name="numero"
                     label="Celular"

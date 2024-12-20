@@ -1,8 +1,7 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useEffect, useState } from "react";
+import { FaEdit, FaTrash } from "react-icons/fa";
 import { Contato } from "../../../types/contato.d";
 import { formatarTelefone } from '../../../utils/formatar';
-import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
-import { useEffect, useState } from "react";
 import { deleteContato, getListContatos } from "../../../services/contato";
 import { ModalCadastroContato } from "../../modal/ModalCadastroContato";
 import Loading from "../../../components/Loading";
@@ -10,12 +9,15 @@ import { HeaderComponent } from "../../../components/HeaderListagem";
 import useToastLoading from "../../../hooks/useToastLoading";
 import useDebounce from "../../../hooks/useDebounce";
 import Modal from "../../../components/Modal";
+import { ConversaListagem } from "../../../types/conversa.d";
+import { itensMenu } from "../../../types/itensMenu.d";
 
 interface ContatoComponentProps {
-    ClickCriarConversa: (contato?: Contato) => void;
+    setConversaSelecionada: React.Dispatch<React.SetStateAction<ConversaListagem | null>>
+    setActiveSection: React.Dispatch<React.SetStateAction<itensMenu>>
 }
 
-export const ListagemContato = ({ ClickCriarConversa }: ContatoComponentProps) => {
+export const ListagemContato = ({ setConversaSelecionada, setActiveSection }: ContatoComponentProps) => {
     const [loading, setLoading] = useState<boolean>(false);
     const [listaContatos, setListaContato] = useState<Array<Contato>>([]);
     const [listaContatosFiltrados, setListaContatosFiltrados] = useState<Array<Contato>>([]);
@@ -42,17 +44,16 @@ export const ListagemContato = ({ ClickCriarConversa }: ContatoComponentProps) =
 
     async function confirmDeleteContato(): Promise<void> {
         if (contatoSelecionado == null) {
-            toast({ tipo: "error", mensagem: "Erro ao deletar: nenhum item selecionado!" })
+            toast({ tipo: "error", mensagem: "Erro ao deletar: nenhum item selecionado!" });
             return;
         }
         const response = await deleteContato(contatoSelecionado.id);
 
         if (response.sucesso) {
             carregaContatos();
-            setContatoSelecionado(null)
+            setContatoSelecionado(null);
             toast({ tipo: 'success', mensagem: 'Contato deletado com sucesso.' });
-        }
-        else toast({ tipo: response.tipo, mensagem: response.mensagem });
+        } else toast({ tipo: response.tipo, mensagem: response.mensagem });
     }
 
     const carregaContatos = async (): Promise<void> => {
@@ -62,6 +63,20 @@ export const ListagemContato = ({ ClickCriarConversa }: ContatoComponentProps) =
         if (response.sucesso) setListaContato(response.dados);
         else toast({ tipo: response.tipo, mensagem: response.mensagem });
         setLoading(false);
+    };
+
+    const clickCriarConversa = (contato?: Contato) => {
+        let conversa: ConversaListagem = {
+            contatoId: contato?.id || 0,
+            contatoNome: contato?.nome || '',
+            contatoNumero: contato?.numero || '',
+            ultimaMensagem: '',
+            mensagensPendentes: 0,
+            mensagens: []
+        };
+
+        setConversaSelecionada(conversa);
+        setActiveSection('conversas');
     };
 
     const filtroDebounce = useDebounce(carregaContatos, 500);
@@ -82,7 +97,7 @@ export const ListagemContato = ({ ClickCriarConversa }: ContatoComponentProps) =
 
     useEffect(() => {
         filtroDebounce();
-    }, [])
+    }, []);
 
     return (
         <>
@@ -94,7 +109,7 @@ export const ListagemContato = ({ ClickCriarConversa }: ContatoComponentProps) =
                 inputAtivo={true}
             />
 
-            {!loading ?
+            {!loading ? (
                 listaContatosFiltrados.length > 0 ? (
                     listaContatosFiltrados.map((contato) => (
                         <div
@@ -106,31 +121,32 @@ export const ListagemContato = ({ ClickCriarConversa }: ContatoComponentProps) =
                                 alt="Perfil"
                                 className="w-12 h-12 rounded-full object-cover"
                             />
-                            <div className="flex-1 text-left cursor-pointer" onClick={() => ClickCriarConversa(contato)}>
+                            <div className="flex-1 text-left cursor-pointer" onClick={() => clickCriarConversa(contato)}>
                                 <h3 className="font-medium">{contato.nome}</h3>
                                 <h4>{formatarTelefone(contato.numero)}</h4>
                             </div>
                             <div className="flex gap-2 items-center justify-center">
-                                <FontAwesomeIcon
-                                    icon={faEdit}
-                                    size="lg"
-                                    color='#54656F'
+                                <FaEdit
+                                    size="1.25rem"
+                                    color="#54656F"
                                     className="cursor-pointer transition-all duration-300"
                                     onClick={() => handleContatoEdit(contato)}
                                 />
-                                <FontAwesomeIcon
-                                    icon={faTrash}
-                                    size="lg"
-                                    color='red'
+                                <FaTrash
+                                    size="1.25rem"
+                                    color="red"
                                     className="cursor-pointer transition-all duration-300"
                                     onClick={() => abrirModalExcluir(contato)}
                                 />
                             </div>
                         </div>
                     ))
-                ) : <p>Nenhum contato disponível.</p>
-                : <Loading />
-            }
+                ) : (
+                    <p>Nenhum contato disponível.</p>
+                )
+            ) : (
+                <Loading />
+            )}
 
             <ModalCadastroContato
                 isOpen={isModalCadastroContatoOpen}
@@ -141,7 +157,7 @@ export const ListagemContato = ({ ClickCriarConversa }: ContatoComponentProps) =
 
             <Modal open={confirmacaoDeletar} setOpen={setConfirmacaoDeletar}>
                 <Modal.Titulo texto={`Deletar`} />
-                <Modal.Descricao texto={`Deseja realmente deletar o modelo "${contatoSelecionado?.nome}"?`} />
+                <Modal.Descricao texto={`Deseja realmente deletar o contato "${contatoSelecionado?.nome}"?`} />
                 <Modal.ContainerBotoes>
                     <Modal.BotaoAcao textoBotao="Deletar" acao={confirmDeleteContato} />
                     <Modal.BotaoCancelar acao={() => setContatoSelecionado(null)} />

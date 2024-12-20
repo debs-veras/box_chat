@@ -1,28 +1,38 @@
 import { useEffect, useState } from "react";
 import { HeaderComponent } from "../../../components/HeaderListagem";
-import { Conversa } from "../../../types/conversa.d";
+import { ConversaListagem } from "../../../types/conversa.d";
+import { getListUltimasConversa } from "../../../services/conversa";
+import useToastLoading from "../../../hooks/useToastLoading";
+import Loading from "../../../components/Loading";
+
 interface ConversaComponentProps {
-    conversaSelecionada: Conversa | null;
-    conversas: Array<Conversa>;
-    setConversaSelecionada: React.Dispatch<React.SetStateAction<Conversa | null>>
-    setConversas: React.Dispatch<React.SetStateAction<Array<Conversa>>>
+    conversaSelecionada: ConversaListagem | null;
+    setConversaSelecionada: React.Dispatch<React.SetStateAction<ConversaListagem | null>>
 }
 
-export const ListagemConversa = ({ conversaSelecionada, conversas, setConversaSelecionada, setConversas }: ConversaComponentProps) => {
+export const ListagemConversa = ({ conversaSelecionada, setConversaSelecionada }: ConversaComponentProps) => {
     const [pesquisaConversa, setPesquisaConversa] = useState<string>('');
-    const [conversasFiltradas, setConversasFiltradas] = useState<Conversa[]>([]);
+    const [loading, setLoading] = useState<boolean>(false);
+    const [conversasFiltradas, setConversasFiltradas] = useState<Array<ConversaListagem>>([]);
+    const [conversas, setConversas] = useState<Array<ConversaListagem>>([]);
+    const toast = useToastLoading();
 
-    const handleConversationClick = (converaId: number) => {
-        setConversas((prevConversas) =>
-            prevConversas.map((conversas) => {
-                if (conversas.id === converaId) {
-                    setConversaSelecionada(conversas);
-                    return { ...conversas, mensagensPendentes: 0 }
-                } else return conversas
-            })
-        );
-
+    const handleConversationClick = (conversas: ConversaListagem) => {
+        setConversaSelecionada(conversas);
     };
+
+    const carregaUltimasConversas = async (): Promise<void> => {
+        setLoading(true);
+        const request = () => getListUltimasConversa();
+        const response = await request();
+        if (response.sucesso) setConversas(response.dados);
+        else toast({ tipo: response.tipo, mensagem: response.mensagem });
+        setLoading(false);
+    };
+
+    useEffect(() => {
+        carregaUltimasConversas();
+    }, []);
 
     useEffect(() => {
         if (!pesquisaConversa.trim())
@@ -30,9 +40,8 @@ export const ListagemConversa = ({ conversaSelecionada, conversas, setConversaSe
         else {
             const termo = pesquisaConversa.toLowerCase();
             const conversasFiltradas = conversas.filter((conversa) => {
-                const nomeContato = conversa.contato?.nome.toLowerCase();
-                const numeroContato = conversa.contato?.numero?.replace(/\D/g, '');
-                return nomeContato?.includes(termo) || numeroContato?.includes(termo);
+                const nomeContato = conversa.contatoNome.toLowerCase();
+                return nomeContato?.includes(termo)
             });
             setConversasFiltradas(conversasFiltradas);
         }
@@ -46,40 +55,43 @@ export const ListagemConversa = ({ conversaSelecionada, conversas, setConversaSe
                 setPesquisa={setPesquisaConversa}
                 inputAtivo={true}
             />
-
-            {conversasFiltradas.length > 0 ? (
-                conversasFiltradas.map((conversa) => (
-                    <div
-                        key={conversa.id}
-                        onClick={() => handleConversationClick(conversa.id)}
-                        className={`p-4 cursor-pointer flex items-center space-x-4  ${conversaSelecionada?.id === conversa.id ? 'bg-blue-100' : 'bg-white'} hover:bg-blue-50 transition`}
-                    >
-                        <img
-                            src={conversa.contato?.foto ?? './imagens/user.png'}
-                            alt="Perfil"
-                            className="w-12 h-12 rounded-full object-cover"
-                        />
-                        <div className="flex-1 text-left truncate">
-                            <h3 className="text-md font-medium truncate">{conversa.contato?.nome}</h3>
-                            <p className="text-sm text-gray-500 truncate">{conversa.ultimaMensagem?.texto}</p>
-                        </div>
-                        <div className='flex flex-col gap-1'>
-                            <div className="text-xs text-gray-500">
-                                {conversa.ultimaMensagem?.dataEnvio}
+            {!loading ?
+                conversasFiltradas.length > 0 ? (
+                    conversasFiltradas.map((conversa) => (
+                        <div
+                            key={conversa.id}
+                            onClick={() => handleConversationClick(conversa)}
+                            className={`p-4 cursor-pointer flex items-center space-x-4  ${conversaSelecionada?.id === conversa.id ? 'bg-blue-100' : 'bg-white'} hover:bg-blue-50 transition`}
+                        >
+                            <img
+                                src={'./imagens/user.png'}
+                                alt="Perfil"
+                                className="w-12 h-12 rounded-full object-cover"
+                            />
+                            <div className="flex-1 text-left truncate">
+                                <h3 className="text-md font-medium truncate">{conversa.contatoNome}</h3>
+                                <p className="text-sm text-gray-500 truncate">{conversa.ultimaMensagem}</p>
                             </div>
-                            {conversa.mensagensPendentes > 0 && (
-                                <div className="text-xs bg-red-500 text-white rounded-full px-2">
-                                    {conversa.mensagensPendentes}
+                            <div className='flex flex-col gap-1'>
+                                <div className="text-xs text-gray-500">
+                                    {/* {conversa.dataRecebimento} */}
                                 </div>
-                            )}
+                                {conversa.mensagensPendentes != 0 && (
+                                    <div className="text-xs bg-red-500 text-white rounded-full px-2">
+                                        {conversa.mensagensPendentes}
+                                    </div>
+                                )}
+                            </div>
                         </div>
+                    ))
+                ) : (
+                    <div className="text-center text-gray-500 py-4">
+                        Nenhuma conversa encontrada com o termo.
                     </div>
-                ))
-            ) : (
-                <div className="text-center text-gray-500 py-4">
-                    Nenhuma conversa encontrada com o termo.
-                </div>
-            )}
+                )
+                :
+                <Loading />
+            }
         </>
     );
 };

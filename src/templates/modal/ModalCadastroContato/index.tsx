@@ -4,7 +4,7 @@ import ModalBase from '../../../components/ModalBase';
 import Formulario from '../../../components/Input';
 import { Contato, ContatoCadastro } from '../../../types/contato.d';
 import Botao from '../../../components/Button';
-import { postContato } from '../../../services/contato';
+import { postContato, putContato } from '../../../services/contato';
 import useToastLoading from '../../../hooks/useToastLoading';
 import { removeMascara } from '../../../utils/formatar';
 
@@ -16,7 +16,7 @@ interface ModalCadastroContatoProps {
 }
 
 export const ModalCadastroContato = ({ isOpen, handleClose, carregaContatos, contato }: ModalCadastroContatoProps) => {
-    const { register, handleSubmit, reset } = useForm<ContatoCadastro>();
+    const { register, handleSubmit, reset, formState: { errors } } = useForm<ContatoCadastro>();
     const [salvando, setSalvando] = useState<boolean>(false);
     const toast = useToastLoading();
 
@@ -32,17 +32,22 @@ export const ModalCadastroContato = ({ isOpen, handleClose, carregaContatos, con
             };
         })();
 
-        const request = () => postContato(dadosCadastro);
-        const response = await request();
+        const request = () => contato?.id ? putContato(dadosCadastro) : postContato(dadosCadastro);
 
-        if (response.sucesso) {
-            carregaContatos();
-            toast({ tipo: response.tipo, mensagem: "Contato cadastrado com sucesso!" });
+        try {
+            const response = await request();
+            if (response.sucesso) {
+                carregaContatos();
+                handleClose();
+                toast({ tipo: response.tipo, mensagem: "Contato salvo com sucesso!" });
+            } else {
+                toast({ tipo: response.tipo, mensagem: response.mensagem });
+            }
+        } catch (err) {
+            toast({ tipo: "error", mensagem: "Erro ao salvar contato!" });
+        } finally {
+            setSalvando(false);
         }
-        else toast({ tipo: response.tipo, mensagem: response.mensagem });
-
-        handleClose();
-        setSalvando(false);
     }
 
     useEffect(() => {
@@ -66,20 +71,25 @@ export const ModalCadastroContato = ({ isOpen, handleClose, carregaContatos, con
                 <Formulario.InputTexto
                     name="nome"
                     label="Nome"
+                    required="O nome é obrigatório" // Mensagem de validação
                     register={register}
+                    errors={errors} // Passando os erros do react-hook-form
                     disabled={salvando}
                     opcional={false}
                     lowercase
-                    placeholder="Nome"
+                    placeholder="Digite o nome"
                 />
                 <Formulario.InputCelular
                     name="numero"
                     label="Celular"
+                    required="O número de celular é obrigatório" // Mensagem de validação
                     register={register}
+                    errors={errors}
                     disabled={salvando}
                     opcional={false}
                     tamanhoMascara={10}
                 />
+
             </Formulario>
         </ModalBase>
     );

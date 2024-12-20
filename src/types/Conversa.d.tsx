@@ -1,16 +1,21 @@
-import { Contato } from "./contato.d";
-import { grupoDeMensagem } from "./grupoDeContatos";
 import { Mensagem } from "./mensagem.d";
 
-export type Conversa = {
-    id: number;
-    grupo?: grupoDeMensagem;
-    ultimaMensagem: Mensagem | null;
-    contato?: Contato;
-    mensagensPendentes: number;
+export type ListUltimasConversas = {
+    id?: number;
+    remetente: string;
+    destinatario: string;
+    texto: string;
+    dataEnvio: string;
+    dataRecebimento: string;
+    dataVisualizacao: string;
 }
 
 export type ConversaListagem = {
-    remetente: string;
-    destinatario: string;
+    contatoId: number;
+    contatoNome: string;
+    contatoNumero: string;
+    ultimaMensagem: string;
+    mensagensPendentes: number;
+    mensagens: Array<Mensagem>;
+    id?: number;
 }

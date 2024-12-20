@@ -2,7 +2,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faComments, faUser, faAngleLeft, faCog, faFileAlt, faUsers } from '@fortawesome/free-solid-svg-icons';
 import { itensMenu } from '../../types/itensMenu.d';
 import { useEffect } from 'react';
-
+import { ComTooltip } from '../Tooltip';
 interface MenuComponentProps {
     isMenuOpen: boolean;
     activeSection: itensMenu;
@@ -11,6 +11,7 @@ interface MenuComponentProps {
 }
 
 export const Menu = ({ isMenuOpen, activeSection, setActiveSection, setIsMenuOpen }: MenuComponentProps) => {
+
     const toggleMenuCollapse = () => {
         setIsMenuOpen((prev) => !prev);
     };
@@ -29,45 +30,55 @@ export const Menu = ({ isMenuOpen, activeSection, setActiveSection, setIsMenuOpe
                 className={`cursor-pointer transition-transform duration-300 ${isMenuOpen ? 'rotate-0' : 'rotate-180'} ${activeSection == 'modeloMensagem' ? 'opacity-50 pointer-events-none' : ''}`}
             />
 
-            <FontAwesomeIcon
-                icon={faComments}
-                size="lg"
-                color={activeSection == 'conversas' ? "#00A884" : "#54656F"}
-                onClick={() => setActiveSection('conversas')}
-                className={`cursor-pointer transition-all duration-300 ${activeSection == 'conversas' ? 'scale-110 bg-[#D9DBDF] w-fit p-2 rounded-full' : ''}`}
-            />
+            <ComTooltip tooltipText="Conversas">
+                <FontAwesomeIcon
+                    icon={faComments}
+                    size="lg"
+                    color={activeSection == 'conversas' ? "#00A884" : "#54656F"}
+                    onClick={() => setActiveSection('conversas')}
+                    className={`cursor-pointer transition-all duration-300 ${activeSection == 'conversas' ? 'scale-110 bg-[#D9DBDF] w-fit p-2 rounded-full' : ''}`}
+                />
+            </ComTooltip>
 
-            <FontAwesomeIcon
-                icon={faUser}
-                size="lg"
-                color={activeSection == 'contatos' ? "#00A884" : "#54656F"}
-                onClick={() => setActiveSection('contatos')}
-                className={`cursor-pointer transition-all duration-300 ${activeSection == 'contatos' ? 'scale-110 bg-[#D9DBDF] w-fit p-2 rounded-full' : ''}`}
-            />
-            
-            <FontAwesomeIcon
-                icon={faFileAlt}
-                size="lg"
-                color={activeSection == 'modeloMensagem' ? "#00A884" : "#54656F"}
-                onClick={() => setActiveSection('modeloMensagem')}
-                className={`cursor-pointer transition-all duration-300 ${activeSection == 'modeloMensagem' ? 'scale-110 bg-[#D9DBDF] w-fit p-2 rounded-full' : ''}`}
-            />
+            <ComTooltip tooltipText="Contatos">
+                <FontAwesomeIcon
+                    icon={faUser}
+                    size="lg"
+                    color={activeSection == 'contatos' ? "#00A884" : "#54656F"}
+                    onClick={() => setActiveSection('contatos')}
+                    className={`cursor-pointer transition-all duration-300 ${activeSection == 'contatos' ? 'scale-110 bg-[#D9DBDF] w-fit p-2 rounded-full' : ''}`}
+                />
+            </ComTooltip>
 
-            <FontAwesomeIcon
-                icon={faUsers}
-                size="lg"
-                color={activeSection == 'gruposContatos' ? "#00A884" : "#54656F"}
-                onClick={() => setActiveSection('gruposContatos')}
-                className={`cursor-pointer transition-all duration-300 ${activeSection == 'gruposContatos' ? 'scale-110 bg-[#D9DBDF] w-fit p-2 rounded-full' : ''}`}
-            />
+            <ComTooltip tooltipText="Modelos de Mensagem">
+                <FontAwesomeIcon
+                    icon={faFileAlt}
+                    size="lg"
+                    color={activeSection == 'modeloMensagem' ? "#00A884" : "#54656F"}
+                    onClick={() => setActiveSection('modeloMensagem')}
+                    className={`cursor-pointer transition-all duration-300 ${activeSection == 'modeloMensagem' ? 'scale-110 bg-[#D9DBDF] w-fit p-2 rounded-full' : ''}`}
+                />
+            </ComTooltip>
 
-            <FontAwesomeIcon
-                icon={faCog}
-                size="lg"
-                color={activeSection == 'settings' ? "#00A884" : "#54656F"}
-                onClick={() => setActiveSection('settings')}
-                className={`cursor-pointer transition-all duration-300 ${activeSection == 'settings' ? 'scale-110 bg-[#D9DBDF] w-fit p-2 rounded-full' : ''}`}
-            />
+            <ComTooltip tooltipText="Grupos de Contatos">
+                <FontAwesomeIcon
+                    icon={faUsers}
+                    size="lg"
+                    color={activeSection == 'gruposContatos' ? "#00A884" : "#54656F"}
+                    onClick={() => setActiveSection('gruposContatos')}
+                    className={`cursor-pointer transition-all duration-300 ${activeSection == 'gruposContatos' ? 'scale-110 bg-[#D9DBDF] w-fit p-2 rounded-full' : ''}`}
+                />
+            </ComTooltip>
+
+            <ComTooltip tooltipText="Configurações">
+                <FontAwesomeIcon
+                    icon={faCog}
+                    size="lg"
+                    color={activeSection == 'settings' ? "#00A884" : "#54656F"}
+                    onClick={() => setActiveSection('settings')}
+                    className={`cursor-pointer transition-all duration-300 ${activeSection == 'settings' ? 'scale-110 bg-[#D9DBDF] w-fit p-2 rounded-full' : ''}`}
+                />
+            </ComTooltip>
         </div>
     );
 };

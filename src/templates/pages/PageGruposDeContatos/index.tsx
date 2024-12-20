@@ -6,28 +6,42 @@ import useToastLoading from '../../../hooks/useToastLoading';
 import Formulario from '../../../components/Input';
 import Box, { BoxContainer } from '../../../components/Box';
 import { useForm } from 'react-hook-form';
-import { CadastroGruposDeContatos } from '../../../types/grupoDeContatos';
+import { CadastroGruposDeContatos, GrupoDeContato } from '../../../types/grupoDeContatos';
 import Tabela from '../../../components/Tabela';
 import PaginacaoTabela from '../../../components/PaginacaoTabela';
 import { baseFiltros } from '../../../types/baseEntity.d';
 import EmptyPage from '../../../components/EmptyPage';
 import { formatarTelefone } from '../../../utils/formatar';
-import { postGrupo } from '../../../services/grupoContato';
+import { postGrupo, putGrupo } from '../../../services/grupoContato';
 import Botao from '../../../components/Button';
 
 type PropsFiltros = {
     pesquisa: string;
 };
 
-export const PageGruposDeContatos = () => {
+interface GruposDeContatosComponentProps {
+    grupoDeContatoSelecionado?: GrupoDeContato | null;
+    setGrupoDeContatoSelecionado: React.Dispatch<React.SetStateAction<GrupoDeContato | null>>;
+}
+
+export const PageGruposDeContatos = ({ grupoDeContatoSelecionado, setGrupoDeContatoSelecionado }: GruposDeContatosComponentProps) => {
     const [listaContatos, setListaContato] = useState<Contato[]>([]);
     const [selecionados, setSelecionados] = useState<number[]>([]);
     const [todosSelecionados, setTodosSelecionados] = useState(false);
+    const toast = useToastLoading();
+    const { register: registerFiltros, watch: watchFiltros, handleSubmit: handleSubmitFiltros } = useForm<PropsFiltros>();
+    const { register: registerGrupoContatos, handleSubmit: handleSubmitGrupoContatos, reset: resetGrupoContatos } = useForm<CadastroGruposDeContatos>();
+    const [loadingListagem, setLoadingListagem] = useState<boolean>(true);
+    const [salvando, setSalvando] = useState<boolean>(false);
+    const [paginaAtual, setPaginaAtual] = useState<number>(0)
+    const [totalRegistros, setTotalRegistros] = useState<number>(0)
+    const [totalPaginas, setTotalPaginas] = useState<number>(0)
+    const registrosPorPagina: number = 3
+    const watchUseEffect = watchFiltros();
 
     const toggleSelecionarTodos = () => {
         if (todosSelecionados) setSelecionados([]);
         else setSelecionados(listaContatos.map((contato) => contato.id));
-
         setTodosSelecionados(!todosSelecionados);
     };
 
@@ -38,18 +52,6 @@ export const PageGruposDeContatos = () => {
                 : [...prevSelecionados, id]
         );
     };
-
-    const toast = useToastLoading();
-    const filtroDebounce = useDebounce(() => carregaContatos(), 500);
-    const { register: registerFiltros, watch: watchFiltros, handleSubmit: handleSubmitFiltros } = useForm<PropsFiltros>();
-    const { register: registerGruposContatos, handleSubmit: handleSubmitGruposContatos } = useForm<CadastroGruposDeContatos>();
-
-    const [loadingListagem, setLoadingListagem] = useState<boolean>(true);
-    const [paginaAtual, setPaginaAtual] = useState<number>(0)
-    const [totalRegistros, setTotalRegistros] = useState<number>(0)
-    const [totalPaginas, setTotalPaginas] = useState<number>(0)
-    const registrosPorPagina: number = 3
-    const watchUseEffect = watchFiltros();
 
     const carregaContatos = async (pageSize: number = registrosPorPagina, currentPage: number = 0): Promise<void> => {
         try {
@@ -80,33 +82,36 @@ export const PageGruposDeContatos = () => {
     };
 
     async function cadastrarGrupoContatos(): Promise<void> {
+        setSalvando(true);
         if (selecionados.length === 0) {
             toast({ tipo: 'error', mensagem: 'Selecione ao menos um contato.' });
             return;
         }
 
-        let dadosGrupo: CadastroGruposDeContatos = {
-            nome: '',
-            descricao: '',
-            contatoIds: selecionados,
-        };
+        let dadosGrupo: CadastroGruposDeContatos;
 
-        await handleSubmitGruposContatos((dadosForm) => {
+        await handleSubmitGrupoContatos((dadosForm) => {
             dadosGrupo = {
                 ...dadosForm,
                 contatoIds: selecionados
             };
         })();
 
-        try {
-            const response = await postGrupo(dadosGrupo);
-            if (response.sucesso) toast({ tipo: 'success', mensagem: 'Grupo cadastrado com sucesso!' });
-            else toast({ tipo: response.tipo, mensagem: response.mensagem });
+        const request = () => grupoDeContatoSelecionado?.id ? putGrupo(dadosGrupo) : postGrupo(dadosGrupo);
+        const response = await request();
+        if (response.sucesso) toast({ tipo: 'success', mensagem: 'Grupo salvo com sucesso!' })
+        else toast({ tipo: response.tipo, mensagem: response.mensagem });
 
-        } catch (error) {
-            toast({ tipo: 'error', mensagem: 'Erro ao cadastrar grupo.' });
-        }
+        setGrupoDeContatoSelecionado(null)
+        setSalvando(false);
     }
+
+    async function carregarDadosGrupoContato() {
+        setSelecionados(grupoDeContatoSelecionado?.contatoIds || []);
+        resetGrupoContatos({ ...grupoDeContatoSelecionado });
+    }
+
+    const filtroDebounce = useDebounce(() => carregaContatos(), 500);
 
     useEffect(() => {
         setTodosSelecionados(selecionados.length === listaContatos.length);
@@ -121,6 +126,10 @@ export const PageGruposDeContatos = () => {
         return () => subscription.unsubscribe();
     }, [watchUseEffect]);
 
+    useEffect(() => {
+        if (!!grupoDeContatoSelecionado) carregarDadosGrupoContato();
+    }, [grupoDeContatoSelecionado]);
+
     return (
         <BoxContainer className='m-4'>
             <Box>
@@ -133,13 +142,13 @@ export const PageGruposDeContatos = () => {
                     <Formulario.InputTexto
                         name="nome"
                         label="Nome do Grupo"
-                        register={registerGruposContatos}
+                        register={registerGrupoContatos}
                         lowercase
                     />
                     <Formulario.InputTexto
                         name="descricao"
                         label="Descrição do Grupo"
-                        register={registerGruposContatos}
+                        register={registerGrupoContatos}
                         lowercase
                     />
                 </Formulario>
@@ -236,14 +245,14 @@ export const PageGruposDeContatos = () => {
             </Box>
 
             <Box>
-
                 <Botao
                     tipo='sucesso'
-                    texto="Cadastrar"
+                    texto="Salvar"
+                    disabled={salvando}
+                    carregando={salvando}
                     onClick={cadastrarGrupoContatos}
                 />
             </Box>
         </BoxContainer>
-
     );
 };

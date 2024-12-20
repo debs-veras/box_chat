@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { ModalPerfil } from '../../modal/ModalPerfil';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPowerOff, faUser } from '@fortawesome/free-solid-svg-icons';
+import { FaPowerOff, FaUser } from 'react-icons/fa';
 import { HeaderComponent } from '../../../components/HeaderListagem';
 
 export const Configuracoes = () => {
@@ -18,30 +17,26 @@ export const Configuracoes = () => {
     return (
         <>
             <HeaderComponent titulo="Configuração" />
-            
-            <div className="flex">
-                <div className="w-full">
-                    <ul className="text-lg text-left">
-                        <li className="cursor-pointer transition hover:bg-[#F5F6F6] py-3 px-5 flex gap-4" onClick={() => setIsModalOpen(true)} >
-                            <FontAwesomeIcon
-                                icon={faUser}
-                                color='#54656F'
-                                size="lg"
-                                className={`cursor-pointer transition-all duration-300`}
-                            />
-                            Editar Conta
-                        </li>
-                        <li className="cursor-pointer transition hover:bg-[#F5F6F6] py-3 px-5 flex gap-4">
-                            <FontAwesomeIcon
-                                icon={faPowerOff}
-                                color='#54656F'
-                                size="lg"
-                                className={`cursor-pointer transition-all duration-300`}
-                            />
-                            Sair
-                        </li>
-                    </ul>
-                </div>
+
+            <div className="w-full">
+                <ul className="text-lg text-left">
+                    <li className="cursor-pointer transition hover:bg-[#F5F6F6] py-3 px-5 flex gap-4" onClick={() => setIsModalOpen(true)} >
+                        <FaUser
+                            color="#54656F"
+                            size="1.25rem"
+                            className="cursor-pointer transition-all duration-300"
+                        />
+                        Editar Conta
+                    </li>
+                    <li className="cursor-pointer transition hover:bg-[#F5F6F6] py-3 px-5 flex gap-4">
+                        <FaPowerOff
+                            color="#54656F"
+                            size="1.25rem"
+                            className="cursor-pointer transition-all duration-300"
+                        />
+                        Sair
+                    </li>
+                </ul>
 
                 <ModalPerfil
                     isOpen={isModalOpen}

@@ -1,5 +1,5 @@
 import { CadastroGruposDeContatos } from "../types/grupoDeContatos";
-import { deleteRequest, getRequest, postRequest } from "../utils/axiosRequest";
+import { deleteRequest, getRequest, postRequest, putRequest } from "../utils/axiosRequest";
 
 export const getListGrupo = async () => {
     return await getRequest("/Grupo");
@@ -11,4 +11,8 @@ export const postGrupo = async (param: CadastroGruposDeContatos) => {
 
 export const deleteGrupo = async (id: number) => {
     return await deleteRequest(`/Grupo/${id}`);
+}
+
+export const putGrupo = async (grupoAlterado: CadastroGruposDeContatos) => {
+    return await putRequest(`/Grupo`, grupoAlterado);
 }

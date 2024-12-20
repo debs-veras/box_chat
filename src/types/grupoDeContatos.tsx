@@ -1,4 +1,4 @@
-export interface GruposDeContatos {
+export interface GrupoDeContato {
     id: number;
     nome: string;
     descricao: string;

@@ -1,6 +1,7 @@
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css';
 import { Chat } from './pages/Chat'
+import Dashboard from './pages/Dashboard';
 
 function App() {
   return (
@@ -16,7 +17,7 @@ function App() {
         closeButton={true}
         style={{ width: "fit-content" }}
       />
-      <Chat />
+      <Chat/>
     </>
   )
 }

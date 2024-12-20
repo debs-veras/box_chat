@@ -1,8 +1,9 @@
 import React, { FormEventHandler, ReactNode } from "react";
-import { Control,  UseFormRegister, UseFormSetValue } from "react-hook-form";
+import { Control, UseFormRegister, UseFormSetValue } from "react-hook-form";
 import InputMask from "comigo-tech-react-input-mask";
 import classNames from "../../utils/classNames";
 import * as Form from "@radix-ui/react-form";
+import { FieldErrors } from "react-hook-form";
 
 type propsField = {
     children?: Array<JSX.Element> | JSX.Element;
@@ -15,6 +16,8 @@ type propsField = {
     icone?: JSX.Element | null;
     mostrarLabel?: boolean;
     classNameIconeContainer?: string;
+    required?: boolean | string;
+    errors?: FieldErrors;
 }
 
 type propsInput = {
@@ -74,7 +77,9 @@ export default function Formulario({ className, children, align = "end" }: props
     )
 }
 
-Formulario.Field = ({ children, ...props }: propsField): JSX.Element => {
+Formulario.Field = ({ children, errors, ...props }: propsField): JSX.Element => {
+    const error = errors?.[props.name];
+
     return (
         <Form.Field className={props.className} name={props.name}>
             {!props.hideLabel && (
@@ -93,27 +98,32 @@ Formulario.Field = ({ children, ...props }: propsField): JSX.Element => {
                 </Form.Label>
             )}
             <div className="flex flex-row items-center">
-                {props.icone &&
-
+                {props.icone && (
                     <div className={classNames("ring-1 ring-gray-300 rounded-l-md p-3 sm:text-sm", props.classNameIconeContainer)}>
                         {props.icone}
                     </div>
-                }
+                )}
                 <Form.Control asChild>
                     {children}
                 </Form.Control>
             </div>
+            {error && (
+                <p className="text-sm text-red-500">
+                    {typeof error.message === "string" ? error.message : "Este campo é obrigatório."}
+                </p>
+            )}
         </Form.Field>
-    )
-}
+    );
+};
+
 
 Formulario.InputTexto = (props: propsField & propsInput): JSX.Element => {
-    const { register } = props;
+    const { register, errors } = props;
     const { ...propsField }: propsField = props;
     const { ...propsInput }: propsInput = props;
 
     return (
-        <Formulario.Field {...propsField}>
+        <Formulario.Field {...propsField} errors={errors}>
             <>
                 <input
                     id={propsInput.isFiltro ? `filtro_${propsField.name}` : propsField.name}
@@ -132,7 +142,7 @@ Formulario.InputTexto = (props: propsField & propsInput): JSX.Element => {
                         (!!propsInput.align ? propsInput.align : "text-left")
                     )}
                     value={propsInput.value && propsInput.value !== true ? propsInput.value : undefined}
-                    {...register && register(propsField.name)}
+                    {...register?.(props.name, { required: props.required })}
                     onChange={e => {
                         if (propsInput.type != "number") {
                             const positionCursor = e.target.selectionStart;
@@ -177,12 +187,12 @@ Formulario.TextArea = (props: propsField & propsInput): JSX.Element => {
 }
 
 Formulario.InputCelular = (props: propsField & propsInput): JSX.Element => {
-    const { register } = props;
+    const { register, errors } = props;
     const { ...propsField }: propsField = props;
     const { ...propsInput }: propsInput = props;
 
     return (
-        <Formulario.Field {...propsField}>
+        <Formulario.Field {...propsField} errors={errors}>
             <>
                 <InputMask
                     id={propsInput.isFiltro ? `filtro_${propsField.name}` : propsField.name}
@@ -194,7 +204,7 @@ Formulario.InputCelular = (props: propsField & propsInput): JSX.Element => {
                     onChange={(valor: React.ChangeEvent<HTMLInputElement>) => propsInput.onChange && propsInput.onChange(normalizar(valor.target.value))}
                     placeholder={propsInput.tamanhoMascara == 10 ? "(99) 9999 - 9999" : "(99) 99999 - 9999"}
                     className={"rounded-md w-full border disabled:bg-gray-100 border-gray-300 shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"}
-                    {...register && register(propsField.name)}
+                    {...register?.(props.name, { required: props.required })}
                 />
             </>
         </Formulario.Field>

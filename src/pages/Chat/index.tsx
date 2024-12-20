@@ -3,61 +3,22 @@ import { ListagemContato } from '../../templates/listagem/ListagemContato';
 import { Menu } from '../../components/Menu';
 import { ListagemConversa } from '../../templates/listagem/ListagemConversa';
 import { Configuracoes } from '../../templates/listagem/Configuracoes';
-import { Contato } from '../../types/contato.d';
 import { DadosConta } from '../../templates/pages/DadosConta';
-import { Conversa } from '../../types/conversa.d';
+import { ConversaListagem } from '../../types/conversa.d';
 import { itensMenu } from '../../types/itensMenu.d';
 import { ModelosMensagem } from '../../templates/pages/ModelosMensagem';
 import { ModeloMensagem } from '../../types/modeloMensagem';
 import { ChatDeMensagem } from '../../templates/pages/ChatDeMensagem';
 import { ListagemGrupoContato } from '../../templates/listagem/ListagemGrupoContato';
 import { PageGruposDeContatos } from '../../templates/pages/PageGruposDeContatos';
+import { GrupoDeContato } from '../../types/grupoDeContatos';
 
 export const Chat = () => {
-    const [conversaSelecionada, setConversaSelecionada] = useState<Conversa | null>(null);
+    const [conversaSelecionada, setConversaSelecionada] = useState<ConversaListagem | null>(null);
+    const [grupoContatoSelecionado, setGrupoContatoSelecionado] = useState<GrupoDeContato | null>(null);
     const [isMenuOpen, setIsMenuOpen] = useState(true);
     const [isAtivaGrupoContato, setIsAtivaGrupoContato] = useState<boolean>(false);
     const [activeSection, setActiveSection] = useState<itensMenu>('conversas');
-
-    const [conversas, setConversas] = useState<Conversa[]>([
-        {
-            id: 100,
-            contato: {
-                id: 100,
-                nome: 'KillJoy',
-                foto: '/images.jpeg',
-                numero: '5588992531384'
-            },
-            ultimaMensagem: {
-                remetente: 'Killjoy',
-                texto: 'vamos jogar mais tarde?',
-                horario: '12:45',
-                dataEnvio: '12:45',
-                dataRecebimento: '12:45',
-                dataVisualizacao: ''
-            },
-            mensagensPendentes: 1
-        },
-        {
-            id: 200,
-            contato: {
-                id: 200,
-                nome: 'Raze',
-                foto: '/imagens/users/raze.webp',
-                numero: '558892799971'
-            },
-            ultimaMensagem: {
-                remetente: 'Killjoy',
-                texto: 'blz?',
-                horario: '12:45',
-                dataEnvio: '12:45',
-                dataRecebimento: '12:45',
-                dataVisualizacao: ''
-            },
-            mensagensPendentes: 3
-
-        }
-    ])
 
     const [modelos, setModelos] = useState<ModeloMensagem[]>([
         {
@@ -74,28 +35,6 @@ export const Chat = () => {
         },
     ]);
 
-    const clickCriarConversa = (contato?: Contato) => {
-        let conversa = conversas.find(convo => convo.contato?.id == contato?.id);
-        if (!conversa) {
-            conversa = {
-                id: Date.now(),
-                contato: contato!,
-                ultimaMensagem: {
-                    remetente: '',
-                    texto: '',
-                    horario: '',
-                    dataEnvio: '',
-                    dataRecebimento: '',
-                    dataVisualizacao: ''
-                },
-                mensagensPendentes: 0
-            };
-            setConversas(prevConversations => [...prevConversations, conversa!]);
-        }
-        setConversaSelecionada(conversa);
-        setActiveSection('conversas');
-    };
-
     return (
         <div className="mx-auto py-[1rem] px-[2rem] text-center bg-gradient-to-b from-[#00A884] to-[#DAD7D3] via-[#DAD7D3] h-screen">
             <div className="flex h-[95vh] max-w-[100rem] w-full m-auto rounded-xl overflow-hidden shadow-lg">
@@ -111,20 +50,18 @@ export const Chat = () => {
                         {activeSection != 'modeloMensagem' &&
                             <div className={`flex-1 h-full bg-white overflow-y-auto overflow-x-hidden barraRolagem transition-opacity duration-300 ${isMenuOpen ? 'opacity-100' : 'opacity-0 hidden'}`}>
                                 {activeSection == 'conversas' &&
-                                    <ListagemConversa
-                                        conversaSelecionada={conversaSelecionada}
-                                        conversas={conversas}
-                                        setConversaSelecionada={setConversaSelecionada}
-                                        setConversas={setConversas}
-                                    />
+                                    <ListagemConversa conversaSelecionada={conversaSelecionada} setConversaSelecionada={setConversaSelecionada} />
                                 }
 
                                 {activeSection == 'contatos' &&
-                                    <ListagemContato ClickCriarConversa={clickCriarConversa} />
+                                    <ListagemContato
+                                        setConversaSelecionada={setConversaSelecionada}
+                                        setActiveSection={setActiveSection}
+                                    />
                                 }
 
                                 {activeSection === 'gruposContatos' && (
-                                    <ListagemGrupoContato setIsOpen={setIsAtivaGrupoContato}/>
+                                    <ListagemGrupoContato setGrupoContato={setGrupoContatoSelecionado} setIsOpen={setIsAtivaGrupoContato} />
                                 )}
 
                                 {activeSection == 'settings' && <Configuracoes />}
@@ -149,11 +86,11 @@ export const Chat = () => {
                     {activeSection == 'settings' && <DadosConta />}
 
                     {conversaSelecionada && (activeSection == 'conversas' || activeSection == 'contatos') &&
-                        <ChatDeMensagem activeSection={activeSection} conversaSelecionada={conversaSelecionada} modelos={modelos} setConversas={setConversas} />
+                        <ChatDeMensagem activeSection={activeSection} conversaSelecionada={conversaSelecionada} modelos={modelos} />
                     }
 
                     {isAtivaGrupoContato && (activeSection == 'gruposContatos') &&
-                        <PageGruposDeContatos />
+                        <PageGruposDeContatos grupoDeContatoSelecionado={grupoContatoSelecionado} setGrupoDeContatoSelecionado={setGrupoContatoSelecionado}/>
                     }
 
                     {activeSection == 'modeloMensagem' && <ModelosMensagem modelos={modelos} setModelos={setModelos} />}

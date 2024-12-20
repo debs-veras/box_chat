@@ -29,3 +29,7 @@ export const formatarDataHora = (data: Date | string, tipo: "" | "data" | "hora"
         return segundos ? moment(data).format("HH:mm:ss") : moment(data).format("HH:mm");
     return segundos ? moment(data).format("DD/MM/YYYY HH:mm:ss") : moment(data).format("DD/MM/YYYY HH:mm");
 };
+
+export const formatarNumeroBrl = (valor: number): string => {
+    return new Intl.NumberFormat('pt-BR').format(valor);
+}

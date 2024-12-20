@@ -1,10 +1,9 @@
-import { ConversaListagem } from "../types/conversa.d";
-import { postRequest } from "../utils/axiosRequest";
+import { getRequest } from "../utils/axiosRequest";
 
-export const getListConversa = async (param: ConversaListagem) => {
-    return await postRequest("/Conversa/listagem", param);
+export const getListConversa = async (id: number) => {
+    return await getRequest(`/Conversa/${id}`);
 }
 
-export const getConversa = async (param: ConversaListagem) => {
-    return await postRequest("/Conversa", param);
-}
+export const getListUltimasConversa = async () => {
+    return await getRequest('/Conversa/listagem');
+}   

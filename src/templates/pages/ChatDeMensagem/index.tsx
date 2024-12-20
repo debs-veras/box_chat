@@ -1,32 +1,30 @@
 import { useEffect, useRef, useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ListagemMensagem } from "../../listagem/ListagemMensagem";
-import { faEllipsisV, faPaperclip, faPaperPlane, faSearch, faSmile } from "@fortawesome/free-solid-svg-icons";
 import data from '@emoji-mart/data'
 import Picker from '@emoji-mart/react'
 import { formatarTelefone } from "../../../utils/formatar";
-import { Contato } from "../../../types/contato.d";
 import { postEnviarMensagem } from "../../../services/mensagem";
 import { ModeloMensagem } from "../../../types/modeloMensagem";
 import { Mensagem } from "../../../types/mensagem.d";
-import { Conversa } from "../../../types/conversa.d";
+import { ConversaListagem } from "../../../types/conversa.d";
 import { itensMenu } from "../../../types/itensMenu.d";
 import { getListConversa } from "../../../services/conversa";
 import useToastLoading from "../../../hooks/useToastLoading";
-
+import useDebounce from "../../../hooks/useDebounce";
+import { FaPaperPlane, FaSmile, FaPaperclip, FaEllipsisV, FaSearch } from "react-icons/fa";
+import { REMETENTE_NUMERO } from "../../../utils/api";
 interface ChatDeMensagemProps {
     modelos: Array<ModeloMensagem>;
     activeSection: itensMenu;
-    conversaSelecionada: Conversa | null;
-    setConversas: React.Dispatch<React.SetStateAction<Array<Conversa>>>;
+    conversaSelecionada: ConversaListagem | null;
 }
 
-export const ChatDeMensagem = ({ modelos, activeSection, conversaSelecionada, setConversas }: ChatDeMensagemProps) => {
+export const ChatDeMensagem = ({ modelos, activeSection, conversaSelecionada }: ChatDeMensagemProps) => {
     const toast = useToastLoading();
     const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
     const mensagemEndRef = useRef<HTMLDivElement>(null);
     const [modelosFiltrados, setModelosFiltrados] = useState<ModeloMensagem[]>(modelos);
-    const [userId] = useState<string>("15551435165");
+    const [userId] = useState<string>(REMETENTE_NUMERO);
     const [mensagem, setMensagem] = useState<Mensagem[]>([]);
     const [novaMensagem, setNovaMensagem] = useState<string>('');
     const [exibirModelos, setExibirModelos] = useState(false);
@@ -35,7 +33,6 @@ export const ChatDeMensagem = ({ modelos, activeSection, conversaSelecionada, se
     const enviarMensagem = async () => {
         if (novaMensagem.trim() !== '') {
             const tempo = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
             const msg = {
                 id: Date.now(),
                 remetente: userId,
@@ -46,29 +43,10 @@ export const ChatDeMensagem = ({ modelos, activeSection, conversaSelecionada, se
                 data_visualizacao: '',
             };
 
-            const request = () => postEnviarMensagem({ remetente: userId, destinatario: conversaSelecionada?.contato?.numero ?? '', texto: novaMensagem });
+            const request = () => postEnviarMensagem({ remetente: userId, destinatario: conversaSelecionada?.contatoNumero ?? '', texto: novaMensagem });
             const response = await request();
-            if (response.sucesso) {
-                setMensagem((prevMessages) => [...prevMessages, msg]);
-                setConversas((prevConversas) =>
-                    prevConversas.map((conversa) =>
-                        conversa.id === conversaSelecionada?.id
-                            ? {
-                                ...conversa,
-                                ultimaMensagem: {
-                                    remetente: userId,
-                                    texto: novaMensagem,
-                                    horario: tempo,
-                                    dataEnvio: tempo,
-                                    dataRecebimento: '',
-                                    dataVisualizacao: '',
-                                },
-                                mensagensPendentes: 0
-                            }
-                            : conversa
-                    )
-                );
-            } else toast({ tipo: response.tipo, mensagem: response.mensagem });
+            if (response.sucesso) setMensagem((prevMessages) => [...prevMessages, msg]);
+            else toast({ tipo: response.tipo, mensagem: response.mensagem });
             setNovaMensagem('');
         }
     };
@@ -86,7 +64,7 @@ export const ChatDeMensagem = ({ modelos, activeSection, conversaSelecionada, se
             const modeloSelecionado = modelos.find(modelo => modelo.titulo.toLowerCase() === termoFiltro.toLowerCase());
             setModelosFiltrados(modelosFiltrados);
             if (modeloSelecionado) {
-                const modeloComTagsSubstituídas = substituirTags(modeloSelecionado.conteudo, conversaSelecionada?.contato);
+                const modeloComTagsSubstituídas = substituirTags(modeloSelecionado.conteudo, conversaSelecionada ?? null);
                 setNovaMensagem(modeloComTagsSubstituídas);
             }
             setExibirModelos(true);
@@ -105,20 +83,21 @@ export const ChatDeMensagem = ({ modelos, activeSection, conversaSelecionada, se
         setNovaMensagem(prev => prev + emoji.native);
     };
 
-    const substituirTags = (texto: string, contato?: Contato): string => {
+    const substituirTags = (texto: string, contato?: ConversaListagem | null): string => {
         setExibirModelos(false);
         return texto
-            .replace(/{nome}/g, contato?.nome || "usuário")
-            .replace(/{email}/g, contato?.email || "sem e-mail")
-            .replace(/{numero}/g, contato?.numero || "desconhecido");
+            .replace(/{nome}/g, contato?.contatoNome || "usuário")
+            .replace(/{numero}/g, contato?.contatoNumero || "desconhecido");
     };
 
     const carregaMensagem = async (): Promise<void> => {
-        const request = () => getListConversa({ destinatario: userId, remetente: conversaSelecionada?.contato?.numero ?? '' });
+        const request = () => getListConversa(conversaSelecionada?.contatoId ?? 0);
         const response = await request();
-        if (response.sucesso) setMensagem(response.dados);
+        if (response.sucesso) setMensagem(response.dados.mensagens);
         else toast({ tipo: response.tipo, mensagem: response.mensagem });
     };
+
+    const filtroDebounce = useDebounce(carregaMensagem, 500);
 
     useEffect(() => {
         setNovaMensagem('');
@@ -127,23 +106,23 @@ export const ChatDeMensagem = ({ modelos, activeSection, conversaSelecionada, se
     }, [activeSection, conversaSelecionada]);
 
     useEffect(() => {
-        carregaMensagem();
+        filtroDebounce();
     }, [conversaSelecionada]);
 
     return (
         <>
             <div className="flex items-center justify-between p-4 bg-[#F0F2F5] shadow-sm">
                 <div className="flex items-center space-x-4">
-                    <img src={conversaSelecionada?.contato?.foto ?? 'imagens/user.png'} alt="Perfil" className="w-12 h-12 rounded-full object-cover" />
+                    <img src={'imagens/user.png'} alt="Perfil" className="w-12 h-12 rounded-full object-cover" />
                     <div className='flex flex-col items-start'>
-                        <span className="text-lg">{conversaSelecionada?.contato?.nome}</span>
-                        <span className="text-sm text-zinc-400">{formatarTelefone(conversaSelecionada?.contato?.numero || '')}</span>
+                        <span className="text-lg">{conversaSelecionada?.contatoNome}</span>
+                        <span className="text-sm text-zinc-400">{formatarTelefone(conversaSelecionada?.contatoNumero || '')}</span>
                     </div>
                 </div>
 
                 <div className="flex items-center justify-center gap-2 relative">
-                    <FontAwesomeIcon
-                        icon={faSearch}
+                    <FaSearch
+                        size="1.2rem"
                         className={`${showInput ? 'absolute transform -translate-y-1/2 left-4 top-1/2 ' : 'relative'} cursor-pointer`}
                         onClick={toggleInput}
                     />
@@ -156,7 +135,7 @@ export const ChatDeMensagem = ({ modelos, activeSection, conversaSelecionada, se
                             placeholder="Digite sua busca"
                         />
                     </div>
-                    <FontAwesomeIcon icon={faEllipsisV} className="cursor-pointer" />
+                    <FaEllipsisV size="1.2rem" className="cursor-pointer" />
                 </div>
             </div>
 
@@ -164,11 +143,13 @@ export const ChatDeMensagem = ({ modelos, activeSection, conversaSelecionada, se
 
             <div className="flex items-center gap-2 p-4 bg-[#F0F2F5] shadow-lg flex-wrap">
                 <div className='flex gap-5 relative'>
-                    <FontAwesomeIcon icon={faPaperclip} className="text-gray-400 text-xl cursor-pointer hover:text-gray-500" />
+                    <FaPaperclip
+                        size="1.25rem"
+                        className="hover:text-gray-400 text-xl cursor-pointer text-gray-500"
+                    />
 
-                    <FontAwesomeIcon
-                        icon={faSmile}
-                        size="lg"
+                    <FaSmile
+                        size="1.25rem"
                         className="text-gray-700 text-xl cursor-pointer hover:text-gray-600"
                         onClick={() => setShowEmojiPicker(!showEmojiPicker)}
                     />
@@ -197,7 +178,7 @@ export const ChatDeMensagem = ({ modelos, activeSection, conversaSelecionada, se
                                 <li
                                     key={modelo.id}
                                     className="cursor-pointer rounded-lg bg-gray-50 p-3 hover:bg-blue-50 transition-colors ease-in-out"
-                                    onClick={() => setNovaMensagem(substituirTags(modelo.conteudo, conversaSelecionada?.contato))}
+                                    onClick={() => setNovaMensagem(substituirTags(modelo.conteudo, conversaSelecionada))}
                                 >
                                     <div className="font-semibold text-lg text-blue-600">{modelo.titulo}</div>
                                     <p className="text-sm text-gray-700 mt-1">{modelo.conteudo}</p>
@@ -211,8 +192,8 @@ export const ChatDeMensagem = ({ modelos, activeSection, conversaSelecionada, se
                     onClick={enviarMensagem}
                     className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center shadow-md hover:bg-blue-700 transition"
                 >
-                    <FontAwesomeIcon icon={faPaperPlane} className="mr-2" />
-                    <span>Enviar</span>
+                    <FaPaperPlane size="1.25rem" color="#fff" className="mr-2" />
+                    Enviar
                 </button>
             </div>
         </>

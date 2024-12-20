@@ -24,7 +24,7 @@ interface GruposDeContatosComponentProps {
     setGrupoDeContatoSelecionado: React.Dispatch<React.SetStateAction<GrupoDeContato | null>>;
 }
 
-export const PageGruposDeContatos = ({ grupoDeContatoSelecionado, setGrupoDeContatoSelecionado }: GruposDeContatosComponentProps) => {
+export const GruposDeContatos = ({ grupoDeContatoSelecionado, setGrupoDeContatoSelecionado }: GruposDeContatosComponentProps) => {
     const [listaContatos, setListaContato] = useState<Contato[]>([]);
     const [selecionados, setSelecionados] = useState<number[]>([]);
     const [todosSelecionados, setTodosSelecionados] = useState(false);

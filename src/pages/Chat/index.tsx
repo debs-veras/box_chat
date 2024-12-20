@@ -10,7 +10,7 @@ import { ModelosMensagem } from '../../templates/pages/ModelosMensagem';
 import { ModeloMensagem } from '../../types/modeloMensagem';
 import { ChatDeMensagem } from '../../templates/pages/ChatDeMensagem';
 import { ListagemGrupoContato } from '../../templates/listagem/ListagemGrupoContato';
-import { PageGruposDeContatos } from '../../templates/pages/PageGruposDeContatos';
+import { GruposDeContatos } from '../../templates/pages/GruposDeContatos';
 import { GrupoDeContato } from '../../types/grupoDeContatos';
 
 export const Chat = () => {
@@ -90,7 +90,7 @@ export const Chat = () => {
                     }
 
                     {isAtivaGrupoContato && (activeSection == 'gruposContatos') &&
-                        <PageGruposDeContatos grupoDeContatoSelecionado={grupoContatoSelecionado} setGrupoDeContatoSelecionado={setGrupoContatoSelecionado}/>
+                        <GruposDeContatos grupoDeContatoSelecionado={grupoContatoSelecionado} setGrupoDeContatoSelecionado={setGrupoContatoSelecionado}/>
                     }
 
                     {activeSection == 'modeloMensagem' && <ModelosMensagem modelos={modelos} setModelos={setModelos} />}

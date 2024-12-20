@@ -16,7 +16,7 @@ interface ModalCadastroContatoProps {
 }
 
 export const ModalCadastroContato = ({ isOpen, handleClose, carregaContatos, contato }: ModalCadastroContatoProps) => {
-    const { register, handleSubmit, reset, formState: { errors } } = useForm<ContatoCadastro>();
+    const { register, handleSubmit, reset } = useForm<ContatoCadastro>();
     const [salvando, setSalvando] = useState<boolean>(false);
     const toast = useToastLoading();
 
@@ -34,20 +34,14 @@ export const ModalCadastroContato = ({ isOpen, handleClose, carregaContatos, con
 
         const request = () => contato?.id ? putContato(dadosCadastro) : postContato(dadosCadastro);
 
-        try {
-            const response = await request();
-            if (response.sucesso) {
-                carregaContatos();
-                handleClose();
-                toast({ tipo: response.tipo, mensagem: "Contato salvo com sucesso!" });
-            } else {
-                toast({ tipo: response.tipo, mensagem: response.mensagem });
-            }
-        } catch (err) {
-            toast({ tipo: "error", mensagem: "Erro ao salvar contato!" });
-        } finally {
-            setSalvando(false);
-        }
+        const response = await request();
+        if (response.sucesso) {
+            carregaContatos();
+            handleClose();
+            toast({ tipo: response.tipo, mensagem: "Contato salvo com sucesso!" });
+        } else toast({ tipo: response.tipo, mensagem: response.mensagem });
+
+        setSalvando(false);
     }
 
     useEffect(() => {
@@ -71,20 +65,17 @@ export const ModalCadastroContato = ({ isOpen, handleClose, carregaContatos, con
                 <Formulario.InputTexto
                     name="nome"
                     label="Nome"
-                    required="O nome é obrigatório" // Mensagem de validação
                     register={register}
-                    errors={errors} // Passando os erros do react-hook-form
                     disabled={salvando}
                     opcional={false}
                     lowercase
                     placeholder="Digite o nome"
                 />
+                
                 <Formulario.InputCelular
                     name="numero"
                     label="Celular"
-                    required="O número de celular é obrigatório" // Mensagem de validação
                     register={register}
-                    errors={errors}
                     disabled={salvando}
                     opcional={false}
                     tamanhoMascara={10}

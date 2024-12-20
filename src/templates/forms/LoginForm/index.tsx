@@ -66,30 +66,38 @@ export default function LoginForm(): JSX.Element {
   }
 
   return (
-    <div className="p-6 bg-gray-50 rounded-lg shadow-md">
-      <div className="mb-3 flex items-center gap-2">
-        <img className="w-12 h-12 object-contain" src="imagens/logo.png" alt="logo" />
-        <span className="font-extrabold text-lg sm:text-2xl text-gray-800 ">Chat - Box<sup>3</sup></span>
+    <div className="bg-white shadow-xl rounded-lg p-8 sm:p-12 w-full max-w-lg">
+      <div className="flex flex-col items-center">
+        <img
+          className="w-16 h-16 object-contain mb-4"
+          src="imagens/logo.png"
+          alt="Logo"
+        />
+        <h1 className="text-2xl font-semibold text-gray-800">
+          Bem-vindo ao Chat - Box<sup>3</sup>
+        </h1>
+        <p className="text-gray-500 mt-2 text-center">
+          Faça login para continuar.
+        </p>
       </div>
-      <Formulario>
+      <Formulario className="mt-6 space-y-4">
         <Formulario.InputTexto
           lowercase={true}
           name="email"
           label="Email"
           register={register}
-          placeholder="Email"
-          opcional={true}
+          placeholder="Digite seu email"
+          opcional={false}
           onKeyDown={handleEnter}
         />
-
         <Formulario.InputTexto
-          lowercase={true}
+          lowercase={false}
           name="senha"
           label="Senha"
           type="password"
           register={register}
-          placeholder="Senha"
-          opcional={true}
+          placeholder="Digite sua senha"
+          opcional={false}
           onKeyDown={handleEnter}
         />
       </Formulario>

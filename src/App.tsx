@@ -1,11 +1,12 @@
-import { ToastContainer } from 'react-toastify'
+import { Suspense } from "react";
+import Router from "./router";
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { Chat } from './pages/Chat'
-import Dashboard from './pages/Dashboard';
+import Loading from "./components/Loading";
 
 function App() {
   return (
-    <>
+    <Suspense fallback={<Loading />}>
       <ToastContainer
         position="top-right"
         autoClose={5000}
@@ -17,8 +18,8 @@ function App() {
         closeButton={true}
         style={{ width: "fit-content" }}
       />
-      <Chat/>
-    </>
+      <Router />
+    </Suspense>
   )
 }
 

@@ -9,13 +9,16 @@ export type Mensagem = {
 }
 
 export type EnviarMensagem = {
-    remetente: string;
-    destinatario: string;
+    id?: number;
+    contatoId: number | null;
     texto: string;
+    campanhaId?: number;
+    dataEnvio?: string;
+    dataRecebimento?: string;
+    dataVisualizacao?: string;
 }
 
 export type EnviarMensagemGrupo = {
-    remetente: string;
     texto: string;
     grupoIds: Array<number>; 
 }

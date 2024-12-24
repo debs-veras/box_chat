@@ -1,10 +1,14 @@
 import { useEffect, useState } from 'react';
-import { TotalOrderLineChartCard } from '../../templates/cards/dashboard/card1';
 import GraficoBarra from '../../components/GraficoBarra';
+import { FaBullhorn, FaRegAddressBook, FaUsers } from 'react-icons/fa';
 
 const Dashboard = () => {
   const [isLoading, setLoading] = useState(true);
-
+  const [data, setData] = useState({
+    campanhas: 10,
+    grupos: 5,
+    contatos: 120,
+  });
   const dadosGraficoAcessoPorDia = [
     { descricao: "01/12/2024", valor: 120 },
     { descricao: "02/12/2024", valor: 180 },
@@ -30,12 +34,41 @@ const Dashboard = () => {
     <div className="min-h-screen bg-gray-100 flex flex-col items-center p-6">
       <h1 className="text-2xl font-bold text-gray-800 mb-6">Dashboard de Relatórios</h1>
       <div className="w-full max-w-6xl">
-        <div className='grid grid-cols-3 mb-5'>
-          <div className='col-span-1'>
-            <TotalOrderLineChartCard isLoading={isLoading} />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-6xl">
+          {/* Card de Campanhas */}
+          <div className="bg-white p-8 rounded-lg shadow-xl transition-transform transform hover:scale-105 flex items-center justify-between">
+            <div className="flex flex-col">
+              <h2 className="text-xl font-semibold text-gray-700">Campanhas</h2>
+              <p className="text-4xl font-bold text-indigo-600">{data.campanhas}</p>
+            </div>
+            <div className="text-indigo-600 text-5xl">
+              <FaBullhorn />
+            </div>
           </div>
-        </div>
 
+          {/* Card de Grupos */}
+          <div className="bg-white p-8 rounded-lg shadow-xl transition-transform transform hover:scale-105 flex items-center justify-between">
+            <div className="flex flex-col">
+              <h2 className="text-xl font-semibold text-gray-700">Grupos</h2>
+              <p className="text-4xl font-bold text-green-600">{data.grupos}</p>
+            </div>
+            <div className="text-green-600 text-5xl">
+              <FaUsers />
+            </div>
+          </div>
+
+          {/* Card de Contatos */}
+          <div className="bg-white p-8 rounded-lg shadow-xl transition-transform transform hover:scale-105 flex items-center justify-between">
+            <div className="flex flex-col">
+              <h2 className="text-xl font-semibold text-gray-700">Contatos</h2>
+              <p className="text-4xl font-bold text-blue-600">{data.contatos}</p>
+            </div>
+            <div className="text-blue-600 text-5xl">
+              <FaRegAddressBook />
+            </div>
+          </div>
+
+        </div>
 
         <GraficoBarra>
           <GraficoBarra.Header>

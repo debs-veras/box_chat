@@ -61,7 +61,11 @@ export const Chat = () => {
                                 }
 
                                 {activeSection === 'gruposContatos' && (
-                                    <ListagemGrupoContato setGrupoContato={setGrupoContatoSelecionado} setIsOpen={setIsAtivaGrupoContato} />
+                                    <ListagemGrupoContato
+                                        setGrupoSelecionado={setGrupoContatoSelecionado}
+                                        grupoSelecionado={grupoContatoSelecionado}
+                                        setIsAtivaGrupoContato={setIsAtivaGrupoContato}
+                                    />
                                 )}
 
                                 {activeSection == 'settings' && <Configuracoes />}
@@ -86,11 +90,11 @@ export const Chat = () => {
                     {activeSection == 'settings' && <DadosConta />}
 
                     {conversaSelecionada && (activeSection == 'conversas' || activeSection == 'contatos') &&
-                        <ChatDeMensagem activeSection={activeSection} conversaSelecionada={conversaSelecionada} modelos={modelos} />
+                        <ChatDeMensagem activeSection={activeSection} conversaSelecionada={conversaSelecionada}  />
                     }
 
                     {isAtivaGrupoContato && (activeSection == 'gruposContatos') &&
-                        <GruposDeContatos grupoDeContatoSelecionado={grupoContatoSelecionado} setGrupoDeContatoSelecionado={setGrupoContatoSelecionado}/>
+                        <GruposDeContatos grupoDeContatoSelecionado={grupoContatoSelecionado} />
                     }
 
                     {activeSection == 'modeloMensagem' && <ModelosMensagem modelos={modelos} setModelos={setModelos} />}

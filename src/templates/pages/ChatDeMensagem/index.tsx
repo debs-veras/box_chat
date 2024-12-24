@@ -1,93 +1,30 @@
 import { useEffect, useRef, useState } from "react";
 import { ListagemMensagem } from "../../listagem/ListagemMensagem";
-import data from '@emoji-mart/data'
-import Picker from '@emoji-mart/react'
 import { formatarTelefone } from "../../../utils/formatar";
-import { postEnviarMensagem } from "../../../services/mensagem";
-import { ModeloMensagem } from "../../../types/modeloMensagem";
 import { Mensagem } from "../../../types/mensagem.d";
 import { ConversaListagem } from "../../../types/conversa.d";
 import { itensMenu } from "../../../types/itensMenu.d";
 import { getListConversa } from "../../../services/conversa";
 import useToastLoading from "../../../hooks/useToastLoading";
 import useDebounce from "../../../hooks/useDebounce";
-import { FaPaperPlane, FaSmile, FaPaperclip, FaEllipsisV, FaSearch } from "react-icons/fa";
+import { FaEllipsisV, FaSearch } from "react-icons/fa";
 import { REMETENTE_NUMERO } from "../../../utils/api";
+import { InputEnvioMensagem } from "../../../components/InputEnvioMensagem";
+import { postEnviarMensagem } from "../../../services/mensagem";
 interface ChatDeMensagemProps {
-    modelos: Array<ModeloMensagem>;
     activeSection: itensMenu;
     conversaSelecionada: ConversaListagem | null;
 }
 
-export const ChatDeMensagem = ({ modelos, activeSection, conversaSelecionada }: ChatDeMensagemProps) => {
+export const ChatDeMensagem = ({ activeSection, conversaSelecionada }: ChatDeMensagemProps) => {
     const toast = useToastLoading();
-    const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
     const mensagemEndRef = useRef<HTMLDivElement>(null);
-    const [modelosFiltrados, setModelosFiltrados] = useState<ModeloMensagem[]>(modelos);
     const [userId] = useState<string>(REMETENTE_NUMERO);
     const [mensagem, setMensagem] = useState<Mensagem[]>([]);
-    const [novaMensagem, setNovaMensagem] = useState<string>('');
-    const [exibirModelos, setExibirModelos] = useState(false);
     const [showInput, setShowInput] = useState(false);
-
-    const enviarMensagem = async () => {
-        if (novaMensagem.trim() !== '') {
-            const tempo = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            const msg = {
-                id: Date.now(),
-                remetente: userId,
-                texto: novaMensagem,
-                horario: tempo,
-                data_envio: tempo,
-                data_recebimento: '',
-                data_visualizacao: '',
-            };
-
-            const request = () => postEnviarMensagem({ remetente: userId, destinatario: conversaSelecionada?.contatoNumero ?? '', texto: novaMensagem });
-            const response = await request();
-            if (response.sucesso) setMensagem((prevMessages) => [...prevMessages, msg]);
-            else toast({ tipo: response.tipo, mensagem: response.mensagem });
-            setNovaMensagem('');
-        }
-    };
 
     const toggleInput = () => {
         setShowInput((prev) => !prev);
-    };
-
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        setNovaMensagem(value);
-        if (value.startsWith("/")) {
-            const termoFiltro = value.slice(1).trim().toLowerCase();
-            const modelosFiltrados = modelos.filter(modelo => modelo.titulo.toLowerCase().includes(termoFiltro));
-            const modeloSelecionado = modelos.find(modelo => modelo.titulo.toLowerCase() === termoFiltro.toLowerCase());
-            setModelosFiltrados(modelosFiltrados);
-            if (modeloSelecionado) {
-                const modeloComTagsSubstituídas = substituirTags(modeloSelecionado.conteudo, conversaSelecionada ?? null);
-                setNovaMensagem(modeloComTagsSubstituídas);
-            }
-            setExibirModelos(true);
-        } else setExibirModelos(false);
-
-    };
-
-    const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            enviarMensagem();
-        }
-    };
-
-    const handleEmojiSelect = (emoji: any) => {
-        setNovaMensagem(prev => prev + emoji.native);
-    };
-
-    const substituirTags = (texto: string, contato?: ConversaListagem | null): string => {
-        setExibirModelos(false);
-        return texto
-            .replace(/{nome}/g, contato?.contatoNome || "usuário")
-            .replace(/{numero}/g, contato?.contatoNumero || "desconhecido");
     };
 
     const carregaMensagem = async (): Promise<void> => {
@@ -97,11 +34,28 @@ export const ChatDeMensagem = ({ modelos, activeSection, conversaSelecionada }: 
         else toast({ tipo: response.tipo, mensagem: response.mensagem });
     };
 
+    const enviarMensagem = async (novaMensagem: string) => {
+        if (novaMensagem.trim() !== '') {
+            const tempo = new Date().toISOString();
+            const msg = {
+                remetente: userId,
+                texto: novaMensagem,
+                horario: tempo,
+                data_envio: tempo,
+                data_recebimento: '',
+                data_visualizacao: '',
+            };
+
+            const request = () => postEnviarMensagem({ contatoId: conversaSelecionada?.contatoId ?? null, texto: novaMensagem, dataEnvio: tempo });
+            const response = await request();
+            if (response.sucesso && setMensagem) setMensagem((prevMessages) => [...prevMessages, msg]);
+            else toast({ tipo: response.tipo, mensagem: response.mensagem });
+        }
+    };
+
     const filtroDebounce = useDebounce(carregaMensagem, 500);
 
     useEffect(() => {
-        setNovaMensagem('');
-        setExibirModelos(false);
         setShowInput(false);
     }, [activeSection, conversaSelecionada]);
 
@@ -141,61 +95,11 @@ export const ChatDeMensagem = ({ modelos, activeSection, conversaSelecionada }: 
 
             <ListagemMensagem mensagem={mensagem} mensagemEndRef={mensagemEndRef} userId={userId} />
 
-            <div className="flex items-center gap-2 p-4 bg-[#F0F2F5] shadow-lg flex-wrap">
-                <div className='flex gap-5 relative'>
-                    <FaPaperclip
-                        size="1.25rem"
-                        className="hover:text-gray-400 text-xl cursor-pointer text-gray-500"
-                    />
-
-                    <FaSmile
-                        size="1.25rem"
-                        className="text-gray-700 text-xl cursor-pointer hover:text-gray-600"
-                        onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                    />
-
-                    {showEmojiPicker && (
-                        <div className="absolute bottom-10 left-0 z-10">
-                            <Picker data={data} onEmojiSelect={handleEmojiSelect} />
-                        </div>
-                    )}
-
-                </div>
-
-                <input
-                    type="text"
-                    placeholder="Digite uma mensagem"
-                    value={novaMensagem}
-                    onKeyDown={handleKeyPress}
-                    onChange={handleInputChange}
-                    className="flex-1 border-none rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-
-                {exibirModelos && modelosFiltrados.length > 0 && (
-                    <div className="mt-2 p-2 border border-gray-300 rounded-lg shadow-md bg-white w-full">
-                        <ul className="space-y-2">
-                            {modelosFiltrados.map((modelo) => (
-                                <li
-                                    key={modelo.id}
-                                    className="cursor-pointer rounded-lg bg-gray-50 p-3 hover:bg-blue-50 transition-colors ease-in-out"
-                                    onClick={() => setNovaMensagem(substituirTags(modelo.conteudo, conversaSelecionada))}
-                                >
-                                    <div className="font-semibold text-lg text-blue-600">{modelo.titulo}</div>
-                                    <p className="text-sm text-gray-700 mt-1">{modelo.conteudo}</p>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                )}
-
-                <button
-                    onClick={enviarMensagem}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center shadow-md hover:bg-blue-700 transition"
-                >
-                    <FaPaperPlane size="1.25rem" color="#fff" className="mr-2" />
-                    Enviar
-                </button>
-            </div>
+            <InputEnvioMensagem
+                activeSection={activeSection}
+                conversaSelecionada={conversaSelecionada}
+                enviarMensagem={enviarMensagem}
+            />
         </>
     );
 };

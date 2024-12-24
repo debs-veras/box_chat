@@ -14,7 +14,7 @@ function Router(): JSX.Element {
             errorElement: <NotFound />,
         },
         {
-            path: "/chat",
+            path: "/",
             element: <Chat />,
             errorElement: <NotFound />,
         },

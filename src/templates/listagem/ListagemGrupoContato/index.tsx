@@ -8,21 +8,23 @@ import { FaEdit, FaPaperPlane, FaTrash, FaUsers } from "react-icons/fa";
 import Loading from "../../../components/Loading";
 import Modal from "../../../components/Modal";
 import { ModalEnvioMensagemGrupo } from "../../modal/ModalEnvioMensagemGrupo";
+import { ModalCadastroGruposDeContatos } from "../../modal/ModalCadastroGrupoContato";
 
 interface ListagemGrupoContatoProps {
-    setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
-    setGrupoContato: React.Dispatch<React.SetStateAction<GrupoDeContato | null>>;
+    setIsAtivaGrupoContato: React.Dispatch<React.SetStateAction<boolean>>;
+    setGrupoSelecionado: React.Dispatch<React.SetStateAction<GrupoDeContato | null>>;
+    grupoSelecionado: GrupoDeContato | null;
 }
 
-export const ListagemGrupoContato = ({ setIsOpen, setGrupoContato }: ListagemGrupoContatoProps) => {
+export const ListagemGrupoContato = ({ setIsAtivaGrupoContato, setGrupoSelecionado, grupoSelecionado }: ListagemGrupoContatoProps) => {
     const [pesquisaGrupoContato, setPesquisaGrupoContato] = useState<string>('');
     const toast = useToastLoading();
     const [loading, setLoading] = useState<boolean>(false);
     const [gruposContatosFiltrados, setGruposContatosFiltrados] = useState<Array<GrupoDeContato>>([]);
     const [gruposDeContatos, setGruposDeContatos] = useState<Array<GrupoDeContato>>([]);
-    const [grupoSelecionado, setGrupoSelecionado] = useState<GrupoDeContato | null>(null);
     const [confirmacaoDeletar, setConfirmacaoDeletar] = useState<boolean>(false);
     const [isModalEnvioMensagemGrupoContatoOpen, setIsModalEnvioMensagemGrupoContatoOpen] = useState(false);
+    const [isModalCadastroGrupoContatoOpen, setIsModalCadastroGrupoContatoOpen] = useState(false);
 
     const carregaGrupoContato = async (): Promise<void> => {
         setLoading(true);
@@ -33,15 +35,19 @@ export const ListagemGrupoContato = ({ setIsOpen, setGrupoContato }: ListagemGru
         setLoading(false);
     };
 
-    const editGrupoContatos = (grupo: GrupoDeContato) => {
-        setGrupoContato(grupo);
-        setIsOpen(true);
+    const handleCloseModalCadastroGrupoContato = () => {    
+        setIsModalCadastroGrupoContatoOpen(false);
     };
 
-    function openModalExcluirGrupoContato(dados: GrupoDeContato): void {
-        setGrupoSelecionado(dados);
-        setConfirmacaoDeletar(true);
-    }
+    const editGrupoContatos = (grupo: GrupoDeContato) => {
+        setGrupoSelecionado(grupo);
+        setIsModalCadastroGrupoContatoOpen(true);
+    };
+
+    const openIsAtivaGrupoContato = (grupo: GrupoDeContato) => {
+        setGrupoSelecionado(grupo);
+        setIsAtivaGrupoContato(true)
+    };
 
     async function confirmDeleteGrupoContato(): Promise<void> {
         if (grupoSelecionado == null) {
@@ -58,8 +64,12 @@ export const ListagemGrupoContato = ({ setIsOpen, setGrupoContato }: ListagemGru
         else toast({ tipo: response.tipo, mensagem: response.mensagem });
     }
 
+    function openModalExcluirGrupoContato(dados: GrupoDeContato): void {
+        setGrupoSelecionado(dados);
+        setConfirmacaoDeletar(true);
+    }
+
     const handleCloseModalEnvioMensagemGrupoContato = () => {
-        setGrupoSelecionado(null);
         setIsModalEnvioMensagemGrupoContatoOpen(false);
     };
 
@@ -90,21 +100,22 @@ export const ListagemGrupoContato = ({ setIsOpen, setGrupoContato }: ListagemGru
         <>
             <HeaderComponent
                 titulo="Grupos"
-                setIsModalOpen={setIsOpen}
+                setIsModalOpen={setIsAtivaGrupoContato}
                 inputAtivo={true}
                 pesquisa={pesquisaGrupoContato}
                 setPesquisa={setPesquisaGrupoContato}
             />
 
-            <div className="px-4 py-2 flex flex-col gap-2">
+            <div className=" py-2 flex flex-col">
                 {loading ? (
                     <Loading />
                 ) : (
                     gruposContatosFiltrados.length > 0 ? (
                         gruposContatosFiltrados.map((grupo) => (
                             <div
+                                onClick={() => openIsAtivaGrupoContato(grupo)}
                                 key={grupo.id}
-                                className="grid grid-cols-4 gap-1 p-4 bg-white border-b hover:shadow-sm transition-shadow"
+                                className={`grid grid-cols-4 gap-1 p-4  border-b hover:shadow-sm transition-shadow cursor-pointer  ${grupoSelecionado?.id === grupo.id ? 'bg-blue-100' : 'bg-white'} hover:bg-blue-50 transition`}
                             >
                                 <div className="col-span-3 truncate items-start flex flex-col">
                                     <h3 className="font-semibold text-lg text-gray-800 truncate">
@@ -154,6 +165,14 @@ export const ListagemGrupoContato = ({ setIsOpen, setGrupoContato }: ListagemGru
                 isOpen={isModalEnvioMensagemGrupoContatoOpen}
                 handleClose={handleCloseModalEnvioMensagemGrupoContato}
                 grupoContato={grupoSelecionado}
+            />
+
+            <ModalCadastroGruposDeContatos
+                isOpen={isModalCadastroGrupoContatoOpen}
+                handleClose={handleCloseModalCadastroGrupoContato}
+                setGrupoDeContatoSelecionado={setGrupoSelecionado}
+                grupoDeContatoSelecionado={grupoSelecionado}
+                carregaGruposContatos={filtroDebounce}
             />
 
             <Modal open={confirmacaoDeletar} setOpen={setConfirmacaoDeletar}>

@@ -48,7 +48,7 @@ export const Chat = () => {
                         />
 
                         {activeSection != 'modeloMensagem' &&
-                            <div className={`flex-1 h-full bg-white overflow-y-auto overflow-x-hidden barraRolagem transition-opacity duration-300 ${isMenuOpen ? 'opacity-100' : 'opacity-0 hidden'}`}>
+                            <div className={`flex-1 h-full bg-white overflow-y-auto overflow-x-hidden barraRolagem transition-opacity duration-300 ${isMenuOpen ? 'opacity-100' : 'opacity-0 hidden'}`}  id="id-do-container">
                                 {activeSection == 'conversas' &&
                                     <ListagemConversa conversaSelecionada={conversaSelecionada} setConversaSelecionada={setConversaSelecionada} />
                                 }

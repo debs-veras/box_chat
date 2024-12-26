@@ -8,7 +8,7 @@ import { FaEdit, FaPaperPlane, FaTrash, FaUsers } from "react-icons/fa";
 import Loading from "../../../components/Loading";
 import Modal from "../../../components/Modal";
 import { ModalEnvioMensagemGrupo } from "../../modal/ModalEnvioMensagemGrupo";
-import { ModalCadastroGruposDeContatos } from "../../modal/ModalCadastroGrupoContato";
+import { ModalCAdastroGruposDeContatos } from "../../modal/ModalCadastroGrupoContato";
 
 interface ListagemGrupoContatoProps {
     setIsAtivaGrupoContato: React.Dispatch<React.SetStateAction<boolean>>;
@@ -70,6 +70,7 @@ export const ListagemGrupoContato = ({ setIsAtivaGrupoContato, setGrupoSeleciona
     }
 
     const handleCloseModalEnvioMensagemGrupoContato = () => {
+        setGrupoSelecionado(null);
         setIsModalEnvioMensagemGrupoContatoOpen(false);
     };
 
@@ -167,7 +168,7 @@ export const ListagemGrupoContato = ({ setIsAtivaGrupoContato, setGrupoSeleciona
                 grupoContato={grupoSelecionado}
             />
 
-            <ModalCadastroGruposDeContatos
+            <ModalCAdastroGruposDeContatos
                 isOpen={isModalCadastroGrupoContatoOpen}
                 handleClose={handleCloseModalCadastroGrupoContato}
                 setGrupoDeContatoSelecionado={setGrupoSelecionado}

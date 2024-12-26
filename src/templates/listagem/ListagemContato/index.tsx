@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { Contato } from "../../../types/contato.d";
 import { formatarTelefone } from '../../../utils/formatar';
-import { deleteContato, getListContatos } from "../../../services/contato";
+import { deleteContato, postListContatoFiltro } from "../../../services/contato";
 import { ModalCadastroContato } from "../../modal/ModalCadastroContato";
 import Loading from "../../../components/Loading";
 import { HeaderComponent } from "../../../components/HeaderListagem";
@@ -11,6 +11,8 @@ import useDebounce from "../../../hooks/useDebounce";
 import Modal from "../../../components/Modal";
 import { ConversaListagem } from "../../../types/conversa.d";
 import { itensMenu } from "../../../types/itensMenu.d";
+import { baseFiltros } from "../../../types/baseEntity.d";
+import InfiniteScroll from 'react-infinite-scroll-component';
 
 interface ContatoComponentProps {
     setConversaSelecionada: React.Dispatch<React.SetStateAction<ConversaListagem | null>>
@@ -18,14 +20,16 @@ interface ContatoComponentProps {
 }
 
 export const ListagemContato = ({ setConversaSelecionada, setActiveSection }: ContatoComponentProps) => {
-    const [loading, setLoading] = useState<boolean>(false);
     const [listaContatos, setListaContato] = useState<Array<Contato>>([]);
-    const [listaContatosFiltrados, setListaContatosFiltrados] = useState<Array<Contato>>([]);
     const [isModalCadastroContatoOpen, setIsModalCadastroContatoOpen] = useState(false);
     const [contatoSelecionado, setContatoSelecionado] = useState<Contato | null>(null);
     const [pesquisaContato, setPesquisaContato] = useState<string>('');
     const [confirmacaoDeletar, setConfirmacaoDeletar] = useState<boolean>(false);
     const toast = useToastLoading();
+    const [paginaAtual, setPaginaAtual] = useState<number>(0);
+    const [totalRegistros, setTotalRegistros] = useState<number>(0);
+    const [totalPaginas, setTotalPaginas] = useState<number>(0);
+    const registrosPorPagina: number = 10;
 
     const handleCloseModalCadastroContato = () => {
         setContatoSelecionado(null);
@@ -43,7 +47,7 @@ export const ListagemContato = ({ setConversaSelecionada, setActiveSection }: Co
     }
 
     async function confirmDeleteContato(): Promise<void> {
-        if (contatoSelecionado == null) {
+        if (!contatoSelecionado) {
             toast({ tipo: "error", mensagem: "Erro ao deletar: nenhum item selecionado!" });
             return;
         }
@@ -56,17 +60,31 @@ export const ListagemContato = ({ setConversaSelecionada, setActiveSection }: Co
         } else toast({ tipo: response.tipo, mensagem: response.mensagem });
     }
 
-    const carregaContatos = async (): Promise<void> => {
-        setLoading(true);
-        const request = () => getListContatos();
-        const response = await request();
-        if (response.sucesso) setListaContato(response.dados);
-        else toast({ tipo: response.tipo, mensagem: response.mensagem });
-        setLoading(false);
+    const carregaContatos = async (pageSize: number = registrosPorPagina, currentPage: number = 0): Promise<void> => {
+        const filtros: baseFiltros = {
+            pageSize,
+            currentPage,
+            pesquisa: pesquisaContato,
+        };
+
+        const response = await postListContatoFiltro(filtros);
+        if (response.sucesso) {
+            setListaContato((prev) => currentPage === 0 ? response.dados.dados : [...prev, ...response.dados.dados]);
+            setPaginaAtual(response.dados.currentPage);
+            setTotalRegistros(response.dados.totalRegisters);
+            setTotalPaginas(response.dados.totalPages);
+        } else toast({ tipo: response.tipo, mensagem: response.mensagem });
     };
 
+    const carregaMaisContatos = () => {
+        if (paginaAtual < totalPaginas - 1) {
+            setPaginaAtual((prev) => prev + 1);
+            carregaContatos(registrosPorPagina, paginaAtual + 1);
+        }
+    };
+    
     const clickCriarConversa = (contato?: Contato) => {
-        let conversa: ConversaListagem = {
+        const conversa: ConversaListagem = {
             contatoId: contato?.id || 0,
             contatoNome: contato?.nome || '',
             contatoNumero: contato?.numero || '',
@@ -82,22 +100,8 @@ export const ListagemContato = ({ setConversaSelecionada, setActiveSection }: Co
     const filtroDebounce = useDebounce(carregaContatos, 500);
 
     useEffect(() => {
-        if (!pesquisaContato.trim())
-            setListaContatosFiltrados(listaContatos);
-        else {
-            const termo = pesquisaContato.toLowerCase();
-            const contatosFiltrados = listaContatos.filter((contato) => {
-                const nomeContato = contato?.nome.toLowerCase();
-                const numeroContato = contato?.numero?.replace(/\D/g, '');
-                return nomeContato?.includes(termo) || numeroContato?.includes(termo);
-            });
-            setListaContatosFiltrados(contatosFiltrados);
-        }
-    }, [pesquisaContato, listaContatos]);
-
-    useEffect(() => {
         filtroDebounce();
-    }, []);
+    }, [pesquisaContato]);
 
     return (
         <>
@@ -109,9 +113,16 @@ export const ListagemContato = ({ setConversaSelecionada, setActiveSection }: Co
                 inputAtivo={true}
             />
 
-            {!loading ? (
-                listaContatosFiltrados.length > 0 ? (
-                    listaContatosFiltrados.map((contato) => (
+            <InfiniteScroll
+                dataLength={listaContatos.length}
+                next={carregaMaisContatos}
+                hasMore={listaContatos.length < totalRegistros}
+                loader={<Loading />}
+                scrollableTarget="id-do-container"
+            >
+
+                {totalRegistros > 0 ? (
+                    listaContatos.map((contato) => (
                         <div
                             key={contato.id}
                             className="p-4 flex items-center space-x-4 hover:bg-gray-100 transition rounded-lg"
@@ -146,10 +157,8 @@ export const ListagemContato = ({ setConversaSelecionada, setActiveSection }: Co
                     ))
                 ) : (
                     <p className="text-gray-500">Nenhum contato disponível.</p>
-                )
-            ) : (
-                <Loading />
-            )}
+                )}
+            </InfiniteScroll>
 
             <ModalCadastroContato
                 isOpen={isModalCadastroContatoOpen}

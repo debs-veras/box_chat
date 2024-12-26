@@ -27,7 +27,7 @@ interface GruposDeContatosComponentProps {
     carregaGruposContatos: Function;
 }
 
-export const ModalCadastroGruposDeContatos = ({ grupoDeContatoSelecionado, setGrupoDeContatoSelecionado, isOpen, handleClose, carregaGruposContatos }: GruposDeContatosComponentProps) => {
+export const ModalCAdastroGruposDeContatos = ({ grupoDeContatoSelecionado, setGrupoDeContatoSelecionado, isOpen, handleClose, carregaGruposContatos }: GruposDeContatosComponentProps) => {
     const [listaContatos, setListaContato] = useState<Contato[]>([]);
     const [selecionados, setSelecionados] = useState<number[]>([]);
     const [todosSelecionados, setTodosSelecionados] = useState(false);

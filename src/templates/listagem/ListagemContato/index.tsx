@@ -61,6 +61,7 @@ export const ListagemContato = ({ setConversaSelecionada, setActiveSection }: Co
     }
 
     const carregaContatos = async (pageSize: number = registrosPorPagina, currentPage: number = 0): Promise<void> => {
+        
         const filtros: baseFiltros = {
             pageSize,
             currentPage,
@@ -82,7 +83,7 @@ export const ListagemContato = ({ setConversaSelecionada, setActiveSection }: Co
             carregaContatos(registrosPorPagina, paginaAtual + 1);
         }
     };
-    
+
     const clickCriarConversa = (contato?: Contato) => {
         const conversa: ConversaListagem = {
             contatoId: contato?.id || 0,

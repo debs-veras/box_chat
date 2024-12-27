@@ -4,6 +4,9 @@ import { ConversaListagem } from "../../../types/conversa.d";
 import { getListUltimasConversa } from "../../../services/conversa";
 import useToastLoading from "../../../hooks/useToastLoading";
 import Loading from "../../../components/Loading";
+import { baseFiltros } from "../../../types/baseEntity.d";
+import useDebounce from "../../../hooks/useDebounce";
+import InfiniteScroll from 'react-infinite-scroll-component';
 
 interface ConversaComponentProps {
     conversaSelecionada: ConversaListagem | null;
@@ -12,40 +15,47 @@ interface ConversaComponentProps {
 
 export const ListagemConversa = ({ conversaSelecionada, setConversaSelecionada }: ConversaComponentProps) => {
     const [pesquisaConversa, setPesquisaConversa] = useState<string>('');
-    const [loading, setLoading] = useState<boolean>(false);
-    const [conversasFiltradas, setConversasFiltradas] = useState<Array<ConversaListagem>>([]);
-    const [conversas, setConversas] = useState<Array<ConversaListagem>>([]);
+    const [listaConversas, setListaConversas] = useState<Array<ConversaListagem>>([]);
     const toast = useToastLoading();
+    const [paginaAtual, setPaginaAtual] = useState<number>(0);
+    const [totalRegistros, setTotalRegistros] = useState<number>(0);
+    const [totalPaginas, setTotalPaginas] = useState<number>(0);
+    const registrosPorPagina: number = 10;
 
     const handleConversationClick = (conversas: ConversaListagem) => {
         setConversaSelecionada(conversas);
     };
 
-    const carregaUltimasConversas = async (): Promise<void> => {
-        setLoading(true);
-        const request = () => getListUltimasConversa();
-        const response = await request();
-        if (response.sucesso) setConversas(response.dados);
-        else toast({ tipo: response.tipo, mensagem: response.mensagem });
-        setLoading(false);
+    const carregaUltimasConversas = async (pageSize: number = registrosPorPagina, currentPage: number = 0): Promise<void> => {
+
+        const filtros: baseFiltros = {
+            pageSize,
+            currentPage,
+            pesquisa: pesquisaConversa,
+        };
+
+        const response = await getListUltimasConversa(filtros);
+
+        if (response.sucesso) {
+            setListaConversas((prev) => currentPage === 0 ? response.dados.dados : [...prev, ...response.dados.dados]);
+            setPaginaAtual(response.dados.currentPage);
+            setTotalRegistros(response.dados.totalRegisters);
+            setTotalPaginas(response.dados.totalPages);
+        } else toast({ tipo: response.tipo, mensagem: response.mensagem });
     };
 
-    useEffect(() => {
-        carregaUltimasConversas();
-    }, []);
+    const carregaMaisConversas = () => {
+        if (paginaAtual < totalPaginas - 1) {
+            setPaginaAtual((prev) => prev + 1);
+            carregaUltimasConversas(registrosPorPagina, paginaAtual + 1);
+        }
+    };
+
+    const filtroDebounce = useDebounce(carregaUltimasConversas, 500);
 
     useEffect(() => {
-        if (!pesquisaConversa.trim())
-            setConversasFiltradas(conversas);
-        else {
-            const termo = pesquisaConversa.toLowerCase();
-            const conversasFiltradas = conversas.filter((conversa) => {
-                const nomeContato = conversa.contatoNome.toLowerCase();
-                return nomeContato?.includes(termo)
-            });
-            setConversasFiltradas(conversasFiltradas);
-        }
-    }, [pesquisaConversa, conversas]);
+        filtroDebounce();
+    }, [pesquisaConversa]);
 
     return (
         <>
@@ -55,9 +65,16 @@ export const ListagemConversa = ({ conversaSelecionada, setConversaSelecionada }
                 setPesquisa={setPesquisaConversa}
                 inputAtivo={true}
             />
-            {!loading ?
-                conversasFiltradas.length > 0 ? (
-                    conversasFiltradas.map((conversa) => (
+
+            <InfiniteScroll
+                dataLength={totalRegistros}
+                next={carregaMaisConversas}
+                hasMore={totalRegistros < totalRegistros}
+                loader={<Loading />}
+                scrollableTarget="id-do-container"
+            >
+                {totalRegistros > 0 ? (
+                    listaConversas.map((conversa) => (
                         <div
                             key={conversa.id}
                             onClick={() => handleConversationClick(conversa)}
@@ -86,10 +103,8 @@ export const ListagemConversa = ({ conversaSelecionada, setConversaSelecionada }
                     <div className="text-center text-gray-500 py-4">
                         Nenhuma conversa encontrada com o termo.
                     </div>
-                )
-                :
-                <Loading />
-            }
+                )}
+            </InfiniteScroll>
         </>
     );
 };

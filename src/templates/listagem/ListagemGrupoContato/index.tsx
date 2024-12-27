@@ -9,6 +9,8 @@ import Loading from "../../../components/Loading";
 import Modal from "../../../components/Modal";
 import { ModalEnvioMensagemGrupo } from "../../modal/ModalEnvioMensagemGrupo";
 import { ModalCAdastroGruposDeContatos } from "../../modal/ModalCadastroGrupoContato";
+import { baseFiltros } from "../../../types/baseEntity.d";
+import InfiniteScroll from 'react-infinite-scroll-component';
 
 interface ListagemGrupoContatoProps {
     setIsAtivaGrupoContato: React.Dispatch<React.SetStateAction<boolean>>;
@@ -19,23 +21,40 @@ interface ListagemGrupoContatoProps {
 export const ListagemGrupoContato = ({ setIsAtivaGrupoContato, setGrupoSelecionado, grupoSelecionado }: ListagemGrupoContatoProps) => {
     const [pesquisaGrupoContato, setPesquisaGrupoContato] = useState<string>('');
     const toast = useToastLoading();
-    const [loading, setLoading] = useState<boolean>(false);
-    const [gruposContatosFiltrados, setGruposContatosFiltrados] = useState<Array<GrupoDeContato>>([]);
-    const [gruposDeContatos, setGruposDeContatos] = useState<Array<GrupoDeContato>>([]);
+    const [listaGruposContatos, setListaGruposContatos] = useState<Array<GrupoDeContato>>([]);
     const [confirmacaoDeletar, setConfirmacaoDeletar] = useState<boolean>(false);
     const [isModalEnvioMensagemGrupoContatoOpen, setIsModalEnvioMensagemGrupoContatoOpen] = useState(false);
     const [isModalCadastroGrupoContatoOpen, setIsModalCadastroGrupoContatoOpen] = useState(false);
+    const [paginaAtual, setPaginaAtual] = useState<number>(0);
+    const [totalRegistros, setTotalRegistros] = useState<number>(0);
+    const [totalPaginas, setTotalPaginas] = useState<number>(0);
+    const registrosPorPagina: number = 10;
 
-    const carregaGrupoContato = async (): Promise<void> => {
-        setLoading(true);
-        const request = () => getListGrupo();
-        const response = await request();
-        if (response.sucesso) setGruposDeContatos(response.dados);
-        else toast({ tipo: response.tipo, mensagem: response.mensagem });
-        setLoading(false);
+    const carregaGrupoContato = async (pageSize: number = registrosPorPagina, currentPage: number = 0): Promise<void> => {
+
+        const filtros: baseFiltros = {
+            pageSize,
+            currentPage,
+            pesquisa: pesquisaGrupoContato,
+        };
+
+        const response = await getListGrupo(filtros);
+        if (response.sucesso) {
+            setListaGruposContatos((prev) => currentPage === 0 ? response.dados.dados : [...prev, ...response.dados.dados]);
+            setPaginaAtual(response.dados.currentPage);
+            setTotalRegistros(response.dados.totalRegisters);
+            setTotalPaginas(response.dados.totalPages);
+        } else toast({ tipo: response.tipo, mensagem: response.mensagem });
     };
 
-    const handleCloseModalCadastroGrupoContato = () => {    
+    const carregaMaisContatos = () => {
+        if (paginaAtual < totalPaginas - 1) {
+            setPaginaAtual((prev) => prev + 1);
+            carregaGrupoContato(registrosPorPagina, paginaAtual + 1);
+        }
+    };
+
+    const handleCloseModalCadastroGrupoContato = () => {
         setIsModalCadastroGrupoContatoOpen(false);
     };
 
@@ -83,19 +102,7 @@ export const ListagemGrupoContato = ({ setIsAtivaGrupoContato, setGrupoSeleciona
 
     useEffect(() => {
         filtroDebounce();
-    }, [])
-
-    useEffect(() => {
-        if (!pesquisaGrupoContato.trim()) setGruposContatosFiltrados(gruposDeContatos);
-        else {
-            const termo = pesquisaGrupoContato.toLowerCase();
-            const gruposFiltrados = gruposDeContatos.filter((grupo) => {
-                const nomeGrupo = grupo?.nome.toLowerCase();
-                return nomeGrupo?.includes(termo)
-            });
-            setGruposContatosFiltrados(gruposFiltrados);
-        }
-    }, [pesquisaGrupoContato, gruposDeContatos]);
+    }, [pesquisaGrupoContato])
 
     return (
         <>
@@ -108,11 +115,15 @@ export const ListagemGrupoContato = ({ setIsAtivaGrupoContato, setGrupoSeleciona
             />
 
             <div className=" py-2 flex flex-col">
-                {loading ? (
-                    <Loading />
-                ) : (
-                    gruposContatosFiltrados.length > 0 ? (
-                        gruposContatosFiltrados.map((grupo) => (
+                <InfiniteScroll
+                    dataLength={listaGruposContatos.length}
+                    next={carregaMaisContatos}
+                    hasMore={listaGruposContatos.length < totalRegistros}
+                    loader={<Loading />}
+                    scrollableTarget="id-do-container"
+                >
+                    {totalRegistros > 0 ? (
+                        listaGruposContatos.map((grupo) => (
                             <div
                                 onClick={() => openIsAtivaGrupoContato(grupo)}
                                 key={grupo.id}
@@ -159,7 +170,8 @@ export const ListagemGrupoContato = ({ setIsAtivaGrupoContato, setGrupoSeleciona
                             </div>
 
                         ))) : <p>Nenhum contato disponível.</p>
-                )}
+                    }
+                </InfiniteScroll>
             </div>
 
             <ModalEnvioMensagemGrupo

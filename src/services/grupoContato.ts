@@ -1,8 +1,9 @@
+import { baseFiltros } from "../types/baseEntity.d";
 import { CadastroGruposDeContatos } from "../types/grupoDeContatos";
-import { deleteRequest, getRequest, postRequest, putRequest } from "../utils/axiosRequest";
+import { deleteRequest, postRequest, putRequest } from "../utils/axiosRequest";
 
-export const getListGrupo = async () => {
-    return await getRequest("/Grupo");
+export const getListGrupo = async (dados: baseFiltros) => {
+    return await postRequest("/Grupo/listagem", dados);
 }
 
 export const postGrupo = async (param: CadastroGruposDeContatos) => {

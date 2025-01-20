@@ -8,7 +8,7 @@ import { FaEdit, FaPaperPlane, FaTrash, FaUsers } from "react-icons/fa";
 import Loading from "../../../components/Loading";
 import Modal from "../../../components/Modal";
 import { ModalEnvioMensagemGrupo } from "../../modal/ModalEnvioMensagemGrupo";
-import { ModalCAdastroGruposDeContatos } from "../../modal/ModalCadastroGrupoContato";
+import { ModalCadastroGruposDeContatos } from "../../modal/ModalCadastroGrupoContato";
 import { baseFiltros } from "../../../types/baseEntity.d";
 import InfiniteScroll from 'react-infinite-scroll-component';
 
@@ -54,20 +54,18 @@ export const ListagemGrupoContato = ({ setIsAtivaGrupoContato, setGrupoSeleciona
         }
     };
 
-    const handleCloseModalCadastroGrupoContato = () => {
-        setIsModalCadastroGrupoContatoOpen(false);
-    };
-
-    const editGrupoContatos = (grupo: GrupoDeContato) => {
-        setGrupoSelecionado(grupo);
-        setIsModalCadastroGrupoContatoOpen(true);
-    };
-
     const openIsAtivaGrupoContato = (grupo: GrupoDeContato) => {
         setGrupoSelecionado(grupo);
         setIsAtivaGrupoContato(true)
     };
 
+    // Modal editar/cadastrar grupo de contatos
+    const handleOpenModalCadastroGrupoContato = (grupo: GrupoDeContato) => {
+        setGrupoSelecionado(grupo);
+        setIsModalCadastroGrupoContatoOpen(true);
+    };
+
+    // Modal excluir grupo de contatos
     async function confirmDeleteGrupoContato(): Promise<void> {
         if (grupoSelecionado == null) {
             toast({ tipo: "error", mensagem: "Erro ao deletar: nenhum item selecionado!" })
@@ -83,11 +81,12 @@ export const ListagemGrupoContato = ({ setIsAtivaGrupoContato, setGrupoSeleciona
         else toast({ tipo: response.tipo, mensagem: response.mensagem });
     }
 
-    function openModalExcluirGrupoContato(dados: GrupoDeContato): void {
+    const openModalExcluirGrupoContato = (dados: GrupoDeContato) => {
         setGrupoSelecionado(dados);
         setConfirmacaoDeletar(true);
     }
 
+    // Modal Envio de Mensagem
     const handleCloseModalEnvioMensagemGrupoContato = () => {
         setGrupoSelecionado(null);
         setIsModalEnvioMensagemGrupoContatoOpen(false);
@@ -108,7 +107,7 @@ export const ListagemGrupoContato = ({ setIsAtivaGrupoContato, setGrupoSeleciona
         <>
             <HeaderComponent
                 titulo="Grupos"
-                setIsModalOpen={setIsAtivaGrupoContato}
+                setIsModalOpen={setIsModalCadastroGrupoContatoOpen}
                 inputAtivo={true}
                 pesquisa={pesquisaGrupoContato}
                 setPesquisa={setPesquisaGrupoContato}
@@ -123,13 +122,14 @@ export const ListagemGrupoContato = ({ setIsAtivaGrupoContato, setGrupoSeleciona
                     scrollableTarget="id-do-container"
                 >
                     {totalRegistros > 0 ? (
-                        listaGruposContatos.map((grupo) => (
+                        listaGruposContatos.map((grupo, index) => (
                             <div
-                                onClick={() => openIsAtivaGrupoContato(grupo)}
-                                key={grupo.id}
-                                className={`grid grid-cols-4 gap-1 p-4  border-b hover:shadow-sm transition-shadow cursor-pointer  ${grupoSelecionado?.id === grupo.id ? 'bg-blue-100' : 'bg-white'} hover:bg-blue-50 transition`}
+                                key={index}
+                                className={`grid grid-cols-4 gap-1 p-4  border-b hover:shadow-sm transition-shadow   ${grupoSelecionado?.id === grupo.id ? 'bg-blue-100' : 'bg-white'} hover:bg-blue-50 transition`}
                             >
-                                <div className="col-span-3 truncate items-start flex flex-col">
+                                <div
+                                    className="col-span-3 truncate items-start flex flex-col cursor-pointer"
+                                    onClick={() => openIsAtivaGrupoContato(grupo)}>
                                     <h3 className="font-semibold text-lg text-gray-800 truncate">
                                         {grupo.nome}
                                     </h3>
@@ -149,8 +149,7 @@ export const ListagemGrupoContato = ({ setIsAtivaGrupoContato, setGrupoSeleciona
                                         size="1.25rem"
                                         color="#54656F"
                                         className="cursor-pointer transition-all duration-300"
-                                        onClick={() => editGrupoContatos(grupo)}
-
+                                        onClick={() => handleOpenModalCadastroGrupoContato(grupo)}
                                     />
 
                                     <FaTrash
@@ -180,9 +179,9 @@ export const ListagemGrupoContato = ({ setIsAtivaGrupoContato, setGrupoSeleciona
                 grupoContato={grupoSelecionado}
             />
 
-            <ModalCAdastroGruposDeContatos
+            <ModalCadastroGruposDeContatos
                 isOpen={isModalCadastroGrupoContatoOpen}
-                handleClose={handleCloseModalCadastroGrupoContato}
+                setIsOpen={setIsModalCadastroGrupoContatoOpen}
                 setGrupoDeContatoSelecionado={setGrupoSelecionado}
                 grupoDeContatoSelecionado={grupoSelecionado}
                 carregaGruposContatos={filtroDebounce}

@@ -19,7 +19,7 @@ interface ChatDeMensagemProps {
 export const ChatDeMensagem = ({ activeSection, conversaSelecionada }: ChatDeMensagemProps) => {
     const toast = useToastLoading();
     const mensagemEndRef = useRef<HTMLDivElement>(null);
-    const [userId] = useState<string>(REMETENTE_NUMERO);
+    const [userId] = useState<number>(REMETENTE_NUMERO);
     const [mensagem, setMensagem] = useState<Mensagem[]>([]);
     const [showInput, setShowInput] = useState(false);
 
@@ -38,17 +38,16 @@ export const ChatDeMensagem = ({ activeSection, conversaSelecionada }: ChatDeMen
         if (novaMensagem.trim() !== '') {
             const tempo = new Date().toISOString();
             const msg = {
-                remetente: userId,
+                contatoId: conversaSelecionada?.contatoId ?? 0,
                 texto: novaMensagem,
-                horario: tempo,
-                data_envio: tempo,
-                data_recebimento: '',
-                data_visualizacao: '',
+                dataEnvio: tempo,
+                dataRecebimento: '',
+                dataVisualizacao: '',
             };
 
             const request = () => postEnviarMensagem({ contatoId: conversaSelecionada?.contatoId ?? null, texto: novaMensagem, dataEnvio: tempo });
             const response = await request();
-            if (response.sucesso && setMensagem) setMensagem((prevMessages) => [...prevMessages, msg]);
+            if (response.sucesso) setMensagem((prevMessages) => [...prevMessages, msg]);
             else toast({ tipo: response.tipo, mensagem: response.mensagem });
         }
     };

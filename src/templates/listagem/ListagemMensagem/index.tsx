@@ -7,7 +7,7 @@ import { formatarDataHora } from '../../../utils/formatar';
 interface MensagemComponentProps {
     mensagem: Mensagem[];
     mensagemEndRef: React.RefObject<HTMLDivElement>;
-    userId: string;
+    userId: number;
 }
 
 export const ListagemMensagem = ({ mensagem, mensagemEndRef, userId }: MensagemComponentProps) => {
@@ -22,10 +22,10 @@ export const ListagemMensagem = ({ mensagem, mensagemEndRef, userId }: MensagemC
                 <div
                     ref={mensagemEndRef}
                     key={index}
-                    className={`flex ${mensagem.remetente === userId ? 'justify-end' : 'justify-start'}`}
+                    className={`flex ${mensagem.contatoId !== userId ? 'justify-end' : 'justify-start'}`}
                 >
                     <div
-                        className={`px-3 py-1 rounded-lg max-w-[50%] shadow-md text-start ${mensagem.remetente === userId ? 'bg-[#D9FDD3]' : 'bg-white'}`}
+                        className={`px-3 py-1 rounded-lg max-w-[50%] shadow-md text-start ${mensagem.contatoId !== userId ? 'bg-[#D9FDD3]' : 'bg-white'}`}
                     >
                         <p>{mensagem.texto}</p>
                         <div className='flex items-center justify-center gap-2'>

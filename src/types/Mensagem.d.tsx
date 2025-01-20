@@ -1,7 +1,7 @@
 export type Mensagem = {
     id?: number;
-    remetente?: string;
-    destinatario?: string;
+    contatoId: number;
+    campanhaId?: number;
     texto?: string;
     dataEnvio?: string;
     dataRecebimento?: string;

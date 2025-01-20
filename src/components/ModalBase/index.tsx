@@ -14,7 +14,7 @@ const ModalBase = ({ isOpen, title, handleClose, children, footer }: ModalBasePr
         <Dialog.Root open={isOpen} onOpenChange={handleClose}>
             <Dialog.Portal>
                 <Dialog.Overlay
-                    className="fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300"
+                    className="backdrop-blur-sm bg-black/50 data-[state=open]:animate-overlayShow fixed inset-0 z-50"
                     aria-hidden="true"
                 />
                 <Dialog.Content

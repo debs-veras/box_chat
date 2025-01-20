@@ -126,7 +126,7 @@ export const ListagemContato = ({ setConversaSelecionada, setActiveSection }: Co
                     listaContatos.map((contato) => (
                         <div
                             key={contato.id}
-                            className="p-4 flex items-center space-x-4 hover:bg-gray-100 transition rounded-lg"
+                            className="p-4 flex items-center space-x-4 hover:bg-gray-100 transition"
                         >
                             <div className="w-12 h-12 rounded-full flex items-center justify-center bg-gray-200 text-lg font-semibold text-gray-800">
                                 {contato?.nome?.charAt(0).toUpperCase() || "?"}
@@ -165,7 +165,7 @@ export const ListagemContato = ({ setConversaSelecionada, setActiveSection }: Co
                 isOpen={isModalCadastroContatoOpen}
                 handleClose={handleCloseModalCadastroContato}
                 contato={contatoSelecionado}
-                carregaContatos={carregaContatos}
+                carregaContatos={filtroDebounce}
             />
 
             <Modal open={confirmacaoDeletar} setOpen={setConfirmacaoDeletar}>

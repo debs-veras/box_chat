@@ -7,6 +7,7 @@ import Loading from "../../../components/Loading";
 import { baseFiltros } from "../../../types/baseEntity.d";
 import useDebounce from "../../../hooks/useDebounce";
 import InfiniteScroll from 'react-infinite-scroll-component';
+import { formatarDataHora } from "../../../utils/formatar";
 
 interface ConversaComponentProps {
     conversaSelecionada: ConversaListagem | null;
@@ -57,6 +58,7 @@ export const ListagemConversa = ({ conversaSelecionada, setConversaSelecionada }
         filtroDebounce();
     }, [pesquisaConversa]);
 
+    
     return (
         <>
             <HeaderComponent
@@ -87,15 +89,16 @@ export const ListagemConversa = ({ conversaSelecionada, setConversaSelecionada }
                                 <h3 className="text-md font-medium truncate">{conversa.contatoNome}</h3>
                                 <p className="text-sm text-gray-500 truncate">{conversa.ultimaMensagem}</p>
                             </div>
-                            <div className='flex flex-col gap-1'>
-                                <div className="text-xs text-gray-500">
-                                    {/* {conversa.dataRecebimento} */}
-                                </div>
+                            <div className='flex flex-col gap-1 items-end'>
+
                                 {conversa.mensagensPendentes != 0 && (
-                                    <div className="text-xs bg-red-500 text-white rounded-full px-2">
+                                    <div className="text-xs bg-red-500 text-white rounded-full px-2 w-8 h-5">
                                         {conversa.mensagensPendentes}
                                     </div>
                                 )}
+                                <div className="text-xs text-gray-500 w-fit">
+                                    {formatarDataHora(conversa.dataUltimaMensagem)}
+                                </div>
                             </div>
                         </div>
                     ))

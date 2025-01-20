@@ -22,12 +22,12 @@ type PropsFiltros = {
 interface GruposDeContatosComponentProps {
     grupoDeContatoSelecionado?: GrupoDeContato | null;
     setGrupoDeContatoSelecionado: React.Dispatch<React.SetStateAction<GrupoDeContato | null>>;
+    setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
     isOpen: boolean;
-    handleClose: () => void;
-    carregaGruposContatos: Function;
+    carregaGruposContatos: () => void;
 }
 
-export const ModalCAdastroGruposDeContatos = ({ grupoDeContatoSelecionado, setGrupoDeContatoSelecionado, isOpen, handleClose, carregaGruposContatos }: GruposDeContatosComponentProps) => {
+export const ModalCadastroGruposDeContatos = ({ setIsOpen, grupoDeContatoSelecionado, setGrupoDeContatoSelecionado, isOpen, carregaGruposContatos }: GruposDeContatosComponentProps) => {
     const [listaContatos, setListaContato] = useState<Contato[]>([]);
     const [selecionados, setSelecionados] = useState<number[]>([]);
     const [todosSelecionados, setTodosSelecionados] = useState(false);
@@ -36,10 +36,10 @@ export const ModalCAdastroGruposDeContatos = ({ grupoDeContatoSelecionado, setGr
     const { register: registerGrupoContatos, handleSubmit: handleSubmitGrupoContatos, reset: resetGrupoContatos } = useForm<CadastroGruposDeContatos>();
     const [loadingListagem, setLoadingListagem] = useState<boolean>(true);
     const [salvando, setSalvando] = useState<boolean>(false);
-    const [paginaAtual, setPaginaAtual] = useState<number>(0)
-    const [totalRegistros, setTotalRegistros] = useState<number>(0)
-    const [totalPaginas, setTotalPaginas] = useState<number>(0)
-    const registrosPorPagina: number = 3
+    const [paginaAtual, setPaginaAtual] = useState<number>(0);
+    const [totalRegistros, setTotalRegistros] = useState<number>(0);
+    const [totalPaginas, setTotalPaginas] = useState<number>(0);
+    const registrosPorPagina: number = 5;
     const watchUseEffect = watchFiltros();
 
     const toggleSelecionarTodos = () => {
@@ -102,12 +102,9 @@ export const ModalCAdastroGruposDeContatos = ({ grupoDeContatoSelecionado, setGr
             carregaGruposContatos();
             toast({ tipo: 'success', mensagem: 'Grupo salvo com sucesso!' });
         }
-        else {
-            setGrupoDeContatoSelecionado(null);
-            toast({ tipo: response.tipo, mensagem: response.mensagem })
-        };
+        else toast({ tipo: response.tipo, mensagem: response.mensagem })
 
-        handleClose();
+        handleCloseModal();
         setSalvando(false);
     }
 
@@ -115,6 +112,13 @@ export const ModalCAdastroGruposDeContatos = ({ grupoDeContatoSelecionado, setGr
         setSelecionados(grupoDeContatoSelecionado?.contatoIds || []);
         resetGrupoContatos({ ...grupoDeContatoSelecionado });
     }
+
+    const handleCloseModal = () => {
+        resetGrupoContatos();
+        setSelecionados([]);
+        setGrupoDeContatoSelecionado(null);
+        setIsOpen(false)
+    };
 
     const filtroDebounce = useDebounce(() => carregaContatos(), 500);
 
@@ -132,27 +136,31 @@ export const ModalCAdastroGruposDeContatos = ({ grupoDeContatoSelecionado, setGr
     }, [watchUseEffect]);
 
     useEffect(() => {
-        if (!!grupoDeContatoSelecionado) carregarDadosGrupoContato();
+        if (grupoDeContatoSelecionado) carregarDadosGrupoContato()
+        else {
+            resetGrupoContatos({ nome: '', descricao: '' })
+        };
     }, [grupoDeContatoSelecionado]);
 
     return (
         <ModalBase
             isOpen={isOpen}
-            title="Cadastrar Grupo"
-            handleClose={handleClose}
+            title={grupoDeContatoSelecionado?.id ? grupoDeContatoSelecionado.nome : "Cadastrar Grupo"}
+            handleClose={handleCloseModal}
             footer={
                 <>
                     <Botao
                         tipo='sucesso'
                         texto="Salvar"
+                        onClick={cadastrarGrupoContatos}
                         disabled={salvando}
                         carregando={salvando}
-                        onClick={cadastrarGrupoContatos}
                     />
 
                     <Botao
                         tipo="padrao"
-                        onClick={handleClose} texto="Cancelar"
+                        texto="Cancelar"
+                        onClick={handleCloseModal}
                         disabled={salvando}
                         carregando={salvando}
                     />

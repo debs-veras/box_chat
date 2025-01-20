@@ -1,10 +1,6 @@
 import { baseFiltros } from "../types/baseEntity.d";
 import { ContatoCadastro } from "../types/contato.d";
-import { deleteRequest, getRequest, postRequest, putRequest } from "../utils/axiosRequest";
-
-export const getListContatos = async () => {
-    return await getRequest("/Contato");
-}
+import { deleteRequest, postRequest, putRequest } from "../utils/axiosRequest";
 
 export const postContato = async (dados: ContatoCadastro) => {
     return await postRequest(`/Contato`, dados);

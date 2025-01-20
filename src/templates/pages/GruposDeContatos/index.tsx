@@ -65,6 +65,7 @@ export const GruposDeContatos = ({ grupoDeContatoSelecionado }: GruposDeContatos
 
     const carregarDadosGrupoContato = async () => {
         setLoadingGrupo(true);
+        console.log(grupoDeContatoSelecionado);
         resetGrupoContatos({ ...grupoDeContatoSelecionado });
         setLoadingGrupo(false);
     }
@@ -93,7 +94,7 @@ export const GruposDeContatos = ({ grupoDeContatoSelecionado }: GruposDeContatos
                 <Box>
                     <Box.Header>
                         <Box.Header.Content>
-                            <Box.Header.Content.Titulo>Detalhes do grupo: {grupoDeContatoSelecionado?.nome}</Box.Header.Content.Titulo>
+                            <Box.Header.Content.Titulo>{grupoDeContatoSelecionado?.nome}</Box.Header.Content.Titulo>
                         </Box.Header.Content>
                     </Box.Header>
                     {grupoDeContatoSelecionado ? (

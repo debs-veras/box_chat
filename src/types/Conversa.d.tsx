@@ -14,6 +14,7 @@ export type ConversaListagem = {
     contatoId: number;
     contatoNome: string;
     contatoNumero: string;
+    dataUltimaMensagem: string;
     ultimaMensagem: string;
     mensagensPendentes: number;
     mensagens: Array<Mensagem>;

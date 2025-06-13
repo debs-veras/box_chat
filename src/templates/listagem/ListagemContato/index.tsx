@@ -9,7 +9,7 @@ interface ContatoComponentProps {
   setActiveSection: React.Dispatch<React.SetStateAction<itensMenu>>;
 }
 
-export const ListagemContato = ({setConversaSelecionada, setActiveSection }: ContatoComponentProps) => {
+export const ListagemContato = ({setActiveSection }: ContatoComponentProps) => {
   const [pesquisaContato, setPesquisaContato] = useState<string>("");
   const [usuariosOnline, setUsuariosOnline] = useState<string[]>([]);
 

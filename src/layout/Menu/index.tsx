@@ -1,8 +1,8 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faComments, faUser, faAngleLeft, faCog, faFileAlt, faUsers } from '@fortawesome/free-solid-svg-icons';
+import { faComments, faUser, faAngleLeft, faFileAlt } from '@fortawesome/free-solid-svg-icons';
 import { itensMenu } from '../../types/itensMenu.d';
 import { useEffect } from 'react';
-import { ComTooltip } from '../Tooltip';
+import { ComTooltip } from '../../components/Tooltip';
 interface MenuComponentProps {
     isMenuOpen: boolean;
     activeSection: itensMenu;
@@ -57,26 +57,6 @@ export const Menu = ({ isMenuOpen, activeSection, setActiveSection, setIsMenuOpe
                     color={activeSection == 'modeloMensagem' ? "#00A884" : "#54656F"}
                     onClick={() => setActiveSection('modeloMensagem')}
                     className={`cursor-pointer transition-all duration-300 ${activeSection == 'modeloMensagem' ? 'scale-110 bg-[#D9DBDF] w-fit p-2 rounded-full' : ''}`}
-                />
-            </ComTooltip>
-
-            <ComTooltip tooltipText="Grupos de Contatos">
-                <FontAwesomeIcon
-                    icon={faUsers}
-                    size="lg"
-                    color={activeSection == 'gruposContatos' ? "#00A884" : "#54656F"}
-                    onClick={() => setActiveSection('gruposContatos')}
-                    className={`cursor-pointer transition-all duration-300 ${activeSection == 'gruposContatos' ? 'scale-110 bg-[#D9DBDF] w-fit p-2 rounded-full' : ''}`}
-                />
-            </ComTooltip>
-
-            <ComTooltip tooltipText="Configurações">
-                <FontAwesomeIcon
-                    icon={faCog}
-                    size="lg"
-                    color={activeSection == 'settings' ? "#00A884" : "#54656F"}
-                    onClick={() => setActiveSection('settings')}
-                    className={`cursor-pointer transition-all duration-300 ${activeSection == 'settings' ? 'scale-110 bg-[#D9DBDF] w-fit p-2 rounded-full' : ''}`}
                 />
             </ComTooltip>
         </div>

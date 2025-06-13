@@ -16,7 +16,7 @@ type Props = {
     children?: JSX.Element | Array<JSX.Element> | string;
 }
 
-const Botao = forwardRef((props: Props, _) => {
+const Botao = forwardRef((props: Props) => {
     const {
         id,
         onClick,

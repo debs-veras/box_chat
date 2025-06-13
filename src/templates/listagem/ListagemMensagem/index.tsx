@@ -1,17 +1,15 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheck, faCheckDouble } from '@fortawesome/free-solid-svg-icons';
-import { Mensagem } from '../../../types/mensagem.d';
+import { Mensagem } from '../../../types/Mensagem.d';
 import { useEffect } from 'react';
 import { formatarDataHora } from '../../../utils/formatar';
 
 interface MensagemComponentProps {
     mensagem: Mensagem[];
     mensagemEndRef: React.RefObject<HTMLDivElement>;
-    userId: number;
 }
 
-export const ListagemMensagem = ({ mensagem, mensagemEndRef, userId }: MensagemComponentProps) => {
-
+export const ListagemMensagem = ({ mensagem, mensagemEndRef }: MensagemComponentProps) => {
+    const userId = sessionStorage.getItem("usuarioId");
+    
     useEffect(() => {
         mensagemEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [mensagem]);
@@ -22,21 +20,14 @@ export const ListagemMensagem = ({ mensagem, mensagemEndRef, userId }: MensagemC
                 <div
                     ref={mensagemEndRef}
                     key={index}
-                    className={`flex ${mensagem.contatoId !== userId ? 'justify-end' : 'justify-start'}`}
+                    className={`flex ${mensagem.para !== userId ? 'justify-end' : 'justify-start'}`}
                 >
                     <div
-                        className={`px-3 py-1 rounded-lg max-w-[50%] shadow-md text-start ${mensagem.contatoId !== userId ? 'bg-[#D9FDD3]' : 'bg-white'}`}
+                        className={`px-3 py-1 rounded-lg max-w-[50%] shadow-md text-start ${mensagem.para !== userId ? 'bg-[#D9FDD3]' : 'bg-white'}`}
                     >
-                        <p>{mensagem.texto}</p>
+                        <p>{mensagem.conteudo}</p>
                         <div className='flex items-center justify-center gap-2'>
-                            <div className="text-xs text-gray-500 w-full text-end pt-1">{formatarDataHora(mensagem.dataEnvio ?? '')}</div>
-                            {mensagem.dataVisualizacao ? (
-                                <FontAwesomeIcon icon={faCheckDouble} color="blue" />
-                            ) : mensagem.dataRecebimento ? (
-                                <FontAwesomeIcon icon={faCheckDouble} />
-                            ) : (
-                                <FontAwesomeIcon icon={faCheck} />
-                            )}
+                            <div className="text-xs text-gray-500 w-full text-end pt-1">{formatarDataHora(mensagem.timestamp ?? '')}</div>
                         </div>
                     </div>
                 </div>

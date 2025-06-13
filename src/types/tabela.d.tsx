@@ -1,1 +1,0 @@
-export type tamanhoTitulo = "grande" | "normal" | "pequeno"

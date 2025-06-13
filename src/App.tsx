@@ -1,8 +1,8 @@
 import { Suspense } from "react";
-import Router from "./router";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Loading from "./components/Loading";
+import { Chat } from "./pages/Chat";
 
 function App() {
   return (
@@ -18,7 +18,7 @@ function App() {
         closeButton={true}
         style={{ width: "fit-content" }}
       />
-      <Router />
+      <Chat />
     </Suspense>
   )
 }

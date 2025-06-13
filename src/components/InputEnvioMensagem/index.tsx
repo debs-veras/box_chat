@@ -2,15 +2,15 @@ import { useEffect, useState } from "react";
 import data from '@emoji-mart/data'
 import Picker from '@emoji-mart/react'
 import { ModeloMensagem } from "../../types/modeloMensagem";
-import { ConversaListagem } from "../../types/conversa.d";
+import { Conversa } from "../../types/Conversa.d";
 import { itensMenu } from "../../types/itensMenu.d";
-import { FaPaperPlane, FaSmile, FaPaperclip } from "react-icons/fa";
+import { FaPaperPlane, FaSmile } from "react-icons/fa";
 import Botao from "../Button";
 
 interface InputEnvioMensagemProps {
     activeSection?: itensMenu;
-    conversaSelecionada?: ConversaListagem | null;
-    enviarMensagem: (msg: string) => Promise<void>;
+    conversaSelecionada?: Conversa | null;
+    enviarMensagem: (texto: string) => Promise<void>;
 }
 
 export const InputEnvioMensagem = ({ activeSection, conversaSelecionada, enviarMensagem }: InputEnvioMensagemProps) => {
@@ -66,15 +66,13 @@ export const InputEnvioMensagem = ({ activeSection, conversaSelecionada, enviarM
         }
     };
 
-    const handleEmojiSelect = (emoji: any) => {
+    const handleEmojiSelect = (emoji) => {
         setNovaMensagem(prev => prev + emoji.native);
     };
 
-    const substituirTags = (texto: string, contato?: ConversaListagem | null): string => {
+    const substituirTags = (texto: string, contato?: Conversa | null): string => {
         setExibirModelos(false);
-        return texto
-            .replace(/{nome}/g, contato?.contatoNome || "usuário")
-            .replace(/{numero}/g, contato?.contatoNumero || "desconhecido");
+        return texto.replace(/{nome}/g, contato?.usuarioId || "usuário")
     };
 
     useEffect(() => {
@@ -86,11 +84,6 @@ export const InputEnvioMensagem = ({ activeSection, conversaSelecionada, enviarM
         <>
             <div className="flex items-center gap-2 p-4 bg-[#F0F2F5] shadow-lg flex-wrap">
                 <div className='flex gap-5 relative'>
-                    <FaPaperclip
-                        size="1.25rem"
-                        className="hover:text-gray-400 text-xl cursor-pointer text-gray-500"
-                    />
-
                     <FaSmile
                         size="1.25rem"
                         className="text-gray-700 text-xl cursor-pointer hover:text-gray-600"
@@ -102,7 +95,6 @@ export const InputEnvioMensagem = ({ activeSection, conversaSelecionada, enviarM
                             <Picker data={data} onEmojiSelect={handleEmojiSelect} />
                         </div>
                     )}
-
                 </div>
 
                 <input

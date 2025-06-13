@@ -1,9 +1,8 @@
-import { faPlus, faSearch } from "@fortawesome/free-solid-svg-icons";
+import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 interface HeaderProps {
     titulo: string;
-    setIsModalOpen?: React.Dispatch<React.SetStateAction<boolean>> | undefined;
     setPesquisa?: React.Dispatch<React.SetStateAction<string>> | undefined;
     pesquisa?: string;
     inputAtivo?: boolean
@@ -27,22 +26,12 @@ const SearchBar = ({ pesquisaConversa, setPesquisaConversa }) => (
     </div>
 );
 
-export const HeaderComponent = ({ titulo, setIsModalOpen, pesquisa, setPesquisa, inputAtivo }: HeaderProps) => (
+export const HeaderComponent = ({ titulo, pesquisa, setPesquisa, inputAtivo }: HeaderProps) => (
     <>
         <div className="p-5 text-left flex justify-between items-center">
             <div className="text-lg font-semibold">
                 {titulo}
             </div>
-
-            {setIsModalOpen && (
-                <FontAwesomeIcon
-                    icon={faPlus}
-                    size="lg"
-                    color="#54656F"
-                    className="cursor-pointer transition-all duration-300"
-                    onClick={() => setIsModalOpen(true)}
-                />
-            )}
         </div>
 
         {inputAtivo && (<SearchBar pesquisaConversa={pesquisa} setPesquisaConversa={setPesquisa} />)}

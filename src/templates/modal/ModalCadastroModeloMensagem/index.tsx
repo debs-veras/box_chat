@@ -19,7 +19,7 @@ export const ModalCadastroModeloMensagem = ({
   modelo,
 }: ModalCadastroModeloProps) => {
   const { register, handleSubmit, reset, setValue, watch } = useForm<ModeloMensagem>();
-  const tagsDisponiveis = ['{nome}', '{numero}', '{email}'];
+  const tagsDisponiveis = ['{nome}'];
 
   const sincronizarTagsComConteudo = (conteudo: string): string[] => {
     return tagsDisponiveis.filter((tag) => conteudo.includes(tag));
@@ -30,12 +30,10 @@ export const ModalCadastroModeloMensagem = ({
     const conteudoField = document.getElementById('conteudo') as HTMLTextAreaElement;
     if (conteudoField) {
       const cursorPos = conteudoField.selectionStart;
-      const novoConteudo =
-        conteudoAtual.slice(0, cursorPos) + tag + conteudoAtual.slice(cursorPos);
+      const novoConteudo = conteudoAtual.slice(0, cursorPos) + tag + conteudoAtual.slice(cursorPos);
       setValue('conteudo', novoConteudo);
     }
   };
-
 
   const cadastrarModelo = () => {
     handleSubmit((dadosForm) => {

@@ -1,104 +1,102 @@
 import { useEffect, useRef, useState } from "react";
-import { ListagemMensagem } from "../../listagem/ListagemMensagem";
-import { formatarTelefone } from "../../../utils/formatar";
-import { Mensagem } from "../../../types/mensagem.d";
-import { ConversaListagem } from "../../../types/conversa.d";
+import { Mensagem } from "../../../types/Mensagem.d";
 import { itensMenu } from "../../../types/itensMenu.d";
-import { getListConversa } from "../../../services/conversa";
-import useToastLoading from "../../../hooks/useToastLoading";
-import useDebounce from "../../../hooks/useDebounce";
-import { FaEllipsisV, FaSearch } from "react-icons/fa";
-import { REMETENTE_NUMERO } from "../../../utils/api";
+import { Conversa } from "../../../types/Conversa.d";
+import socket from "../../../services/socket";
 import { InputEnvioMensagem } from "../../../components/InputEnvioMensagem";
-import { postEnviarMensagem } from "../../../services/mensagem";
+import { ListagemMensagem } from "../../listagem/ListagemMensagem";
+
 interface ChatDeMensagemProps {
-    activeSection: itensMenu;
-    conversaSelecionada: ConversaListagem | null;
+  activeSection: itensMenu;
+  conversaSelecionada: Conversa | null;
 }
 
 export const ChatDeMensagem = ({ activeSection, conversaSelecionada }: ChatDeMensagemProps) => {
-    const toast = useToastLoading();
-    const mensagemEndRef = useRef<HTMLDivElement>(null);
-    const [userId] = useState<number>(REMETENTE_NUMERO);
-    const [mensagem, setMensagem] = useState<Mensagem[]>([]);
-    const [showInput, setShowInput] = useState(false);
+  const mensagemEndRef = useRef<HTMLDivElement>(null);
+  const [mensagem, setMensagem] = useState<Mensagem[]>([]);
 
-    const toggleInput = () => {
-        setShowInput((prev) => !prev);
+  const enviarMensagem = async (texto: string): Promise<void> => {
+    if (!texto.trim() || !conversaSelecionada) return;
+    const de = sessionStorage.getItem("usuarioId");
+    const para = conversaSelecionada.usuarioId;
+    if (!de || !para) return;
+
+    const novaMensagem = {
+      de,
+      para,
+      conteudo: texto,
     };
 
-    const carregaMensagem = async (): Promise<void> => {
-        const request = () => getListConversa(conversaSelecionada?.contatoId ?? 0);
-        const response = await request();
-        if (response.sucesso) setMensagem(response.dados.mensagens);
-        else toast({ tipo: response.tipo, mensagem: response.mensagem });
+    socket.emit("chat message", novaMensagem);
+
+    setTimeout(() => {
+      mensagemEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
+  };
+
+  useEffect(() => {
+    if (!conversaSelecionada) {
+      setMensagem([]);
+      return;
+    }
+
+    const meuUsuario = sessionStorage.getItem("usuarioId");
+    if (!meuUsuario) return;
+
+    socket.emit("carregar-conversa", {
+      usuarioA: meuUsuario,
+      usuarioB: conversaSelecionada.usuarioId,
+    });
+
+    socket.on("conversa-carregada", ({ mensagens }) => {
+      setMensagem(mensagens);
+      setTimeout(() => {
+        mensagemEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    });
+
+    socket.on("chat message", (novaMensagem) => {
+      if (conversaSelecionada && (novaMensagem.de === conversaSelecionada.usuarioId ||  novaMensagem.para === conversaSelecionada.usuarioId)) {
+        setMensagem((msgs) => [
+          ...msgs,
+          {
+            ...novaMensagem,
+            timestamp: novaMensagem.timestamp ?? new Date().toISOString(),
+          },
+        ]);
+        setTimeout(() => {
+          mensagemEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        }, 100);
+      }
+    });
+
+    return () => {
+      socket.off("conversa-carregada");
+      socket.off("chat message");
     };
+  }, [conversaSelecionada]);
+  return (
+    <>
+      <div className="flex items-center justify-between p-4 bg-[#F0F2F5] shadow-sm">
+        <div className="flex items-center space-x-4">
+          <img
+            src={"imagens/user.png"}
+            alt="Perfil"
+            className="w-12 h-12 rounded-full object-cover"
+          />
+          <div className="flex flex-col items-start">
+            <span className="text-lg">{conversaSelecionada?.usuarioId}</span>
+          </div>
+        </div>
+      </div>
 
-    const enviarMensagem = async (novaMensagem: string) => {
-        if (novaMensagem.trim() !== '') {
-            const tempo = new Date().toISOString();
-            const msg = {
-                contatoId: conversaSelecionada?.contatoId ?? 0,
-                texto: novaMensagem,
-                dataEnvio: tempo,
-                dataRecebimento: '',
-                dataVisualizacao: '',
-            };
+      <ListagemMensagem mensagem={mensagem} mensagemEndRef={mensagemEndRef} />
 
-            const request = () => postEnviarMensagem({ contatoId: conversaSelecionada?.contatoId ?? null, texto: novaMensagem, dataEnvio: tempo });
-            const response = await request();
-            if (response.sucesso) setMensagem((prevMessages) => [...prevMessages, msg]);
-            else toast({ tipo: response.tipo, mensagem: response.mensagem });
-        }
-    };
-
-    const filtroDebounce = useDebounce(carregaMensagem, 500);
-
-    useEffect(() => {
-        setShowInput(false);
-    }, [activeSection, conversaSelecionada]);
-
-    useEffect(() => {
-        filtroDebounce();
-    }, [conversaSelecionada]);
-
-    return (
-        <>
-            <div className="flex items-center justify-between p-4 bg-[#F0F2F5] shadow-sm">
-                <div className="flex items-center space-x-4">
-                    <img src={'imagens/user.png'} alt="Perfil" className="w-12 h-12 rounded-full object-cover" />
-                    <div className='flex flex-col items-start'>
-                        <span className="text-lg">{conversaSelecionada?.contatoNome}</span>
-                        <span className="text-sm text-zinc-400">{formatarTelefone(conversaSelecionada?.contatoNumero || '')}</span>
-                    </div>
-                </div>
-
-                <div className="flex items-center justify-center gap-2 relative">
-                    <FaSearch
-                        size="1.2rem"
-                        className={`${showInput ? 'absolute transform -translate-y-1/2 left-4 top-1/2 ' : 'relative'} cursor-pointer`}
-                        onClick={toggleInput}
-                    />
-                    <div
-                        className={`rounded px-2 py-1 transition-all duration-300 overflow-hidden ${showInput ? 'w-48 opacity-100' : 'w-0 opacity-0'}`}
-                    >
-                        <input
-                            type="text"
-                            className="w-full pl-10 pr-4 py-2 bg-[#DAD7D3] rounded-md border-none focus:outline-none"
-                            placeholder="Digite sua busca"
-                        />
-                    </div>
-                    <FaEllipsisV size="1.2rem" className="cursor-pointer" />
-                </div>
-            </div>
-
-            <ListagemMensagem mensagem={mensagem} mensagemEndRef={mensagemEndRef} userId={userId} />
-
-            <InputEnvioMensagem
-                activeSection={activeSection}
-                conversaSelecionada={conversaSelecionada}
-                enviarMensagem={enviarMensagem}
-            />
-        </>
-    );
+      <InputEnvioMensagem
+        activeSection={activeSection}
+        conversaSelecionada={conversaSelecionada}
+        enviarMensagem={enviarMensagem}
+      />
+    </>
+  );
 };

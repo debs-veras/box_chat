@@ -1,50 +1,58 @@
-# React + TypeScript + Vite
+# BoxChat
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Clone simples de WhatsApp com React, TypeScript, Tailwind CSS e Socket.IO.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Descrição
 
-## Expanding the ESLint configuration
+Este projeto é um sistema de chat em tempo real que permite conversas entre usuários conectados. Foi desenvolvido usando React para o frontend e Socket.IO com Node.js para o backend.
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+---
 
-- Configure the top-level `parserOptions` property like this:
+## Tecnologias Utilizadas
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+- React 18 + TypeScript
+- Tailwind CSS
+- Socket.IO (cliente e servidor)
+- Node.js + Express (servidor)
+- Vite (bundler)
+
+---
+
+## Funcionalidades
+
+- Lista de usuários online em tempo real
+- Criação de conversas entre usuários
+- Envio e recebimento de mensagens em tempo real
+- Histórico simples de mensagens por conversa
+- Criação de Modelos de mensagens
+
+---
+
+## Como rodar o projeto
+Baixe primeiro o projeto com o seguinte comando
+```bash
+git clone https://github.com/seu-usuario/box_chat.git
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+1. Navegue até a pasta do projeto baixado e rode o comando:
+   ```bash
+   npm install
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+2. Antes de rodar o projeto frontend é necessario abrir o servidor indo até a pasta server quer está dentro da pasta do projeto com seguinte comando:
+   ```bash
+   cd server
+   
+3. Dentro da pasta serve rode o seguinte comando:
+   ```bash
+   node server.js
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+4. Voltando para raiz do projeto rode o frontend com o seguinte comando:
+   ```bash
+   npm run dev
+5. Em seguida abra o seguinte link em seu navegador
+   ```bash
+   http://localhost:5173
+
+

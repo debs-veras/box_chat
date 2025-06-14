@@ -38,21 +38,19 @@ git clone https://github.com/seu-usuario/box_chat.git
 
 1. Navegue até a pasta do projeto baixado e rode o comando:
    ```bash
-   npm install
+   npm install (podendo utilizar o gerenciador de pacotes que vc mais utiliza)
 
-2. Antes de rodar o projeto frontend é necessario abrir o servidor indo até a pasta server quer está dentro da pasta do projeto com seguinte comando:
-   ```bash
-   cd server
-   
-3. Dentro da pasta serve rode o seguinte comando:
+2. Antes de rodar o projeto frontend é necessario abrir o servidor que está dentro da raiz do projeto:
    ```bash
    node server.js
 
-4. Voltando para raiz do projeto rode o frontend com o seguinte comando:
+3. Ainda na raiz do projeto rode o frontend com o seguinte comando:
    ```bash
-   npm run dev
+   npm run dev --host
+4. Agora é necessário configurar o servidor e para isso na raiz do projeto crie as seguinte váriaveis 
+   ```bash
+   VITE_SERVER_URL=http://<ip_local_da_sua_maquina>:<porta_que_o_server_esta_rodando>
+   SERVER_URL=http://<ip_local_da_sua_maquina>:<porta_que_o_front_esta_rodando>
 5. Em seguida abra o seguinte link em seu navegador
    ```bash
-   http://localhost:5173
-
-
+   http://<ip_local_da_sua_maquina>:<porta_que_o_front_esta_rodando>
